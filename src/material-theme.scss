@@ -1,0 +1,30 @@
+// Include theming for Angular Material with `mat.theme()`.
+// This Sass mixin will define CSS variables that are used for styling Angular Material
+// components according to the Material 3 design spec.
+// Learn more about theming and how to use it for your application's
+// custom components at https://material.angular.dev/guide/theming
+@use '@angular/material' as mat;
+
+// Custom M3 palette generated from the Tawasol brand colors via:
+// `ng generate @angular/material:theme-color --primary-color=#146B63 --tertiary-color=#C1592E`
+// Do not hand-edit theme-colors.scss — regenerate it instead if the brand colors change.
+@use './theme-colors' as theme-colors;
+
+html {
+  color-scheme: light;
+
+  @include mat.theme(
+    (
+      color: (
+        primary: theme-colors.$primary-palette,
+        tertiary: theme-colors.$tertiary-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+}
+
+body {
+  margin: 0;
+}
