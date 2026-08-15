@@ -56,3 +56,19 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Use the `providedIn: 'root'` option for singleton services
 - Prefer the `@Service` decorator over `@Injectable({providedIn: 'root'})` for new singleton services (Angular v22+)
 - Use the `inject()` function instead of constructor injection
+
+## Visual Identity (finalized)
+
+- **Design concept:** "Harbor & connection" — professional trust with a subtle nod to Islamic geometric precision (an 8-point star used as the signature status/active indicator instead of a plain dot). NOT the KingMart "quiet luxury/royal" identity — no gold, no Cinzel, no royal-950 tokens from that project.
+- **Colors:**
+  - `--color-harbor-950: #10302C` — deep teal-ink, used for nav/header backgrounds and primary text
+  - `--color-harbor-600: #146B63` — primary interactive color (links, buttons, active states, avatar placeholder fill)
+  - `--color-ember-600: #C1592E` — accent color, used SPARINGLY (max 3-4 places: notification badge, one primary CTA) — never as a general-purpose color
+  - `--color-bone-100: #F5F3EC` — warm off-white, page background
+  - `--color-surface: #FFFFFF` — card/surface background
+- **Typography:**
+  - Display/headings: `Cairo` (weight 700-800) — used with restraint, for brand name, page titles, section headings only
+  - Body/UI text (bilingual AR/EN): `IBM Plex Sans Arabic` (weight 400-500) — this is the workhorse font for nearly everything
+  - Data/utility (timestamps, counters, numeric metadata): `IBM Plex Mono` (weight 400-500)
+- **Signature element:** An 8-point star shape (SVG) used as the "online/active" status indicator on avatars, replacing a generic colored dot. Reserve this shape for that one purpose — don't scatter it decoratively elsewhere.
+- **Usage discipline:** Ember Clay accent is rare and intentional — if you're about to use it for a third or fourth time on the same screen, stop and use Harbor Teal or a neutral instead.

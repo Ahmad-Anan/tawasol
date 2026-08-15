@@ -10,7 +10,24 @@
 // Do not hand-edit theme-colors.scss — regenerate it instead if the brand colors change.
 @use './theme-colors' as theme-colors;
 
+// Tawasol brand design tokens ("Harbor & connection"). See AGENTS.md > Visual Identity.
+:root {
+  --color-harbor-950: #10302c;
+  --color-harbor-600: #146b63;
+  --color-ember-600: #c1592e;
+  --color-bone-100: #f5f3ec;
+  --color-surface: #ffffff;
+  // Aliases onto Material's auto-computed M3 tones — not hardcoded, so light mode is untouched.
+  --color-text-primary: var(--mat-sys-on-surface);
+  --color-text-secondary: var(--mat-sys-on-surface-variant);
+
+  --font-display: 'Cairo', sans-serif;
+  --font-body: 'IBM Plex Sans Arabic', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
+
 html {
+  height: 100%;
   color-scheme: light;
 
   @include mat.theme(
@@ -19,12 +36,36 @@ html {
         primary: theme-colors.$primary-palette,
         tertiary: theme-colors.$tertiary-palette,
       ),
-      typography: Roboto,
+      typography: (
+        // Workhorse font for nearly everything (bilingual AR/EN UI text).
+        plain-family: (
+          'IBM Plex Sans Arabic',
+          sans-serif,
+        ),
+        // Used sparingly: brand name, page titles, section headings only.
+        brand-family: (
+          'Cairo',
+          sans-serif,
+        ),
+      ),
       density: 0,
+    ),
+    $overrides: (
+      // Card/surface backgrounds default to white, aliased to --color-surface so both
+      // stay in sync.
+      surface: var(--color-surface),
     )
   );
 }
 
 body {
+  // Page background is Bone Paper, not Material's derived surface tone — the app
+  // shell sits on --color-bone-100 while cards/surfaces sit on --color-surface (white).
+  background-color: var(--color-bone-100);
+  color: var(--color-text-primary);
+  font: var(--mat-sys-body-medium);
+
+  // Reset the user agent margin.
   margin: 0;
+  height: 100%;
 }
