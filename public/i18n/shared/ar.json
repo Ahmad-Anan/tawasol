@@ -1,0 +1,8 @@
+{
+  "shared": {
+    "statusIndicator": {
+      "online": "متصل الآن",
+      "offline": "غير متصل"
+    }
+  }
+}

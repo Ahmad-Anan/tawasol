@@ -25,6 +25,7 @@ export const appConfig: ApplicationConfig = {
         resources: [
           { prefix: '/i18n/navbar/', suffix: '.json' },
           { prefix: '/i18n/auth/', suffix: '.json' },
+          { prefix: '/i18n/shared/', suffix: '.json' },
         ],
       }),
     }),

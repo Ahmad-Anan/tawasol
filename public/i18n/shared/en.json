@@ -1,0 +1,8 @@
+{
+  "shared": {
+    "statusIndicator": {
+      "online": "Online",
+      "offline": "Offline"
+    }
+  }
+}

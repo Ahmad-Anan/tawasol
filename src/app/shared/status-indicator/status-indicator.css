@@ -1,0 +1,21 @@
+:host {
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  /* Bone Paper ring so the star reads clearly against any avatar photo behind it. */
+  box-shadow: 0 0 0 2px var(--color-surface);
+}
+
+:host svg {
+  width: 100%;
+  height: 100%;
+}
+
+:host.status-indicator--online svg {
+  fill: var(--color-harbor-600);
+}
+
+:host.status-indicator--offline svg {
+  fill: var(--mat-sys-outline);
+}
