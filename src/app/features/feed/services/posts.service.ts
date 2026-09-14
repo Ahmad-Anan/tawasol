@@ -46,7 +46,11 @@ export class PostsService {
   private readonly feedResource = rxResource({
     params: () => ({ cursor: this._cursor() }),
     stream: ({ params }) => {
-      let httpParams = new HttpParams().set('limit', FEED_PAGE_SIZE);
+      // `only` defaults to `following` server-side (which, per docs/api-reference.md > GET
+      // /posts/feed, already includes the signed-in user's own posts but no one else's) — an
+      // account that isn't following anyone would otherwise only ever see their own posts.
+      // There's no following/me/all filter UI yet, so always request the full public feed.
+      let httpParams = new HttpParams().set('limit', FEED_PAGE_SIZE).set('only', 'all');
       if (params.cursor) {
         httpParams = httpParams.set('cursor', params.cursor);
       }
