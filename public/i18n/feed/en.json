@@ -1,0 +1,37 @@
+{
+  "feed": {
+    "empty": "No posts yet. Be the first to share something.",
+    "loadingMore": "Loading more posts…",
+    "errors": {
+      "loadFailed": "Couldn't load the feed. Please try again later."
+    },
+    "createPost": {
+      "placeholder": "What's on your mind?",
+      "addImage": "Add an image",
+      "removeImage": "Remove image",
+      "submit": "Post",
+      "posting": "Posting…",
+      "errors": {
+        "contentRequired": "Write something or add an image before posting",
+        "unexpected": "Couldn't create the post. Please try again."
+      }
+    },
+    "postCard": {
+      "sharedLabel": "shared a post",
+      "originalUnavailable": "This post is no longer available",
+      "like": "Like",
+      "unlike": "Unlike",
+      "likesAriaLabel": "{{count}} likes",
+      "comment": "Comment",
+      "commentsAriaLabel": "{{count}} comments",
+      "commentsComingSoon": "Comments are coming soon",
+      "bookmark": "Save",
+      "unbookmark": "Remove from saved",
+      "share": "Share",
+      "sharing": "Sharing…",
+      "errors": {
+        "actionFailed": "Something went wrong. Please try again."
+      }
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "feed": {
+    "empty": "لا توجد منشورات بعد. كن أول من يشارك شيئًا.",
+    "loadingMore": "جارٍ تحميل المزيد من المنشورات…",
+    "errors": {
+      "loadFailed": "تعذّر تحميل الفيد. حاول مرة أخرى لاحقًا."
+    },
+    "createPost": {
+      "placeholder": "بم تفكر؟",
+      "addImage": "إضافة صورة",
+      "removeImage": "إزالة الصورة",
+      "submit": "نشر",
+      "posting": "جارٍ النشر…",
+      "errors": {
+        "contentRequired": "اكتب شيئًا أو أضف صورة قبل النشر",
+        "unexpected": "تعذّر إنشاء المنشور. حاول مرة أخرى."
+      }
+    },
+    "postCard": {
+      "sharedLabel": "شارك منشورًا",
+      "originalUnavailable": "هذا المنشور لم يعد متاحًا",
+      "like": "إعجاب",
+      "unlike": "إلغاء الإعجاب",
+      "likesAriaLabel": "{{count}} إعجاب",
+      "comment": "تعليق",
+      "commentsAriaLabel": "{{count}} تعليق",
+      "commentsComingSoon": "التعليقات قادمة قريبًا",
+      "bookmark": "حفظ",
+      "unbookmark": "إزالة من المحفوظات",
+      "share": "مشاركة",
+      "sharing": "جارٍ المشاركة…",
+      "errors": {
+        "actionFailed": "حدث خطأ ما. حاول مرة أخرى."
+      }
+    }
+  }
+}
