@@ -9,8 +9,8 @@ import type {
   SigninRequest,
   SignupRequest,
 } from '../../features/auth/auth.interface';
+import { API_BASE_URL } from '../constants/api';
 
-const API_BASE_URL = 'https://route-posts.routemisr.com';
 const TOKEN_STORAGE_KEY = 'tawasol-token';
 
 @Service()
@@ -22,6 +22,9 @@ export class AuthService {
   private readonly _user = signal<AuthUser | null>(null);
 
   readonly user = this._user.asReadonly();
+  // Exposed so `authInterceptor` can attach it to outgoing requests without AuthService
+  // needing to know about HTTP interceptors itself.
+  readonly token = this._token.asReadonly();
   readonly isAuthenticated = computed(() => this._token() !== null);
 
   async signup(payload: SignupRequest): Promise<void> {

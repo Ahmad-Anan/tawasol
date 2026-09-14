@@ -1,3 +1,8 @@
+// Re-exported for existing imports (`import type { ApiSuccessResponse, ApiErrorResponse } from
+// '../auth.interface'`) — the actual definitions live in shared/interfaces since
+// features/feed needs the exact same envelope and duplicating it would drift.
+export type { ApiSuccessResponse, ApiErrorResponse } from '../../shared/interfaces/api-response.interface';
+
 export interface SignupRequest {
   name: string;
   username?: string;
@@ -35,16 +40,4 @@ export interface AuthResponseData {
   tokenType: string;
   expiresIn: string;
   user: AuthUser;
-}
-
-export interface ApiSuccessResponse<TData> {
-  success: true;
-  message: string;
-  data: TData;
-}
-
-export interface ApiErrorResponse {
-  success: false;
-  message: string;
-  errors: string | string[];
 }
