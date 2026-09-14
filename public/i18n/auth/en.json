@@ -1,0 +1,51 @@
+{
+  "auth": {
+    "brand": "Tawasol",
+    "tagline": "Connect with professionals in your field, share your expertise, and build your professional network.",
+    "features": {
+      "connect": "Connect with professionals in your field",
+      "share": "Share your professional achievements and posts",
+      "network": "Build a network that supports your career"
+    },
+    "tabs": {
+      "login": "Log in",
+      "register": "Create account"
+    },
+    "login": {
+      "loginLabel": "Email or username",
+      "passwordLabel": "Password",
+      "submit": "Log in",
+      "errors": {
+        "loginRequired": "Enter your email or username",
+        "passwordRequired": "Enter your password",
+        "unexpected": "Something went wrong. Please try again."
+      }
+    },
+    "register": {
+      "nameLabel": "Full name",
+      "usernameLabel": "Username (optional)",
+      "emailLabel": "Email",
+      "dobLabel": "Date of birth",
+      "genderLabel": "Gender",
+      "genderMale": "Male",
+      "genderFemale": "Female",
+      "passwordLabel": "Password",
+      "passwordHint": "At least 8 characters, including an uppercase letter, a lowercase letter, a number, and a special character",
+      "rePasswordLabel": "Confirm password",
+      "submit": "Create account",
+      "errors": {
+        "nameRequired": "Enter your full name",
+        "emailRequired": "Enter your email",
+        "emailInvalid": "Invalid email format",
+        "dobRequired": "Enter your date of birth",
+        "genderRequired": "Select a gender",
+        "passwordRequired": "Enter your password",
+        "passwordMinLength": "Password must be at least 8 characters",
+        "passwordPattern": "Must include an uppercase letter, a lowercase letter, a number, and a special character",
+        "rePasswordRequired": "Re-enter your password",
+        "passwordMismatch": "Passwords do not match",
+        "unexpected": "Something went wrong. Please try again."
+      }
+    }
+  }
+}

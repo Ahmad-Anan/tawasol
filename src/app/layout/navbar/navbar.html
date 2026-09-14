@@ -1,0 +1,40 @@
+<nav class="flex items-center justify-between gap-4 bg-(--color-harbor-950) px-4 py-3">
+  <div class="flex items-center gap-1">
+    <!-- Placeholder until the notifications feature exists -->
+    <button mat-icon-button type="button" [attr.aria-label]="'navbar.notifications' | translate">
+      <mat-icon class="text-(--color-bone-100)">notifications</mat-icon>
+    </button>
+
+    <button
+      mat-icon-button
+      type="button"
+      [attr.aria-label]="
+        (themeService.mode() === 'dark' ? 'navbar.themeToggle.toLight' : 'navbar.themeToggle.toDark')
+          | translate
+      "
+      (click)="themeService.toggle()"
+    >
+      <mat-icon class="text-(--color-bone-100)">
+        {{ themeService.mode() === 'dark' ? 'light_mode' : 'dark_mode' }}
+      </mat-icon>
+    </button>
+
+    <button
+      mat-icon-button
+      type="button"
+      [attr.aria-label]="
+        (languageService.lang() === 'ar' ? 'navbar.languageToggle.toEnglish' : 'navbar.languageToggle.toArabic')
+          | translate
+      "
+      (click)="languageService.toggle()"
+    >
+      <span class="text-sm font-bold text-(--color-bone-100)">
+        {{ languageService.lang() === 'ar' ? 'EN' : 'AR' }}
+      </span>
+    </button>
+  </div>
+
+  <span class="text-lg font-bold text-(--color-bone-100)" style="font-family: var(--font-display)">
+    {{ 'navbar.brand' | translate }}
+  </span>
+</nav>

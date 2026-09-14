@@ -1,3 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+
+/* Dark mode is toggled by ThemeService via a `.tawasol-dark` class on <html> (not
+   prefers-color-scheme) so `dark:` utilities and the Material theme share one source of truth. */
+@custom-variant dark (&:where(.tawasol-dark, .tawasol-dark *));

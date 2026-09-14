@@ -21,8 +21,14 @@
   --color-text-primary: var(--mat-sys-on-surface);
   --color-text-secondary: var(--mat-sys-on-surface-variant);
 
+  // Body/UI workhorse font. Direction-aware: English (the default — see
+  // core/services/language.ts) gets IBM Plex Sans; Arabic gets IBM Plex Sans Arabic.
+  // IBM Plex Sans and IBM Plex Sans Arabic are siblings in the same IBM Plex superfamily —
+  // same designer, matching x-height/weights/proportions — so the pairing stays visually
+  // consistent across languages instead of jarring on toggle. See AGENTS.md >
+  // Internationalization for the full rationale.
+  --font-body: 'IBM Plex Sans', sans-serif;
   --font-display: 'Cairo', sans-serif;
-  --font-body: 'IBM Plex Sans Arabic', sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
 }
 
@@ -37,12 +43,17 @@ html {
         tertiary: theme-colors.$tertiary-palette,
       ),
       typography: (
-        // Workhorse font for nearly everything (bilingual AR/EN UI text).
+        // Workhorse font for nearly everything. This is the English (default) value;
+        // html[dir='rtl'] below swaps it to IBM Plex Sans Arabic at runtime by
+        // overriding the individual --mat-sys-*-font tokens, since Material's own
+        // component styles read those (not this compile-time value) for font-family.
         plain-family: (
-          'IBM Plex Sans Arabic',
+          'IBM Plex Sans',
           sans-serif,
         ),
-        // Used sparingly: brand name, page titles, section headings only.
+        // Used sparingly: brand name, page titles, section headings only. Cairo is a
+        // dual-script (Arabic/Latin) typeface by design, so it stays constant across
+        // languages rather than swapping like the body font does.
         brand-family: (
           'Cairo',
           sans-serif,
@@ -58,12 +69,34 @@ html {
   );
 }
 
+// Runtime font-family swap for Arabic. `dir` is set on <html> by the anti-flicker script
+// in index.html and kept in sync by LanguageService, so this applies before first paint.
+// Only the "plain-family" (body/UI) tokens are overridden — Cairo ("brand-family") is
+// bilingual by design and stays the same in both directions.
+html[dir='rtl'] {
+  --font-body: 'IBM Plex Sans Arabic', sans-serif;
+
+  --mat-sys-body-large-font: 'IBM Plex Sans Arabic', sans-serif;
+  --mat-sys-body-medium-font: 'IBM Plex Sans Arabic', sans-serif;
+  --mat-sys-body-small-font: 'IBM Plex Sans Arabic', sans-serif;
+  --mat-sys-label-large-font: 'IBM Plex Sans Arabic', sans-serif;
+  --mat-sys-label-medium-font: 'IBM Plex Sans Arabic', sans-serif;
+  --mat-sys-label-small-font: 'IBM Plex Sans Arabic', sans-serif;
+  --mat-sys-title-medium-font: 'IBM Plex Sans Arabic', sans-serif;
+  --mat-sys-title-small-font: 'IBM Plex Sans Arabic', sans-serif;
+}
+
 body {
   // Page background is Bone Paper, not Material's derived surface tone — the app
   // shell sits on --color-bone-100 while cards/surfaces sit on --color-surface (white).
   background-color: var(--color-bone-100);
   color: var(--color-text-primary);
   font: var(--mat-sys-body-medium);
+  // --mat-sys-body-medium is a compile-time shorthand baked with a fixed family, unlike
+  // Material's own component styles which read the split --mat-sys-body-medium-font
+  // token. Re-declaring font-family after the shorthand overrides just that piece with
+  // our runtime, direction-aware --font-body variable.
+  font-family: var(--font-body);
 
   // Reset the user agent margin.
   margin: 0;

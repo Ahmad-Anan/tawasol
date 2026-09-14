@@ -1,0 +1,77 @@
+<form class="flex flex-col gap-1" (submit)="$event.preventDefault(); onSubmit()">
+  @if (serverError()) {
+    <div class="mb-3 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+      {{ serverError() }}
+    </div>
+  }
+
+  <mat-form-field appearance="outline" class="w-full">
+    <mat-label>{{ 'auth.register.nameLabel' | translate }}</mat-label>
+    <input matInput [formField]="registerForm.name" autocomplete="name" />
+    @if (registerForm.name().touched() && registerForm.name().invalid()) {
+      <mat-error>{{ registerForm.name().errors()[0]?.message }}</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="w-full">
+    <mat-label>{{ 'auth.register.usernameLabel' | translate }}</mat-label>
+    <input matInput [formField]="registerForm.username" autocomplete="username" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="w-full">
+    <mat-label>{{ 'auth.register.emailLabel' | translate }}</mat-label>
+    <input matInput type="email" [formField]="registerForm.email" autocomplete="email" />
+    @if (registerForm.email().touched() && registerForm.email().invalid()) {
+      <mat-error>{{ registerForm.email().errors()[0]?.message }}</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="w-full">
+    <mat-label>{{ 'auth.register.dobLabel' | translate }}</mat-label>
+    <input matInput type="date" [formField]="registerForm.dateOfBirth" />
+    @if (registerForm.dateOfBirth().touched() && registerForm.dateOfBirth().invalid()) {
+      <mat-error>{{ registerForm.dateOfBirth().errors()[0]?.message }}</mat-error>
+    }
+  </mat-form-field>
+
+  <div class="mb-2">
+    <span class="mb-2 block text-sm text-(--color-text-secondary)">{{ 'auth.register.genderLabel' | translate }}</span>
+    <mat-radio-group [formField]="registerForm.gender" class="flex gap-6">
+      <mat-radio-button value="male">{{ 'auth.register.genderMale' | translate }}</mat-radio-button>
+      <mat-radio-button value="female">{{ 'auth.register.genderFemale' | translate }}</mat-radio-button>
+    </mat-radio-group>
+    @if (registerForm.gender().touched() && registerForm.gender().invalid()) {
+      <p class="mt-1 text-xs text-red-600">{{ registerForm.gender().errors()[0]?.message }}</p>
+    }
+  </div>
+
+  <mat-form-field appearance="outline" class="w-full">
+    <mat-label>{{ 'auth.register.passwordLabel' | translate }}</mat-label>
+    <input matInput type="password" [formField]="registerForm.password" autocomplete="new-password" />
+    <mat-hint>{{ 'auth.register.passwordHint' | translate }}</mat-hint>
+    @if (registerForm.password().touched() && registerForm.password().invalid()) {
+      <mat-error>{{ registerForm.password().errors()[0]?.message }}</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="w-full">
+    <mat-label>{{ 'auth.register.rePasswordLabel' | translate }}</mat-label>
+    <input matInput type="password" [formField]="registerForm.rePassword" autocomplete="new-password" />
+    @if (registerForm.rePassword().touched() && registerForm.rePassword().invalid()) {
+      <mat-error>{{ registerForm.rePassword().errors()[0]?.message }}</mat-error>
+    }
+  </mat-form-field>
+
+  <button
+    mat-flat-button
+    type="submit"
+    class="mt-3 h-11 w-full! bg-(--color-harbor-600)! text-white!"
+    [disabled]="registerForm().submitting()"
+  >
+    @if (registerForm().submitting()) {
+      <mat-spinner diameter="20" class="mx-auto" />
+    } @else {
+      {{ 'auth.register.submit' | translate }}
+    }
+  </button>
+</form>

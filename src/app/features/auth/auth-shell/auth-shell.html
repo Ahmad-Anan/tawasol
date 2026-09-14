@@ -1,0 +1,48 @@
+<div class="grid min-h-screen grid-cols-1 lg:grid-cols-2">
+  <section
+    class="hidden flex-col justify-center gap-10 bg-(--color-harbor-950) px-12 py-16 text-(--color-bone-100) lg:flex"
+  >
+    <div>
+      <h1 class="text-4xl font-bold" style="font-family: var(--font-display)">{{ 'auth.brand' | translate }}</h1>
+      <p class="mt-4 max-w-sm text-base leading-relaxed opacity-80">
+        {{ 'auth.tagline' | translate }}
+      </p>
+    </div>
+
+    <ul class="flex flex-col gap-5">
+      <li class="flex items-center gap-3">
+        <span class="text-(--color-ember-600)">◆</span>
+        <span>{{ 'auth.features.connect' | translate }}</span>
+      </li>
+      <li class="flex items-center gap-3">
+        <span class="text-(--color-ember-600)">◆</span>
+        <span>{{ 'auth.features.share' | translate }}</span>
+      </li>
+      <li class="flex items-center gap-3">
+        <span class="text-(--color-ember-600)">◆</span>
+        <span>{{ 'auth.features.network' | translate }}</span>
+      </li>
+    </ul>
+  </section>
+
+  <section class="flex items-center justify-center bg-(--color-bone-100) px-6 py-12">
+    <div class="w-full max-w-md rounded-2xl bg-(--color-surface) p-6 shadow-lg sm:p-8">
+      <mat-tab-group
+        [selectedIndex]="selectedIndex()"
+        (selectedIndexChange)="onTabChange($event)"
+        animationDuration="200ms"
+      >
+        <mat-tab [label]="'auth.tabs.login' | translate">
+          <div class="pt-6">
+            <app-login />
+          </div>
+        </mat-tab>
+        <mat-tab [label]="'auth.tabs.register' | translate">
+          <div class="pt-6">
+            <app-register />
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+  </section>
+</div>

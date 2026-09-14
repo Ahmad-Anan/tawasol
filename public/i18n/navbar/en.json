@@ -1,0 +1,14 @@
+{
+  "navbar": {
+    "brand": "Tawasol",
+    "notifications": "Notifications",
+    "themeToggle": {
+      "toLight": "Switch to light mode",
+      "toDark": "Switch to dark mode"
+    },
+    "languageToggle": {
+      "toArabic": "Switch to Arabic",
+      "toEnglish": "Switch to English"
+    }
+  }
+}

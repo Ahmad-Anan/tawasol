@@ -1,7 +1,30 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8" />
+    <!--
+      Anti-flicker: applies the dark class and the language/direction attributes
+      synchronously, before any stylesheet loads, so there's no flash of light mode or of
+      the wrong language/direction. Storage keys/class name must stay in sync with
+      src/app/core/services/theme.ts and src/app/core/services/language.ts.
+    -->
+    <script>
+      (function () {
+        try {
+          var storedTheme = localStorage.getItem('tawasol-theme');
+          var isDark =
+            storedTheme === 'dark' ||
+            (storedTheme !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (isDark) {
+            document.documentElement.classList.add('tawasol-dark');
+          }
+
+          var isArabic = localStorage.getItem('tawasol-lang') === 'ar';
+          document.documentElement.lang = isArabic ? 'ar' : 'en';
+          document.documentElement.dir = isArabic ? 'rtl' : 'ltr';
+        } catch (e) {}
+      })();
+    </script>
     <title>Tawasol</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -9,7 +32,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;800&family=IBM+Plex+Sans+Arabic:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;800&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />

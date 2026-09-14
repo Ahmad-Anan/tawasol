@@ -1,0 +1,51 @@
+{
+  "auth": {
+    "brand": "تواصل",
+    "tagline": "تواصل مع محترفين في مجالك، شارك خبراتك، وابنِ شبكة علاقاتك المهنية.",
+    "features": {
+      "connect": "تواصل مع محترفين في مجالك",
+      "share": "شارك إنجازاتك ومنشوراتك المهنية",
+      "network": "ابنِ شبكة علاقات تدعم مسيرتك المهنية"
+    },
+    "tabs": {
+      "login": "تسجيل الدخول",
+      "register": "إنشاء حساب"
+    },
+    "login": {
+      "loginLabel": "البريد الإلكتروني أو اسم المستخدم",
+      "passwordLabel": "كلمة المرور",
+      "submit": "تسجيل الدخول",
+      "errors": {
+        "loginRequired": "أدخل البريد الإلكتروني أو اسم المستخدم",
+        "passwordRequired": "أدخل كلمة المرور",
+        "unexpected": "حدث خطأ غير متوقع، حاول مرة أخرى."
+      }
+    },
+    "register": {
+      "nameLabel": "الاسم الكامل",
+      "usernameLabel": "اسم المستخدم (اختياري)",
+      "emailLabel": "البريد الإلكتروني",
+      "dobLabel": "تاريخ الميلاد",
+      "genderLabel": "الجنس",
+      "genderMale": "ذكر",
+      "genderFemale": "أنثى",
+      "passwordLabel": "كلمة المرور",
+      "passwordHint": "8 أحرف على الأقل، تتضمن حرف كبير وحرف صغير ورقم ورمز خاص",
+      "rePasswordLabel": "تأكيد كلمة المرور",
+      "submit": "إنشاء حساب",
+      "errors": {
+        "nameRequired": "أدخل الاسم الكامل",
+        "emailRequired": "أدخل البريد الإلكتروني",
+        "emailInvalid": "صيغة البريد الإلكتروني غير صحيحة",
+        "dobRequired": "أدخل تاريخ الميلاد",
+        "genderRequired": "اختر الجنس",
+        "passwordRequired": "أدخل كلمة المرور",
+        "passwordMinLength": "يجب ألا تقل كلمة المرور عن 8 أحرف",
+        "passwordPattern": "يجب أن تحتوي على حرف كبير وحرف صغير ورقم ورمز خاص",
+        "rePasswordRequired": "أعد إدخال كلمة المرور",
+        "passwordMismatch": "كلمتا المرور غير متطابقتين",
+        "unexpected": "حدث خطأ غير متوقع، حاول مرة أخرى."
+      }
+    }
+  }
+}

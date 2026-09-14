@@ -1,0 +1,14 @@
+{
+  "navbar": {
+    "brand": "تواصل",
+    "notifications": "الإشعارات",
+    "themeToggle": {
+      "toLight": "التبديل إلى الوضع الفاتح",
+      "toDark": "التبديل إلى الوضع الداكن"
+    },
+    "languageToggle": {
+      "toArabic": "التبديل إلى العربية",
+      "toEnglish": "التبديل إلى الإنجليزية"
+    }
+  }
+}
