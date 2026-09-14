@@ -73,6 +73,46 @@ html {
 // in index.html and kept in sync by LanguageService, so this applies before first paint.
 // Only the "plain-family" (body/UI) tokens are overridden — Cairo ("brand-family") is
 // bilingual by design and stays the same in both directions.
+// Dark mode. ThemeService toggles `.tawasol-dark` on <html> (see styles.css's `dark:` Tailwind
+// variant, which reads the same class), but `mat.theme()` bakes its `--mat-sys-*` tokens as
+// fixed per-theme-type colors at include time — they don't react to a class by themselves, so
+// dark mode needs its own `@include mat.theme(...)` with `theme-type: dark`, not just a class
+// toggle. `--color-surface`/`--color-bone-100` get dark values here (from the same generated M3
+// neutral palette used for --mat-sys-* — tone 17 for elevated surfaces, tone 6 for the page
+// background, matching Material's own dark-theme elevation guidance) so the app's own
+// `bg-(--color-surface)`/`bg-(--color-bone-100)` usages stay in sync with Material components,
+// exactly like the light theme's `$overrides: (surface: ...)` does below.
+html.tawasol-dark {
+  color-scheme: dark;
+
+  --color-surface: #272b2a;
+  --color-bone-100: #101413;
+
+  @include mat.theme(
+    (
+      color: (
+        theme-type: dark,
+        primary: theme-colors.$primary-palette,
+        tertiary: theme-colors.$tertiary-palette,
+      ),
+      typography: (
+        plain-family: (
+          'IBM Plex Sans',
+          sans-serif,
+        ),
+        brand-family: (
+          'Cairo',
+          sans-serif,
+        ),
+      ),
+      density: 0,
+    ),
+    $overrides: (
+      surface: var(--color-surface),
+    )
+  );
+}
+
 html[dir='rtl'] {
   --font-body: 'IBM Plex Sans Arabic', sans-serif;
 
