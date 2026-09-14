@@ -113,7 +113,9 @@ export class Register {
       };
       try {
         await this.authService.signup(payload);
-        this.router.navigateByUrl('/');
+        // Not '/' — that route unconditionally redirects back to /auth/login (see
+        // app.routes.ts), which would bounce a just-registered user right back here.
+        this.router.navigateByUrl('/feed');
       } catch (err) {
         this.serverError.set(this.extractErrorMessage(err));
       }

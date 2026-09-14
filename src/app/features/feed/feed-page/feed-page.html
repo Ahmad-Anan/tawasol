@@ -1,0 +1,32 @@
+<div class="mx-auto flex max-w-2xl flex-col gap-4 px-4 py-6">
+  <app-create-post />
+
+  @if (postsService.isLoading()) {
+    <div class="flex justify-center py-10">
+      <mat-spinner diameter="36" />
+    </div>
+  } @else if (postsService.posts().length === 0) {
+    @if (postsService.loadError()) {
+      <p class="rounded-2xl bg-(--color-surface) p-8 text-center text-(--color-ember-600)">
+        {{ 'feed.errors.loadFailed' | translate }}
+      </p>
+    } @else {
+      <p class="rounded-2xl bg-(--color-surface) p-8 text-center text-(--color-text-secondary)">
+        {{ 'feed.empty' | translate }}
+      </p>
+    }
+  } @else {
+    @for (post of postsService.posts(); track post.id) {
+      <app-post-card [post]="post" />
+    }
+
+    @if (postsService.hasMore()) {
+      <div #scrollSentinel class="flex justify-center py-4">
+        @if (postsService.isLoadingMore()) {
+          <mat-spinner diameter="28" />
+          <span class="sr-only">{{ 'feed.loadingMore' | translate }}</span>
+        }
+      </div>
+    }
+  }
+</div>

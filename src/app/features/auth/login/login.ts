@@ -63,7 +63,9 @@ export class Login {
       const payload: SigninRequest = { login, password };
       try {
         await this.authService.signin(payload);
-        this.router.navigateByUrl('/');
+        // Not '/' — that route unconditionally redirects back to /auth/login (see
+        // app.routes.ts), which would bounce a just-signed-in user right back here.
+        this.router.navigateByUrl('/feed');
       } catch (err) {
         this.serverError.set(this.extractErrorMessage(err));
       }
