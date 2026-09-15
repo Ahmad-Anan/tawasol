@@ -19,6 +19,31 @@ export const serverRoutes: ServerRoute[] = [
     path: 'bookmarks',
     renderMode: RenderMode.Client,
   },
+  // Navbar is rendered on every route (see app.html), and its bookmarks/profile/notifications
+  // buttons are each conditional on AuthService.isAuthenticated()/user() — real, token-derived
+  // state that's always false at prerender time (no token exists at build time) but can be
+  // true on a real visitor's first paint if they already have a stored token. On a genuinely
+  // static page that's just a value/text mismatch Angular quietly corrects post-hydration (see
+  // LanguageService's own documented lang/dir tradeoff) — but these are whole elements
+  // appearing/disappearing via @if, which is a structural mismatch: verified live, it throws a
+  // hard `NG0500` during hydration on /auth/login for an already-signed-in visitor, and that
+  // failure was severe enough to also break the login form's own submit handling on the same
+  // page load (it fell back to a native, unintercepted form GET). Auth routes are exactly where
+  // a signed-in user could land (stale bookmark, back button, the '' redirect below), so they
+  // need the same treatment as every other auth-dependent route above, not just the ones that
+  // 401 without a token.
+  {
+    path: 'auth/login',
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: 'auth/register',
+    renderMode: RenderMode.Client,
+  },
+  {
+    path: '',
+    renderMode: RenderMode.Client,
+  },
   {
     path: '**',
     renderMode: RenderMode.Prerender,
