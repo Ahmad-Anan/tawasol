@@ -324,3 +324,124 @@ No body needed. Creates a new post with `isShare: true`. Response (`201`):
 ```
 
 Unlike create/edit, this response's `user` **is** populated — so, unusually, `POST /posts/:id/share`'s result is safe to prepend to the feed as-is (as a `Post`, with `bookmarked` defaulted to `false` client-side since the key is absent).
+
+---
+
+## Users / profile endpoints — general notes
+
+Every endpoint below requires `Authorization: Bearer <token>`, same as the posts endpoints, and fails the same way (`401`, `"token not provided"`) when it's missing — an invalid/malformed token instead gets `{"success":false,"message":"jwt malformed","errors":"jwt malformed"}`.
+
+**Verified (live test, 2026-09-15)** against two disposable test accounts (`ptesta…`/`ptestb…`) created via `/users/signup` — all shapes below are copied from real responses, not assumed from the endpoint names.
+
+### GET /users/profile-data
+
+The signed-in user's own profile — no `:id` needed, the token alone identifies the account. Response:
+
+```json
+{
+  "success": true,
+  "message": "success",
+  "data": {
+    "user": {
+      "_id": "6aa900228ebe92c2c0b538bc",
+      "name": "Profile Tester A",
+      "username": "ptesta1789460512",
+      "email": "ptesta1789460512@example.com",
+      "dateOfBirth": "1995-01-01T00:00:00.000Z",
+      "gender": "male",
+      "photo": "string, full URL — defaults to a shared placeholder for users with no uploaded photo",
+      "cover": "",
+      "bookmarks": [],
+      "followers": [],
+      "following": ["6aa900288ebe92c2c0b538c0"],
+      "createdAt": "2026-09-15T08:21:54.975Z",
+      "followersCount": 0,
+      "followingCount": 1,
+      "bookmarksCount": 0,
+      "id": "6aa900228ebe92c2c0b538bc"
+    }
+  }
+}
+```
+
+Notes:
+- No `bio` field was observed anywhere in this API, on any account, in any response — there's no endpoint to set one either. Modeled as optional (`bio?: string`) in case the backend adds it later; the client simply doesn't render a bio row when it's absent, rather than treating it as an error.
+- No `postsCount` field — the client gets a user's post count from `GET /users/:id/posts`'s `meta.pagination.total` instead (see below).
+- `following`/`followers` here are arrays of bare id **strings** — contrast with `GET /users/:id/profile` below, where the same-named arrays on someone else's profile came back as arrays of **populated summary objects**. Neither array is consumed by the client (no followers/following *list* UI in this pass, only the `*Count` numbers), so this inconsistency is documented but not worked around.
+
+### GET /users/:id/profile
+
+Another user's public profile (also works with your own id — see below). Response adds a top-level `isFollowing` and drops the `bookmarks` array (a user's bookmarks are only ever visible via their own `/users/profile-data`, never through someone else's profile — consistent with bookmarks being private):
+
+```json
+{
+  "success": true,
+  "message": "success",
+  "data": {
+    "isFollowing": true,
+    "user": {
+      "_id": "6aa900288ebe92c2c0b538c0",
+      "name": "Profile Tester B",
+      "username": "ptestb1789460519",
+      "email": "ptestb1789460519@example.com",
+      "dateOfBirth": "1996-02-02T00:00:00.000Z",
+      "gender": "female",
+      "photo": "string, full URL",
+      "cover": "",
+      "followers": [
+        { "_id": "6aa900228ebe92c2c0b538bc", "name": "Profile Tester A", "photo": "…", "followersCount": 0, "followingCount": 0, "bookmarksCount": 0, "id": "…" }
+      ],
+      "following": [],
+      "createdAt": "2026-09-15T08:22:00.492Z",
+      "followersCount": 1,
+      "followingCount": 0,
+      "bookmarksCount": 0,
+      "id": "6aa900288ebe92c2c0b538c0"
+    }
+  }
+}
+```
+
+**Verified:** calling this with your *own* id works fine (not a `404` or special-cased) and returns `isFollowing: false` — the client uses this to render its own profile page too, rather than juggling two different fetch paths for "is this me". `404` for an unknown id: `{"success":false,"message":"user not found","errors":"user not found"}`.
+
+### GET /users/:id/posts
+
+A user's own posts (full post shape, same as the feed's). Query params (`page`, `limit`) are **accepted but silently ignored** — verified live: `?limit=1`, `?page=2`, and no params at all all returned the exact same response (`currentPage: 1`, `limit: 40`, every post the user has, up to 40, newest first). There is no working way to page past the first 40 posts through this endpoint. The client therefore does **not** build a "load more" control for this list — it renders whatever comes back and relies on `meta.pagination.total` only for the profile header's post count, not for driving further fetches.
+
+```json
+{
+  "success": true,
+  "message": "success",
+  "data": { "posts": [ /* full post shape, see "Posts endpoints" above */ ] },
+  "meta": { "pagination": { "currentPage": 1, "numberOfPages": 1, "limit": 40, "total": 3 } }
+}
+```
+
+An unknown `:id` does **not** `404` here — it returns `200` with an empty `posts` array and `total: 0`, indistinguishable from "this user exists but has no posts." Not a problem in practice: the client always fetches the profile itself first, which does `404` on an unknown id.
+
+### PUT /users/:id/follow
+
+Toggles follow for the signed-in user (no body). `404` for an unknown id (`"user not found"`); `400` for following yourself (`"you can't follow yourself"`). Response:
+
+```json
+{ "success": true, "message": "success", "data": { "following": true, "followersCount": 1 } }
+```
+
+`followersCount` here is the **target user's** new total follower count (not the caller's) — verified by toggling and cross-checking against the target's own `GET /users/:id/profile` immediately after. The client patches this straight onto the locally-held profile.
+
+### PUT /users/upload-photo
+
+Multipart form-data, field name `photo` (a `400` with a Multer-shaped validation error — `"\"fieldname\" is required,…"` — if the field is missing). Response:
+
+```json
+{
+  "success": true,
+  "message": "photo uploaded successfully",
+  "data": {
+    "photo": "https://…/linked-posts/1789460669303-….webp",
+    "postId": "6aa900bd8ebe92c2c0b53903"
+  }
+}
+```
+
+**Important, verified live:** this endpoint has a side effect beyond updating the profile photo — it also creates a brand-new public post (`body: "updated profile picture."`, the new photo as its `image`), and `postId` is that post's id. The new photo shows up immediately on `GET /users/profile-data`/`GET /users/:id/profile` (`user.photo`) *and* as a new entry in `GET /users/:id/posts` / the main feed. The client updates the locally-held profile's `photo` from this response directly; it does not attempt to synthesize or insert the new post into any already-loaded list (feed or profile) — that post simply appears the next time either list is freshly fetched, same as any other externally-created post.
