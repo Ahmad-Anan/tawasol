@@ -21,4 +21,9 @@ export const routes: Routes = [
     path: 'bookmarks',
     loadChildren: () => import('./features/bookmarks/bookmarks.routes').then((m) => m.BOOKMARKS_ROUTES),
   },
+  {
+    path: 'notifications',
+    loadChildren: () =>
+      import('./features/notifications/notifications.routes').then((m) => m.NOTIFICATIONS_ROUTES),
+  },
 ];

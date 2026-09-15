@@ -1,0 +1,21 @@
+{
+  "notifications": {
+    "title": "Notifications",
+    "markAllAsRead": "Mark all as read",
+    "unread": "Unread",
+    "empty": "No notifications yet.",
+    "loadingMore": "Loading more…",
+    "retry": "Retry",
+    "messages": {
+      "like": " liked your post",
+      "comment": " commented on your post",
+      "reply": " replied to your comment",
+      "follow": " started following you",
+      "share": " shared your post"
+    },
+    "errors": {
+      "loadFailed": "Couldn't load your notifications. Please try again later.",
+      "loadMoreFailed": "Couldn't load more notifications."
+    }
+  }
+}

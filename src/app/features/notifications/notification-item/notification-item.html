@@ -1,0 +1,29 @@
+<a
+  [routerLink]="['/profile', notification().actor._id]"
+  class="notification-item flex items-start gap-3 rounded-2xl p-3"
+  [class.notification-item--unread]="!notification().isRead"
+  (click)="onClick()"
+>
+  <img
+    [ngSrc]="notification().actor.photo"
+    width="40"
+    height="40"
+    alt=""
+    class="h-10 w-10 shrink-0 rounded-full object-cover"
+  />
+
+  <div class="min-w-0 flex-1">
+    <p class="text-sm text-(--color-text-primary)">
+      <span class="font-semibold" style="font-family: var(--font-display)">{{ notification().actor.name }}</span>
+      {{ messageKey() | translate }}
+    </p>
+    <p class="mt-0.5 font-(--font-mono) text-xs text-(--color-text-secondary)">{{ formattedDate() }}</p>
+  </div>
+
+  @if (!notification().isRead) {
+    <span
+      class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-(--color-harbor-600)"
+      [attr.aria-label]="'notifications.unread' | translate"
+    ></span>
+  }
+</a>

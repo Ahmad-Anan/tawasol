@@ -1,0 +1,8 @@
+.notification-item {
+  background: var(--color-surface);
+  transition: background-color 150ms ease;
+}
+
+.notification-item--unread {
+  background: var(--color-bone-100);
+}

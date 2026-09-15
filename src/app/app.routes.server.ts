@@ -19,6 +19,11 @@ export const serverRoutes: ServerRoute[] = [
     path: 'bookmarks',
     renderMode: RenderMode.Client,
   },
+  // Same reasoning as '/feed' above.
+  {
+    path: 'notifications',
+    renderMode: RenderMode.Client,
+  },
   // Navbar is rendered on every route (see app.html), and its bookmarks/profile/notifications
   // buttons are each conditional on AuthService.isAuthenticated()/user() — real, token-derived
   // state that's always false at prerender time (no token exists at build time) but can be
