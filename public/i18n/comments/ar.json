@@ -1,0 +1,32 @@
+{
+  "comments": {
+    "empty": "لا توجد تعليقات بعد. كن أول من يعلّق.",
+    "loadingMore": "جارٍ تحميل المزيد من التعليقات…",
+    "retry": "إعادة المحاولة",
+    "moreOptions": "خيارات إضافية",
+    "edit": "تعديل",
+    "delete": "حذف",
+    "deleteConfirm": "هل تريد حذف هذا التعليق؟ لا يمكن التراجع عن هذا الإجراء.",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "like": "إعجاب",
+    "unlike": "إلغاء الإعجاب",
+    "reply": "رد",
+    "viewReplies": "عرض {{count}} ردود",
+    "hideReplies": "إخفاء الردود",
+    "loadMoreReplies": "تحميل المزيد من الردود",
+    "composer": {
+      "placeholder": "اكتب تعليقًا…",
+      "replyPlaceholder": "اكتب ردًا…",
+      "addImage": "إضافة صورة",
+      "removeImage": "إزالة الصورة",
+      "submit": "نشر"
+    },
+    "errors": {
+      "loadFailed": "تعذّر تحميل التعليقات. حاول مرة أخرى لاحقًا.",
+      "loadMoreFailed": "تعذّر تحميل المزيد من التعليقات.",
+      "contentRequired": "اكتب شيئًا أو أضف صورة قبل النشر",
+      "actionFailed": "حدث خطأ ما. حاول مرة أخرى."
+    }
+  }
+}

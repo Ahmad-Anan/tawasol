@@ -1,0 +1,58 @@
+<form class="comment-composer flex items-start gap-2" (submit)="$event.preventDefault(); onSubmit()">
+  @if (currentUser(); as user) {
+    <img [ngSrc]="user.photo" width="28" height="28" alt="" class="mt-1 h-7 w-7 shrink-0 rounded-full object-cover" />
+  }
+
+  <div class="min-w-0 flex-1">
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>
+        {{ (parentCommentId() ? 'comments.composer.replyPlaceholder' : 'comments.composer.placeholder') | translate }}
+      </mat-label>
+      <textarea matInput rows="1" [value]="content()" (input)="onContentInput($event)"></textarea>
+    </mat-form-field>
+
+    @if (imagePreviewUrl(); as previewUrl) {
+      <div class="relative mt-1 w-full overflow-hidden rounded-xl" style="aspect-ratio: 16 / 9">
+        <img [src]="previewUrl" class="h-full w-full object-cover" alt="" />
+        <button
+          mat-icon-button
+          type="button"
+          class="!absolute end-2 top-2 !bg-black/50"
+          [attr.aria-label]="'comments.composer.removeImage' | translate"
+          (click)="removeImage()"
+        >
+          <mat-icon class="!text-white">close</mat-icon>
+        </button>
+      </div>
+    }
+
+    @if (error()) {
+      <p class="mt-1 text-sm text-(--color-ember-600)">{{ error() }}</p>
+    }
+
+    <div class="mt-1 flex items-center justify-between">
+      <input #fileInput type="file" accept="image/*" class="hidden" (change)="onFileSelected($event)" />
+      <button
+        mat-icon-button
+        type="button"
+        [attr.aria-label]="'comments.composer.addImage' | translate"
+        (click)="fileInput.click()"
+      >
+        <mat-icon class="!text-base text-(--color-harbor-600)">image</mat-icon>
+      </button>
+
+      <button
+        mat-flat-button
+        type="submit"
+        class="bg-(--color-harbor-600)! text-white!"
+        [disabled]="isSubmitting()"
+      >
+        @if (isSubmitting()) {
+          <mat-spinner diameter="18" class="mx-auto" />
+        } @else {
+          {{ 'comments.composer.submit' | translate }}
+        }
+      </button>
+    </div>
+  </div>
+</form>

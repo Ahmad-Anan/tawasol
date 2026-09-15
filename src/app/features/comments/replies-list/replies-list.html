@@ -1,0 +1,29 @@
+<div class="flex flex-col gap-2">
+  @if (thread().isLoading) {
+    <div class="flex justify-center py-2">
+      <mat-spinner diameter="20" />
+    </div>
+  } @else if (thread().loadError) {
+    <p class="text-xs text-(--color-ember-600)">{{ 'comments.errors.loadFailed' | translate }}</p>
+  } @else {
+    @for (reply of thread().comments; track reply._id) {
+      <app-comment-body [comment]="reply" [postId]="postId()" [parentCommentId]="parentCommentId()" />
+    }
+
+    @if (thread().hasMore) {
+      <div class="flex justify-center py-1">
+        @if (thread().isLoadingMore) {
+          <mat-spinner diameter="18" />
+        } @else if (thread().loadMoreError) {
+          <button mat-button type="button" (click)="loadMore()">
+            {{ 'comments.retry' | translate }}
+          </button>
+        } @else {
+          <button mat-button type="button" (click)="loadMore()">
+            {{ 'comments.loadMoreReplies' | translate }}
+          </button>
+        }
+      </div>
+    }
+  }
+</div>

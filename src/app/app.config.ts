@@ -29,6 +29,7 @@ export const appConfig: ApplicationConfig = {
           { prefix: '/i18n/feed/', suffix: '.json' },
           { prefix: '/i18n/profile/', suffix: '.json' },
           { prefix: '/i18n/bookmarks/', suffix: '.json' },
+          { prefix: '/i18n/comments/', suffix: '.json' },
         ],
       }),
     }),

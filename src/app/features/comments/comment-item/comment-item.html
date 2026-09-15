@@ -1,0 +1,19 @@
+<app-comment-body
+  [comment]="comment()"
+  [postId]="postId()"
+  [repliesExpanded]="showReplies()"
+  (replyClicked)="toggleReplying()"
+  (viewRepliesClicked)="toggleReplies()"
+/>
+
+@if (isReplying()) {
+  <div class="ms-10 mt-2">
+    <app-comment-composer [postId]="postId()" [parentCommentId]="comment()._id" (posted)="onReplyPosted()" />
+  </div>
+}
+
+@if (showReplies()) {
+  <div class="ms-10 mt-2">
+    <app-replies-list [postId]="postId()" [parentCommentId]="comment()._id" />
+  </div>
+}

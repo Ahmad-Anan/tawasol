@@ -1,0 +1,32 @@
+{
+  "comments": {
+    "empty": "No comments yet. Be the first to comment.",
+    "loadingMore": "Loading more comments…",
+    "retry": "Retry",
+    "moreOptions": "More options",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this comment? This can't be undone.",
+    "save": "Save",
+    "cancel": "Cancel",
+    "like": "Like",
+    "unlike": "Unlike",
+    "reply": "Reply",
+    "viewReplies": "View {{count}} replies",
+    "hideReplies": "Hide replies",
+    "loadMoreReplies": "Load more replies",
+    "composer": {
+      "placeholder": "Write a comment…",
+      "replyPlaceholder": "Write a reply…",
+      "addImage": "Add an image",
+      "removeImage": "Remove image",
+      "submit": "Post"
+    },
+    "errors": {
+      "loadFailed": "Couldn't load comments. Please try again later.",
+      "loadMoreFailed": "Couldn't load more comments.",
+      "contentRequired": "Write something or add an image before posting",
+      "actionFailed": "Something went wrong. Please try again."
+    }
+  }
+}

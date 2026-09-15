@@ -1,0 +1,31 @@
+<div class="flex flex-col gap-3 border-t border-black/5 pt-3 dark:border-white/10">
+  <app-comment-composer [postId]="postId()" />
+
+  @if (thread().isLoading) {
+    <div class="flex justify-center py-4">
+      <mat-spinner diameter="28" />
+    </div>
+  } @else if (thread().loadError) {
+    <p class="text-sm text-(--color-ember-600)">{{ 'comments.errors.loadFailed' | translate }}</p>
+  } @else if (thread().comments.length === 0) {
+    <p class="text-center text-sm text-(--color-text-secondary)">{{ 'comments.empty' | translate }}</p>
+  } @else {
+    @for (comment of thread().comments; track comment._id) {
+      <app-comment-item [comment]="comment" [postId]="postId()" />
+    }
+
+    @if (thread().hasMore) {
+      <div #scrollSentinel class="flex flex-col items-center gap-2 py-2">
+        @if (thread().isLoadingMore) {
+          <mat-spinner diameter="24" />
+          <span class="sr-only">{{ 'comments.loadingMore' | translate }}</span>
+        } @else if (thread().loadMoreError) {
+          <p class="text-sm text-(--color-ember-600)">{{ 'comments.errors.loadMoreFailed' | translate }}</p>
+          <button mat-button type="button" (click)="commentsService.loadMoreComments(postId())">
+            {{ 'comments.retry' | translate }}
+          </button>
+        }
+      </div>
+    }
+  }
+</div>
