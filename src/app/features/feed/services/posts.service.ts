@@ -61,6 +61,8 @@ export class PostsService {
   readonly isLoading = computed(() => this.feedResource.isLoading() && this._posts().length === 0);
   readonly isLoadingMore = computed(() => this.feedResource.isLoading() && this._posts().length > 0);
   readonly loadError = computed(() => (this._posts().length === 0 ? this.feedResource.error() : undefined));
+  /** Distinct from `loadError`: a failure fetching a *later* page, with earlier posts already on screen. */
+  readonly loadMoreError = computed(() => (this._posts().length > 0 ? this.feedResource.error() : undefined));
 
   constructor() {
     // Appends a page onto the accumulated list instead of the resource's default "replace
@@ -80,6 +82,13 @@ export class PostsService {
 
   loadMore(): void {
     if (!this._hasMore() || this.feedResource.isLoading()) {
+      return;
+    }
+    // A failed loadMore() leaves `_cursor` already set to this same last-post id, so setting
+    // it again wouldn't change the signal's value and the resource wouldn't refetch — retry
+    // that case by reloading instead of re-deriving the cursor.
+    if (this.loadMoreError()) {
+      this.feedResource.reload();
       return;
     }
     const lastPost = this._posts().at(-1);

@@ -1,5 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Component, ElementRef, PLATFORM_ID, effect, inject, viewChild } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CreatePost } from '../create-post/create-post';
@@ -8,7 +9,7 @@ import { PostsService } from '../services/posts.service';
 
 @Component({
   selector: 'app-feed-page',
-  imports: [CreatePost, PostCard, MatProgressSpinnerModule, TranslatePipe],
+  imports: [CreatePost, PostCard, MatButtonModule, MatProgressSpinnerModule, TranslatePipe],
   templateUrl: './feed-page.html',
   styleUrl: './feed-page.css',
 })

@@ -21,10 +21,15 @@
     }
 
     @if (postsService.hasMore()) {
-      <div #scrollSentinel class="flex justify-center py-4">
+      <div #scrollSentinel class="flex flex-col items-center gap-2 py-4">
         @if (postsService.isLoadingMore()) {
           <mat-spinner diameter="28" />
           <span class="sr-only">{{ 'feed.loadingMore' | translate }}</span>
+        } @else if (postsService.loadMoreError()) {
+          <p class="text-sm text-(--color-ember-600)">{{ 'feed.errors.loadMoreFailed' | translate }}</p>
+          <button mat-button type="button" (click)="postsService.loadMore()">
+            {{ 'feed.retry' | translate }}
+          </button>
         }
       </div>
     }

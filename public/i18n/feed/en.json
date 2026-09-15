@@ -2,8 +2,10 @@
   "feed": {
     "empty": "No posts yet. Be the first to share something.",
     "loadingMore": "Loading more posts…",
+    "retry": "Retry",
     "errors": {
-      "loadFailed": "Couldn't load the feed. Please try again later."
+      "loadFailed": "Couldn't load the feed. Please try again later.",
+      "loadMoreFailed": "Couldn't load more posts."
     },
     "createPost": {
       "placeholder": "What's on your mind?",
