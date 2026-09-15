@@ -21,10 +21,20 @@
       </button>
     }
 
-    <!-- Placeholder until the notifications feature exists -->
-    <button mat-icon-button type="button" [attr.aria-label]="'navbar.notifications' | translate">
-      <mat-icon class="text-(--color-bone-100)">notifications</mat-icon>
-    </button>
+    @if (authService.isAuthenticated()) {
+      <button
+        mat-icon-button
+        type="button"
+        routerLink="/notifications"
+        [matBadge]="notificationsService.unreadCount()"
+        [matBadgeHidden]="!notificationsService.hasUnread()"
+        matBadgeColor="warn"
+        matBadgeSize="small"
+        [attr.aria-label]="'navbar.notifications' | translate"
+      >
+        <mat-icon class="text-(--color-bone-100)">notifications</mat-icon>
+      </button>
+    }
 
     <button
       mat-icon-button
