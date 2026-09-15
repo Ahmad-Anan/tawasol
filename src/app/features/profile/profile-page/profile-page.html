@@ -1,0 +1,15 @@
+<div class="mx-auto flex max-w-2xl flex-col gap-4 px-4 py-6">
+  <app-profile-header />
+
+  @if (profileService.profile()) {
+    @if (profileService.posts().length === 0) {
+      <p class="rounded-2xl bg-(--color-surface) p-8 text-center text-(--color-text-secondary)">
+        {{ 'profile.noPosts' | translate }}
+      </p>
+    } @else {
+      @for (post of profileService.posts(); track post.id) {
+        <app-post-card [post]="post" />
+      }
+    }
+  }
+</div>

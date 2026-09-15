@@ -1,0 +1,121 @@
+<section class="profile-header rounded-2xl bg-(--color-surface) p-4 shadow-sm sm:p-6">
+  @if (profileService.profile(); as profile) {
+    <input #photoInput type="file" accept="image/*" class="hidden" (change)="onFileSelected($event)" />
+
+    <div class="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:text-start">
+      <div class="relative h-24 w-24 shrink-0">
+        <img [ngSrc]="profile.photo" width="96" height="96" alt="" class="h-24 w-24 rounded-full object-cover" />
+        @if (profileService.isOwnProfile()) {
+          <button
+            mat-icon-button
+            type="button"
+            class="!absolute -end-1 -bottom-1 !h-8 !w-8 !min-w-0 !bg-(--color-harbor-600)"
+            [attr.aria-label]="'profile.changePhoto' | translate"
+            (click)="photoInput.click()"
+          >
+            <mat-icon class="!text-base !text-white">photo_camera</mat-icon>
+          </button>
+        }
+      </div>
+
+      <div class="min-w-0 flex-1">
+        <p class="text-xl font-bold text-(--color-text-primary)" style="font-family: var(--font-display)">
+          {{ profile.name }}
+        </p>
+        <p class="font-(--font-mono) text-sm text-(--color-text-secondary)">&#64;{{ profile.username }}</p>
+
+        @if (profile.bio) {
+          <p class="mt-2 text-(--color-text-primary)">{{ profile.bio }}</p>
+        }
+
+        <div class="mt-3 flex justify-center gap-6 sm:justify-start">
+          <span class="text-sm text-(--color-text-secondary)">
+            <strong class="font-(--font-mono) text-(--color-text-primary)">{{ profile.followersCount }}</strong>
+            {{ 'profile.followers' | translate }}
+          </span>
+          <span class="text-sm text-(--color-text-secondary)">
+            <strong class="font-(--font-mono) text-(--color-text-primary)">{{ profile.followingCount }}</strong>
+            {{ 'profile.following' | translate }}
+          </span>
+          <span class="text-sm text-(--color-text-secondary)">
+            <strong class="font-(--font-mono) text-(--color-text-primary)">{{ profileService.postsTotal() }}</strong>
+            {{ 'profile.posts' | translate }}
+          </span>
+        </div>
+      </div>
+
+      <div class="shrink-0">
+        @if (profileService.isOwnProfile()) {
+          <button mat-stroked-button type="button" (click)="photoInput.click()">
+            {{ 'profile.editProfile' | translate }}
+          </button>
+        } @else if (profileService.isFollowing()) {
+          <button
+            mat-stroked-button
+            type="button"
+            [disabled]="profileService.isTogglingFollow()"
+            (click)="profileService.toggleFollow()"
+          >
+            @if (profileService.isTogglingFollow()) {
+              <mat-spinner diameter="20" class="mx-auto" />
+            } @else {
+              {{ 'profile.unfollow' | translate }}
+            }
+          </button>
+        } @else {
+          <button
+            mat-flat-button
+            type="button"
+            class="bg-(--color-harbor-600)! text-white!"
+            [disabled]="profileService.isTogglingFollow()"
+            (click)="profileService.toggleFollow()"
+          >
+            @if (profileService.isTogglingFollow()) {
+              <mat-spinner diameter="20" class="mx-auto" />
+            } @else {
+              {{ 'profile.follow' | translate }}
+            }
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (previewUrl(); as preview) {
+      <div class="mt-4 flex items-center gap-3 rounded-xl bg-(--color-bone-100) p-3">
+        <img [src]="preview" alt="" class="h-12 w-12 shrink-0 rounded-full object-cover" />
+        <span class="text-sm text-(--color-text-primary)">{{ 'profile.photoPreviewHint' | translate }}</span>
+        <div class="ms-auto flex shrink-0 gap-2">
+          <button mat-button type="button" [disabled]="profileService.isUploadingPhoto()" (click)="cancelPhotoChange()">
+            {{ 'profile.cancel' | translate }}
+          </button>
+          <button
+            mat-flat-button
+            type="button"
+            class="bg-(--color-harbor-600)! text-white!"
+            [disabled]="profileService.isUploadingPhoto()"
+            (click)="confirmPhotoChange()"
+          >
+            @if (profileService.isUploadingPhoto()) {
+              <mat-spinner diameter="20" class="mx-auto" />
+            } @else {
+              {{ 'profile.save' | translate }}
+            }
+          </button>
+        </div>
+      </div>
+    }
+
+    @if (profileService.uploadError()) {
+      <p class="mt-2 text-sm text-(--color-ember-600)">{{ 'profile.errors.uploadFailed' | translate }}</p>
+    }
+    @if (profileService.followError()) {
+      <p class="mt-2 text-sm text-(--color-ember-600)">{{ 'profile.errors.followFailed' | translate }}</p>
+    }
+  } @else if (profileService.isLoading()) {
+    <div class="flex justify-center py-6">
+      <mat-spinner diameter="36" />
+    </div>
+  } @else if (profileService.loadError()) {
+    <p class="text-center text-(--color-ember-600)">{{ 'profile.errors.loadFailed' | translate }}</p>
+  }
+</section>

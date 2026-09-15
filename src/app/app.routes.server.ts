@@ -9,6 +9,11 @@ export const serverRoutes: ServerRoute[] = [
     path: 'feed',
     renderMode: RenderMode.Client,
   },
+  // Same reasoning as '/feed' above, plus ':id' has no fixed set of values to prerender.
+  {
+    path: 'profile/:id',
+    renderMode: RenderMode.Client,
+  },
   {
     path: '**',
     renderMode: RenderMode.Prerender,

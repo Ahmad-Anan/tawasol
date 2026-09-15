@@ -13,4 +13,8 @@ export const routes: Routes = [
     path: 'feed',
     loadChildren: () => import('./features/feed/feed.routes').then((m) => m.FEED_ROUTES),
   },
+  {
+    path: 'profile',
+    loadChildren: () => import('./features/profile/profile.routes').then((m) => m.PROFILE_ROUTES),
+  },
 ];
