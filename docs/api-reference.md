@@ -183,6 +183,7 @@ The main, personalized feed. Query params (all optional): `only` (`following` | 
 
 - **No `only` param** behaves like `only=following` **including the signed-in user's own posts** (verified: a fresh account with 0 posts and 0 follows got `posts: []`; the same account, after creating posts of its own, got those same posts back with no `only` param and also with `only=following` explicitly — so "following" already includes "me", there's no need to separately merge the two on the client).
 - `only` rejects anything else with a `400`: `{"success":false,"message":"\"only\" must be one of [following, me, all]", ...}` — validate/restrict the value client-side to those three before sending it.
+- **`hasImage` verified live (2026-09-15):** `hasImage=true` and `hasImage=false` each genuinely filter — every post returned in a 5-post sample matched the requested condition (checked `!!post.image` against the query value). Combines correctly with `only` (e.g. `only=me&hasImage=true` returned only the signed-in user's own posts that have an image). Rejects anything else with a `400`: `{"message":"\"hasImage\" must be one of [boolean, true, false]"}` — send the literal string `"true"`/`"false"` as a query param, not omit-if-false or similar.
 
 **Page mode** (default — no `cursor` in the request):
 
