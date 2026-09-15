@@ -29,8 +29,15 @@
       "unbookmark": "Remove from saved",
       "share": "Share",
       "sharing": "Sharing…",
+      "moreOptions": "More options",
+      "edit": "Edit",
+      "delete": "Delete",
+      "deleteConfirm": "Delete this post? This can't be undone.",
+      "save": "Save",
+      "cancel": "Cancel",
       "errors": {
-        "actionFailed": "Something went wrong. Please try again."
+        "actionFailed": "Something went wrong. Please try again.",
+        "editBodyRequired": "Write something before saving"
       }
     }
   }
