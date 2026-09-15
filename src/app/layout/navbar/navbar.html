@@ -10,6 +10,17 @@
       </a>
     }
 
+    @if (authService.isAuthenticated()) {
+      <button
+        mat-icon-button
+        type="button"
+        routerLink="/bookmarks"
+        [attr.aria-label]="'navbar.bookmarks' | translate"
+      >
+        <mat-icon class="text-(--color-bone-100)">bookmark</mat-icon>
+      </button>
+    }
+
     <!-- Placeholder until the notifications feature exists -->
     <button mat-icon-button type="button" [attr.aria-label]="'navbar.notifications' | translate">
       <mat-icon class="text-(--color-bone-100)">notifications</mat-icon>

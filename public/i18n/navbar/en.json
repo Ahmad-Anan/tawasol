@@ -2,6 +2,7 @@
   "navbar": {
     "brand": "Tawasol",
     "myProfile": "My profile",
+    "bookmarks": "Bookmarks",
     "notifications": "Notifications",
     "themeToggle": {
       "toLight": "Switch to light mode",

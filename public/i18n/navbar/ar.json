@@ -2,6 +2,7 @@
   "navbar": {
     "brand": "تواصل",
     "myProfile": "ملفي الشخصي",
+    "bookmarks": "المحفوظات",
     "notifications": "الإشعارات",
     "themeToggle": {
       "toLight": "التبديل إلى الوضع الفاتح",
