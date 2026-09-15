@@ -166,9 +166,9 @@
       <button
         mat-button
         type="button"
-        disabled
-        [attr.title]="'feed.postCard.commentsComingSoon' | translate"
+        [style.color]="showComments() ? 'var(--color-harbor-600)' : null"
         [attr.aria-label]="'feed.postCard.comment' | translate"
+        (click)="toggleComments()"
       >
         <mat-icon>chat_bubble_outline</mat-icon>
         <span>{{ 'feed.postCard.commentsAriaLabel' | translate: { count: post().commentsCount } }}</span>
@@ -202,6 +202,10 @@
 
     @if (actionError()) {
       <p class="mt-2 text-sm text-(--color-ember-600)">{{ actionError() }}</p>
+    }
+
+    @if (showComments()) {
+      <app-comments-list [postId]="post().id" />
     }
   }
 </article>

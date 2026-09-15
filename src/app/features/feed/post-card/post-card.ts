@@ -11,6 +11,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { LanguageService } from '../../../core/services/language';
 import { StatusIndicator } from '../../../shared/status-indicator/status-indicator';
+import { CommentsList } from '../../comments/comments-list/comments-list';
 import type { Post } from '../feed.interface';
 import { PostsService } from '../services/posts.service';
 
@@ -27,6 +28,7 @@ import { PostsService } from '../services/posts.service';
     RouterLink,
     TranslatePipe,
     StatusIndicator,
+    CommentsList,
   ],
   templateUrl: './post-card.html',
   styleUrl: './post-card.css',
@@ -64,6 +66,12 @@ export class PostCard {
   protected readonly isConfirmingDelete = signal(false);
   protected readonly isDeleting = signal(false);
   protected readonly deleteError = signal<string | null>(null);
+
+  protected readonly showComments = signal(false);
+
+  protected toggleComments(): void {
+    this.showComments.update((value) => !value);
+  }
 
   protected async onToggleLike(): Promise<void> {
     await this.runAction(this.isLiking, () => this.postsService.toggleLike(this.post().id));

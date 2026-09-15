@@ -26,7 +26,6 @@
       "likesAriaLabel": "{{count}} likes",
       "comment": "Comment",
       "commentsAriaLabel": "{{count}} comments",
-      "commentsComingSoon": "Comments are coming soon",
       "bookmark": "Save",
       "unbookmark": "Remove from saved",
       "share": "Share",
