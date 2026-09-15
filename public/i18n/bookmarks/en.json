@@ -1,0 +1,11 @@
+{
+  "bookmarks": {
+    "empty": "Nothing saved yet.",
+    "loadingMore": "Loading more…",
+    "retry": "Retry",
+    "errors": {
+      "loadFailed": "Couldn't load your bookmarks. Please try again later.",
+      "loadMoreFailed": "Couldn't load more bookmarks."
+    }
+  }
+}

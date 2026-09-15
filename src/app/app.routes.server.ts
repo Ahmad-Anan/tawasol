@@ -14,6 +14,11 @@ export const serverRoutes: ServerRoute[] = [
     path: 'profile/:id',
     renderMode: RenderMode.Client,
   },
+  // Same reasoning as '/feed' above.
+  {
+    path: 'bookmarks',
+    renderMode: RenderMode.Client,
+  },
   {
     path: '**',
     renderMode: RenderMode.Prerender,
