@@ -33,6 +33,15 @@ export class PostsService {
   private readonly _cursor = signal<string | undefined>(undefined);
   private readonly _posts = signal<Post[]>([]);
   private readonly _hasMore = signal(true);
+  // `PostsService` is also injected by ProfileService now (see mergePosts) purely to reuse
+  // this as a shared post store — a profile page has no interest in the feed itself. Gating
+  // `feedResource` behind this (a `resource`'s `params` returning `undefined` skips the loader
+  // entirely, per Angular's resource docs) means merely constructing PostsService no longer
+  // fires an unwanted `GET /posts/feed`. Without this, that stray request used to resolve
+  // *after* ProfileService.mergePosts() and wipe `_posts` back down to just the feed's own
+  // page — the feed's own effect below replaces `_posts` outright on a cursor-less load, with
+  // no idea a profile page had merged anything into it.
+  private readonly _feedRequested = signal(false);
 
   readonly posts = this._posts.asReadonly();
   readonly hasMore = this._hasMore.asReadonly();
@@ -44,7 +53,7 @@ export class PostsService {
    * /posts/feed for why cursor mode was chosen over page mode here.
    */
   private readonly feedResource = rxResource({
-    params: () => ({ cursor: this._cursor() }),
+    params: () => (this._feedRequested() ? { cursor: this._cursor() } : undefined),
     stream: ({ params }) => {
       // `only` defaults to `following` server-side (which, per docs/api-reference.md > GET
       // /posts/feed, already includes the signed-in user's own posts but no one else's) — an
@@ -78,6 +87,11 @@ export class PostsService {
       );
       this._hasMore.set(response.meta.feedMode === 'cursor' ? response.meta.cursor.hasMore : false);
     });
+  }
+
+  /** Called once by FeedPage on mount — see `_feedRequested`. A no-op on every call after the first. */
+  start(): void {
+    this._feedRequested.set(true);
   }
 
   loadMore(): void {

@@ -22,6 +22,11 @@ export class FeedPage {
   private readonly scrollSentinel = viewChild<ElementRef<HTMLElement>>('scrollSentinel');
 
   constructor() {
+    // PostsService no longer starts fetching the feed merely by being constructed (it's also
+    // injected by ProfileService now, which has no interest in the feed itself — see
+    // PostsService._feedRequested) — this is the one place that actually wants it loaded.
+    this.postsService.start();
+
     // True infinite scroll: observes a sentinel element at the bottom of the list and calls
     // loadMore() once it enters the viewport. Re-attaches whenever the sentinel
     // appears/disappears (effect cleanup runs first each time this re-executes).
