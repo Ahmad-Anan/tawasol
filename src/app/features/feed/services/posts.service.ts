@@ -8,6 +8,7 @@ import type {
   BookmarkToggleApiResponse,
   CreateOrEditPostApiResponse,
   FeedApiResponse,
+  FeedOnlyFilter,
   LikeToggleApiResponse,
   MutatedPost,
   Post,
@@ -42,24 +43,63 @@ export class PostsService {
   // page — the feed's own effect below replaces `_posts` outright on a cursor-less load, with
   // no idea a profile page had merged anything into it.
   private readonly _feedRequested = signal(false);
+  // `only` defaults to `following` server-side (which, per docs/api-reference.md > GET
+  // /posts/feed, already includes the signed-in user's own posts but no one else's) — an
+  // account that isn't following anyone would otherwise only ever see their own posts, so the
+  // client always sends an explicit value rather than relying on that default. 'all' matches
+  // the feed's original pre-filter-UI behaviour, so it stays the starting value here.
+  private readonly _onlyFilter = signal<FeedOnlyFilter>('all');
+  // `null` = no hasImage filter applied (send nothing). `true`/`false` are real, server-verified
+  // filter values — see docs/api-reference.md > GET /posts/feed.
+  private readonly _hasImageFilter = signal<boolean | null>(null);
 
   readonly posts = this._posts.asReadonly();
   readonly hasMore = this._hasMore.asReadonly();
+  readonly onlyFilter = this._onlyFilter.asReadonly();
+  readonly hasImageFilter = this._hasImageFilter.asReadonly();
+
+  /**
+   * Which empty-state message fits the current filter combination — a "no posts at all" empty
+   * feed reads very differently from "you're not following anyone yet" or "no posts of yours
+   * have an image". Kept as one computed here (not scattered `@if`s in the template) since it's
+   * purely a function of the two filter signals.
+   */
+  readonly emptyStateKey = computed(() => {
+    if (this._hasImageFilter() !== null) {
+      return 'feed.emptyFiltered';
+    }
+    switch (this._onlyFilter()) {
+      case 'following':
+        return 'feed.emptyFollowing';
+      case 'me':
+        return 'feed.emptyMe';
+      default:
+        return 'feed.empty';
+    }
+  });
 
   /**
    * Cursor-based (not page-based) infinite scroll: `_cursor` is set to the id of the last
    * loaded post to fetch the next page. A fixed page number would skip or duplicate posts if
    * new ones are created while the user is scrolling — see docs/api-reference.md > GET
    * /posts/feed for why cursor mode was chosen over page mode here.
+   *
+   * `only`/`hasImage` are read here too, not in a second resource — changing either flows
+   * through this exact same `params`/`stream` pair `_cursor` already uses, so there's no second
+   * reactive source that could race with this one (see the commit that fixed the feed/profile
+   * race condition: a second resource for "the same underlying request, triggered a different
+   * way" is exactly the shape that bug had).
    */
   private readonly feedResource = rxResource({
-    params: () => (this._feedRequested() ? { cursor: this._cursor() } : undefined),
+    params: () =>
+      this._feedRequested()
+        ? { cursor: this._cursor(), only: this._onlyFilter(), hasImage: this._hasImageFilter() }
+        : undefined,
     stream: ({ params }) => {
-      // `only` defaults to `following` server-side (which, per docs/api-reference.md > GET
-      // /posts/feed, already includes the signed-in user's own posts but no one else's) — an
-      // account that isn't following anyone would otherwise only ever see their own posts.
-      // There's no following/me/all filter UI yet, so always request the full public feed.
-      let httpParams = new HttpParams().set('limit', FEED_PAGE_SIZE).set('only', 'all');
+      let httpParams = new HttpParams().set('limit', FEED_PAGE_SIZE).set('only', params.only);
+      if (params.hasImage !== null) {
+        httpParams = httpParams.set('hasImage', String(params.hasImage));
+      }
       if (params.cursor) {
         httpParams = httpParams.set('cursor', params.cursor);
       }
@@ -92,6 +132,35 @@ export class PostsService {
   /** Called once by FeedPage on mount — see `_feedRequested`. A no-op on every call after the first. */
   start(): void {
     this._feedRequested.set(true);
+  }
+
+  setOnlyFilter(value: FeedOnlyFilter): void {
+    if (value === this._onlyFilter()) {
+      return;
+    }
+    this._onlyFilter.set(value);
+    this.resetPagination();
+  }
+
+  setHasImageFilter(value: boolean | null): void {
+    if (value === this._hasImageFilter()) {
+      return;
+    }
+    this._hasImageFilter.set(value);
+    this.resetPagination();
+  }
+
+  /**
+   * A changed filter means the accumulated `_posts` list no longer reflects "everything up to
+   * `_cursor`" — it reflects the *previous* filter's posts. Clearing `_posts` immediately (not
+   * waiting for the new response) avoids a flash of stale, wrong-filter posts while the new
+   * request is in flight; resetting `_cursor` stops the next response being interpreted as "a
+   * later page of the old filter" (see the constructor effect's cursor-truthy append check).
+   */
+  private resetPagination(): void {
+    this._posts.set([]);
+    this._cursor.set(undefined);
+    this._hasMore.set(true);
   }
 
   loadMore(): void {
