@@ -88,6 +88,8 @@ export interface FeedPagePagination {
   numberOfPages: number;
   /** Only present as a key when another page exists. */
   nextPage?: number;
+  /** Only present once `currentPage > 1` — observed on GET /users/bookmarks, plausible elsewhere. */
+  prevPage?: number;
 }
 
 export interface FeedCursorMeta {
