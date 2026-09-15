@@ -42,8 +42,19 @@ export class AuthService {
     // same endpoint ProfileService uses for "my profile" — if the stored token turns out to be
     // stale/invalid, this 401s and `logout()` clears it instead of leaving a broken
     // authenticated-but-no-user state around.
+    //
+    // `queueMicrotask` here isn't cosmetic — it's load-bearing. `hydrateUser()`'s HTTP call goes
+    // through `authInterceptor`, which does `inject(AuthService)`. Calling `hydrateUser()`
+    // directly (even fire-and-forget with `void`) runs its synchronous prefix — everything up
+    // to its first `await` — inline, as part of *this* constructor call, before Angular's DI
+    // has finished constructing this very instance and marked it available. That's a genuine
+    // self-injection during construction: verified live, it throws `NG0200: Circular dependency
+    // detected for AuthService`, caught by hydrateUser()'s own try/catch, which then called
+    // logout() — silently wiping a valid stored token on nearly every hard page load. Deferring
+    // to a microtask lets this constructor return (and Angular mark the instance constructed)
+    // before hydrateUser()'s request ever reaches the interceptor.
     if (this.isBrowser && this._token()) {
-      void this.hydrateUser();
+      queueMicrotask(() => void this.hydrateUser());
     }
   }
 
