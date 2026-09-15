@@ -562,3 +562,73 @@ Replies to one comment (`parentComment` equal to `:commentId`), replies-list sha
 ### POST /posts/:postId/comments/:commentId/replies
 
 Same multipart body and validation as creating a top-level comment. Response wrapped as **`data.reply`** (not `data.comment` — the one place this API uses a different key for what's otherwise the exact same object shape), `message: "reply created successfully"`. The created reply has `parentComment` set to `:commentId` and `isReply: true`.
+
+---
+
+## Notifications endpoints
+
+Every endpoint below requires `Authorization: Bearer <token>`, same as everywhere else. **Verified (live test, 2026-09-15)** by actually generating notifications between the two `ptesta…`/`ptestb…` test accounts — a like, a comment, a reply, a follow, and a share — not assumed from the endpoint names or types.
+
+### The notification object
+
+One shape, shared by every `type`:
+
+```json
+{
+  "_id": "6aa938be8ebe92c2c0b5b051",
+  "recipient": { "_id": "…", "name": "Profile Tester A", "photo": "…" },
+  "actor": { "_id": "…", "name": "Profile Tester B", "photo": "…" },
+  "type": "share_post",
+  "entityType": "post",
+  "entityId": "6aa938be8ebe92c2c0b5b040",
+  "isRead": false,
+  "createdAt": "2026-09-15T12:23:26.607Z",
+  "readAt": "2026-09-15T12:24:12.940Z",
+  "entity": { /* shape depends on entityType — see below */ }
+}
+```
+
+- `readAt` is **absent** (not `null`) until the notification is marked read — same "absent means doesn't apply" convention as `nextPage` elsewhere in this API.
+- `actor` is who did the thing; `recipient` is always the signed-in user themself (present on every notification in the signed-in user's own list — not otherwise useful to the client, but documented so it isn't mistaken for something else).
+- **`type` values observed:** `like_post`, `comment_post`, `follow_user`, `share_post`. **Important:** a *reply* notification also has `type: "comment_post"` — there is no separate `reply` type. The only way to tell "someone commented on your post" from "someone replied to your comment" is `entityType` (`"post"` vs `"comment"`, see below), not `type`. Liking a *comment* was verified live to generate **no notification at all** (the total notification count didn't change after a comment-like action that would otherwise have created one).
+- **`entityType` values observed:** `post`, `comment`, `user` — and each shapes `entity` differently:
+  - `entityType: "post"` (for `like_post`, `comment_post` on a top-level comment, and `share_post`) — a post-shaped object, but **`user` is a bare id string, not populated** (unlike every post shape documented above): `{ "_id", "body"?, "user": "…", "commentsCount", "topComment", "sharesCount", "likesCount", "isShare", "id" }`. For `share_post`, `entityId`/`entity` are the **new share post**, not the original post that was shared — and `entity.isShare` was observed `false` on that same share post's entity (contradicts the post itself, which really does have `isShare: true` — don't trust `entity.isShare` on a notification).
+  - `entityType: "comment"` (for a *reply* notification) — **`entity` is the parent comment that was replied to, not the reply itself**: `{ "_id", "content", "commentCreator" (with stats), "post", "likesCount", "isReply", "id" }`. There's no direct way to reach the new reply's own content from the notification alone — the client links to the post and the reply shows up in its thread.
+  - `entityType: "user"` (for `follow_user`) — the follower's full profile: `{ "_id", "name", "username", "photo", "followersCount", "followingCount", "bookmarksCount", "id" }`. `entityId` is also the follower's id.
+
+### GET /notifications
+
+Page-based pagination is **real** here (confirmed the same way as `GET /users/bookmarks`/comments: `?limit=1` paged through 3 notifications one at a time, distinct ids on each page). Response:
+
+```json
+{
+  "success": true,
+  "message": "success",
+  "data": { "notifications": [ /* notification objects, newest first */ ] },
+  "meta": { "feedMode": "page", "pagination": { "currentPage": 1, "limit": 20, "total": 4, "numberOfPages": 1 } }
+}
+```
+
+Note the `meta.feedMode: "page"` key, otherwise only seen on `GET /posts/feed` — this endpoint doesn't have a cursor mode, `feedMode` is always `"page"`. An empty result: `numberOfPages: 0` (same convention as comments, not bookmarks' `1`).
+
+### GET /notifications/unread-count
+
+```json
+{ "success": true, "message": "success", "data": { "unreadCount": 4 } }
+```
+
+A plain number, but nested under `data.unreadCount` — not a bare top-level number.
+
+### PATCH /notifications/:notificationId/read
+
+No body. Marks one notification read; idempotent (marking an already-read one again is still `200`, same result). Response wraps the **full, updated notification** (now with `isRead: true` and a fresh `readAt`) as `data.notification`. `404 {"message":"Notification Not Found"}` for both an unknown id **and** another user's notification — scoped by recipient the same way `DELETE /posts/:id` scopes by owner (a plain `404`, not comments' distinguishable `403`/`404` split).
+
+### PATCH /notifications/read-all
+
+No body, no `:id`. Marks every one of the signed-in user's unread notifications read in one call:
+
+```json
+{ "success": true, "message": "success", "data": { "modifiedCount": 3 } }
+```
+
+`modifiedCount` is how many were actually flipped from unread to read (not the total notification count).
