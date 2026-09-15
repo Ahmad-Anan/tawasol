@@ -6,6 +6,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { LanguageService } from '../../../core/services/language';
@@ -23,6 +24,7 @@ import { PostsService } from '../services/posts.service';
     MatInputModule,
     MatMenuModule,
     MatProgressSpinnerModule,
+    RouterLink,
     TranslatePipe,
     StatusIndicator,
   ],

@@ -28,7 +28,7 @@
   @let displayedPost = post().isShare && post().sharedPost ? post().sharedPost! : post();
 
   <header class="flex items-center gap-3">
-    <div class="relative h-11 w-11 shrink-0">
+    <a [routerLink]="['/profile', displayedPost.user._id]" class="relative h-11 w-11 shrink-0">
       <img
         [ngSrc]="displayedPost.user.photo"
         width="44"
@@ -38,16 +38,16 @@
       />
       <!-- Placeholder until real-time presence exists — see StatusIndicator's own doc comment. -->
       <app-status-indicator class="absolute -end-0.5 -bottom-0.5" [online]="true" />
-    </div>
+    </a>
 
-    <div class="min-w-0 flex-1">
+    <a [routerLink]="['/profile', displayedPost.user._id]" class="min-w-0 flex-1">
       <p class="truncate font-semibold text-(--color-text-primary)" style="font-family: var(--font-display)">
         {{ displayedPost.user.name }}
       </p>
       <p class="truncate font-(--font-mono) text-xs text-(--color-text-secondary)">
         &#64;{{ displayedPost.user.username }} · {{ formattedDate() }}
       </p>
-    </div>
+    </a>
 
     @if (canEdit()) {
       <button
