@@ -465,3 +465,99 @@ Notes:
 - **Ordering is by the post's own `createdAt` (newest first), not by when it was bookmarked.** Verified live: un-bookmarking and re-bookmarking the *oldest* of the 7 test posts (making it the most-recently-bookmarked action) left it in last place in the list — its position tracked the post's original creation date, not the bookmark action's recency.
 - An empty list is `{"bookmarks": [], "meta": {"pagination": {"currentPage": 1, "limit": 20, "total": 0, "numberOfPages": 1}}}` — `numberOfPages: 1` even with zero results, not `0`.
 - Requires the same `Authorization: Bearer <token>` as every other endpoint here; `401 "token not provided"` without it.
+
+---
+
+## Comments endpoints — general notes
+
+Every endpoint below requires `Authorization: Bearer <token>`, same as everywhere else in this API. **Verified (live test, 2026-09-15)** against the `ptesta…` test account, commenting/replying/liking/editing/deleting for real against a post that already had comments from other real accounts (this backend is a shared, live dataset — not seeded/isolated per test account).
+
+A **reply is just a comment with `parentComment` set** — verified live: `PUT /posts/:postId/comments/:commentId` and `PUT /posts/:postId/comments/:commentId/like` both worked identically when `:commentId` was a *reply's* id, returning the exact same `data.comment` shape as for a top-level comment. There's no separate "edit a reply" or "like a reply" endpoint — the client uses the same comment-mutation methods for both, keyed only by id.
+
+### The comment object has two different shapes, same story as posts — but split differently
+
+This is the single biggest gotcha in this section, and it does **not** line up with the posts full/slim split:
+
+**List shape** — returned by `GET /posts/:postId/comments` (top-level comments) **only**:
+
+```json
+{
+  "_id": "6aa92e588ebe92c2c0b59b85",
+  "content": "Edited comment content",
+  "image": "string, full URL (absent entirely when there's no image)",
+  "commentCreator": { "_id": "…", "name": "…", "username": "…", "photo": "…" },
+  "post": "6aa925a98ebe92c2c0b55e0a",
+  "parentComment": null,
+  "likes": ["6aa900228ebe92c2c0b538bc"],
+  "createdAt": "2026-09-15T11:39:04.360Z",
+  "repliesCount": 1
+}
+```
+
+No `likesCount`, `isReply`, or `id` key at all here — derive "liked by me" and the like count from `likes` the same way `PostsService.isLikedBy` already does for posts (`likes.length`, `likes.includes(myId)`), don't expect a ready-made count. `commentCreator` is the slim shape (no followers/following/bookmarks stats).
+
+**Mutation shape** — returned by `POST .../comments` (create), `PUT .../comments/:commentId` (edit), and, unlike posts, **also by `PUT .../comments/:commentId/like`'s nested `comment`** (nested inside `{ liked, likesCount, comment }`, same envelope shape as the posts like-toggle):
+
+```json
+{
+  "_id": "6aa92e588ebe92c2c0b59b85",
+  "content": "Edited comment content",
+  "commentCreator": { "_id": "…", "name": "…", "username": "…", "photo": "…", "followersCount": 0, "followingCount": 0, "bookmarksCount": 0, "id": "…" },
+  "post": "6aa925a98ebe92c2c0b55e0a",
+  "parentComment": null,
+  "likes": [],
+  "createdAt": "2026-09-15T11:39:04.360Z",
+  "likesCount": 0,
+  "isReply": false,
+  "id": "6aa92e588ebe92c2c0b59b85"
+}
+```
+
+Here it's the **opposite** of the list shape: `likesCount`/`isReply`/`id` are present, but `repliesCount` is **absent** — a freshly created/edited comment has no known reply count from this response alone (the client defaults it to `0`, matching a brand-new comment always starting with none, the same reasoning `PostsService.toDisplayPost` already uses for a freshly created post's missing counters). `commentCreator` here is the fuller shape (with stats), same incidental over-population as the posts like-toggle's `user`.
+
+**Replies-list shape** — returned by `GET /posts/:postId/comments/:commentId/replies` — is, confusingly, the **mutation shape**, not the list shape used for top-level comments: it has `likesCount`/`isReply`/`id`, no `repliesCount` (replies can't themselves have replies — not verified live, but there's no endpoint that would create one). Don't reuse the top-level "list shape" type for replies.
+
+### GET /posts/:postId/comments
+
+Top-level comments only (`parentComment: null`), full list shape (above), newest first. Page-based pagination is **real** here (confirmed the same way as `GET /users/bookmarks`: `?limit=1` paged through 3 comments one at a time and got a different, non-overlapping comment back on each page) — unlike `GET /users/:id/posts`, this one is safe to drive a genuine "load more" / infinite scroll from.
+
+```json
+{
+  "success": true,
+  "message": "success",
+  "data": { "comments": [ /* list-shape comments */ ] },
+  "meta": { "pagination": { "currentPage": 1, "limit": 20, "total": 3, "numberOfPages": 1 } }
+}
+```
+
+An empty result is `numberOfPages: 0`, not `1` (contrast with `GET /users/bookmarks`, which uses `1` for an empty list) — inconsistent between the two endpoints, but harmless for the client either way since "more pages exist" is read from whether `nextPage` is present, never from `numberOfPages` directly.
+
+### POST /posts/:postId/comments
+
+Multipart form-data: `content` and/or `image`, and **the server itself enforces "at least one of the two"** (`400`, `"\"value\" must contain at least one of [content, image]"`) — unlike posts, where that same rule is only enforced client-side. `image`-only (no `content`) was verified to succeed. Mutation shape response (above), wrapped as `data.comment`, `message: "comment created successfully"`. `404 "Post Not Found"` for an unknown `:postId`.
+
+### PUT /posts/:postId/comments/:commentId
+
+Same multipart body as create. Mutation shape response, `data.comment`, `message: "comment updated successfully"`. **Verified:** editing a comment you don't own returns `403 {"message":"you are not allowed to perform this action."}` — unlike posts (which fold "not yours" and "doesn't exist" into the same `404`), comments give a real, distinguishable `403`. An unknown `:commentId` is a separate `404 {"message":"comment Not Found"}`.
+
+### DELETE /posts/:postId/comments/:commentId
+
+No body. Success: `{"success":true,"message":"comment deleted successfully","data":{}}` — `data` is an empty object, not the deleted comment (contrast with `DELETE /posts/:id`, which returns the deleted post). Same `403`/`404` split as edit, verified live: deleting someone else's comment is `403`, an unknown id is `404`.
+
+### PUT /posts/:postId/comments/:commentId/like
+
+Toggles like for the signed-in user (no body), works identically for a reply's id (see above). Response, same envelope as the posts like-toggle:
+
+```json
+{ "success": true, "message": "success", "data": { "liked": true, "likesCount": 1, "comment": { /* mutation shape */ } } }
+```
+
+The client only reads `liked`/`likesCount` from this (same reasoning as `PostsService.toggleLike`) — the nested `comment.commentCreator`'s extra stats and the missing `repliesCount` make it unsafe to use `data.comment` as a full replacement for a locally-held list-shape comment.
+
+### GET /posts/:postId/comments/:commentId/replies
+
+Replies to one comment (`parentComment` equal to `:commentId`), replies-list shape (= mutation shape, see above), newest first, real page-based pagination (same as top-level comments — not independently re-verified with `?limit=1` paging, but uses the identical `meta.pagination` shape). An empty result: `{"replies": [], "meta": {"pagination": {"currentPage": 1, "limit": 20, "total": 0, "numberOfPages": 0}}}`.
+
+### POST /posts/:postId/comments/:commentId/replies
+
+Same multipart body and validation as creating a top-level comment. Response wrapped as **`data.reply`** (not `data.comment` — the one place this API uses a different key for what's otherwise the exact same object shape), `message: "reply created successfully"`. The created reply has `parentComment` set to `:commentId` and `isReply: true`.
