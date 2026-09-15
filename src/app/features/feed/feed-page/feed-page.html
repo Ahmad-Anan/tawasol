@@ -1,4 +1,27 @@
 <div class="mx-auto flex max-w-2xl flex-col gap-4 px-4 py-6">
+  <div class="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-(--color-surface) p-2 shadow-sm">
+    <mat-button-toggle-group
+      [value]="postsService.onlyFilter()"
+      (change)="postsService.setOnlyFilter($event.value)"
+      [attr.aria-label]="'feed.filters.onlyLabel' | translate"
+    >
+      <mat-button-toggle value="all">{{ 'feed.filters.all' | translate }}</mat-button-toggle>
+      <mat-button-toggle value="following">{{ 'feed.filters.following' | translate }}</mat-button-toggle>
+      <mat-button-toggle value="me">{{ 'feed.filters.me' | translate }}</mat-button-toggle>
+    </mat-button-toggle-group>
+
+    <button
+      mat-stroked-button
+      type="button"
+      [style.color]="postsService.hasImageFilter() === true ? 'var(--color-harbor-600)' : null"
+      [attr.aria-pressed]="postsService.hasImageFilter() === true"
+      (click)="toggleHasImageFilter()"
+    >
+      <mat-icon>image</mat-icon>
+      {{ 'feed.filters.hasImage' | translate }}
+    </button>
+  </div>
+
   <app-create-post />
 
   @if (postsService.isLoading()) {
@@ -12,7 +35,7 @@
       </p>
     } @else {
       <p class="rounded-2xl bg-(--color-surface) p-8 text-center text-(--color-text-secondary)">
-        {{ 'feed.empty' | translate }}
+        {{ postsService.emptyStateKey() | translate }}
       </p>
     }
   } @else {

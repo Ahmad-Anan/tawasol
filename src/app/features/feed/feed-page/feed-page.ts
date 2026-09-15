@@ -1,6 +1,8 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Component, ElementRef, PLATFORM_ID, effect, inject, viewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CreatePost } from '../create-post/create-post';
@@ -9,7 +11,15 @@ import { PostsService } from '../services/posts.service';
 
 @Component({
   selector: 'app-feed-page',
-  imports: [CreatePost, PostCard, MatButtonModule, MatProgressSpinnerModule, TranslatePipe],
+  imports: [
+    CreatePost,
+    PostCard,
+    MatButtonModule,
+    MatButtonToggleModule,
+    MatIcon,
+    MatProgressSpinnerModule,
+    TranslatePipe,
+  ],
   templateUrl: './feed-page.html',
   styleUrl: './feed-page.css',
 })
@@ -44,5 +54,10 @@ export class FeedPage {
       observer.observe(element);
       onCleanup(() => observer.disconnect());
     });
+  }
+
+  /** A plain toggle, not a 3-state control — "photos only" is either on or off. */
+  protected toggleHasImageFilter(): void {
+    this.postsService.setHasImageFilter(this.postsService.hasImageFilter() === true ? null : true);
   }
 }
