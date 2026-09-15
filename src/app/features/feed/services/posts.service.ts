@@ -158,6 +158,22 @@ export class PostsService {
     return !!userId && post.likes.includes(userId);
   }
 
+  /**
+   * Upserts posts fetched from somewhere other than the feed itself (currently: a profile
+   * page's `GET /users/:id/posts`) into this same store. `PostCard` always mutates through
+   * `PostsService` regardless of which list rendered it, so any list that wants like/bookmark/
+   * share/edit/delete to actually show up needs its posts to live here, not in a separate
+   * per-feature copy. Existing entries are left as-is on a merge — whichever copy is already
+   * here is the freshest, since every mutation method above already patches it in place.
+   */
+  mergePosts(posts: Post[]): void {
+    this._posts.update((existing) => {
+      const knownIds = new Set(existing.map((post) => post.id));
+      const additions = posts.filter((post) => !knownIds.has(post.id));
+      return additions.length > 0 ? [...existing, ...additions] : existing;
+    });
+  }
+
   private patchPost(postId: string, patch: Partial<Post>): void {
     this._posts.update((existing) => existing.map((post) => (post.id === postId ? { ...post, ...patch } : post)));
   }
