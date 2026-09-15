@@ -445,3 +445,23 @@ Multipart form-data, field name `photo` (a `400` with a Multer-shaped validation
 ```
 
 **Important, verified live:** this endpoint has a side effect beyond updating the profile photo — it also creates a brand-new public post (`body: "updated profile picture."`, the new photo as its `image`), and `postId` is that post's id. The new photo shows up immediately on `GET /users/profile-data`/`GET /users/:id/profile` (`user.photo`) *and* as a new entry in `GET /users/:id/posts` / the main feed. The client updates the locally-held profile's `photo` from this response directly; it does not attempt to synthesize or insert the new post into any already-loaded list (feed or profile) — that post simply appears the next time either list is freshly fetched, same as any other externally-created post.
+
+### GET /users/bookmarks
+
+**Verified (live test, 2026-09-15)** against the same `ptesta…` test account, after bookmarking 7 real posts via `PUT /posts/:id/bookmark`. The signed-in user's own bookmarked posts, full post shape (same as the feed's — see "Posts endpoints" above), each with `bookmarked: true`. Unlike `GET /users/:id/posts`, this endpoint's pagination is **real** — `?page=`/`?limit=` are genuinely respected, verified by paging through all 7 bookmarks 3-at-a-time and getting distinct, non-overlapping pages:
+
+```json
+{
+  "success": true,
+  "message": "success",
+  "data": { "bookmarks": [ /* full-shape posts, each bookmarked: true */ ] },
+  "meta": { "pagination": { "currentPage": 1, "limit": 3, "total": 7, "numberOfPages": 3, "nextPage": 2 } }
+}
+```
+
+Notes:
+- The list key is `data.bookmarks`, **not** `data.posts` like every other list endpoint in this API — easy to miss if copy-pasting a type from `GET /posts` or `GET /users/:id/posts`.
+- `meta.pagination` also carries `prevPage` (present only once `currentPage > 1`, same "absent, not `null`, when it doesn't apply" convention as `nextPage`) — not previously observed on the other page-based endpoints, but plausible there too; added to the shared pagination type as optional rather than asserted.
+- **Ordering is by the post's own `createdAt` (newest first), not by when it was bookmarked.** Verified live: un-bookmarking and re-bookmarking the *oldest* of the 7 test posts (making it the most-recently-bookmarked action) left it in last place in the list — its position tracked the post's original creation date, not the bookmark action's recency.
+- An empty list is `{"bookmarks": [], "meta": {"pagination": {"currentPage": 1, "limit": 20, "total": 0, "numberOfPages": 1}}}` — `numberOfPages: 1` even with zero results, not `0`.
+- Requires the same `Authorization: Bearer <token>` as every other endpoint here; `401 "token not provided"` without it.
