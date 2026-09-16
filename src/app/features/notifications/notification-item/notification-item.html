@@ -4,17 +4,23 @@
   [class.notification-item--unread]="!notification().isRead"
   (click)="onClick()"
 >
-  <img
-    [ngSrc]="notification().actor.photo"
-    width="40"
-    height="40"
-    alt=""
-    class="h-10 w-10 shrink-0 rounded-full object-cover"
-  />
+  @if (notification().actor; as actor) {
+    <img
+      [ngSrc]="actor.photo"
+      width="40"
+      height="40"
+      alt=""
+      class="h-10 w-10 shrink-0 rounded-full object-cover"
+    />
+  } @else {
+    <div class="h-10 w-10 shrink-0 rounded-full bg-(--color-bone-100)"></div>
+  }
 
   <div class="min-w-0 flex-1">
     <p class="text-sm text-(--color-text-primary)">
-      <span class="font-semibold" style="font-family: var(--font-display)">{{ notification().actor.name }}</span>
+      <span class="font-semibold" style="font-family: var(--font-display)">
+        {{ notification().actor?.name ?? ('notifications.deletedUser' | translate) }}
+      </span>
       {{ messageKey() | translate }}
     </p>
     <p class="mt-0.5 font-(--font-mono) text-xs text-(--color-text-secondary)">{{ formattedDate() }}</p>

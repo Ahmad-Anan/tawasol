@@ -12,12 +12,14 @@
     },
     "loadingMore": "Loading more…",
     "retry": "Retry",
+    "deletedUser": "Someone",
     "messages": {
       "like": " liked your post",
       "comment": " commented on your post",
       "reply": " replied to your comment",
       "follow": " started following you",
-      "share": " shared your post"
+      "share": " shared your post",
+      "unknown": " did something"
     },
     "errors": {
       "loadFailed": "Couldn't load your notifications. Please try again later.",

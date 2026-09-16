@@ -31,6 +31,10 @@ export class NotificationItem {
    * A reply notification shares `type: "comment_post"` with a top-level-comment notification —
    * only `entityType` ("comment" vs "post") tells them apart (see docs/api-reference.md).
    */
+  // Falls back to a generic "did something" message for any `type` this app doesn't know
+  // about yet — the API could add a new notification type at any time, and a `switch` with no
+  // matching case would otherwise silently render nothing (an untranslated `undefined` key)
+  // instead of degrading gracefully.
   protected readonly messageKey = computed(() => {
     const notification = this.notification();
     if (notification.type === 'comment_post' && notification.entityType === 'comment') {
@@ -45,20 +49,35 @@ export class NotificationItem {
         return 'notifications.messages.follow';
       case 'share_post':
         return 'notifications.messages.share';
+      default:
+        return 'notifications.messages.unknown';
     }
   });
 
   protected readonly formattedDate = computed(() => this.formatDate(this.notification().createdAt));
 
+  /**
+   * Falls back to the actor's own profile for any `entityType` outside the three documented
+   * values, or when a "comment" entity is missing the `post` field it's supposed to always
+   * have — same defensive reasoning as `messageKey`: don't let one malformed/future-shaped
+   * notification produce a broken `/posts/undefined` link, degrade to the one destination that's
+   * always valid instead.
+   */
   protected readonly targetLink = computed((): [string, string] => {
     const notification = this.notification();
-    if (notification.entityType === 'user') {
-      return ['/profile', notification.entityId];
-    }
     if (notification.entityType === 'post') {
       return ['/posts', notification.entityId];
     }
-    return ['/posts', (notification.entity as NotificationCommentEntity).post];
+    if (notification.entityType === 'comment') {
+      const postId = (notification.entity as NotificationCommentEntity | undefined)?.post;
+      if (postId) {
+        return ['/posts', postId];
+      }
+    }
+    // `/profile/undefined` (a broken link) is still better than throwing outright if `actor`
+    // is ever missing too — the row itself already degrades gracefully in that case (see
+    // notification-item.html's `@else` for the avatar/name).
+    return ['/profile', notification.actor?._id ?? ''];
   });
 
   protected onClick(): void {
