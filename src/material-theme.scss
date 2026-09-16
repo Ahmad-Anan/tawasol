@@ -17,6 +17,16 @@
   --color-ember-600: #c1592e;
   --color-bone-100: #f5f3ec;
   --color-surface: #ffffff;
+  // Fixed (never redefined in the dark block below) — for text/icons on the navbar and the
+  // auth marketing panel, both of which sit on the equally-fixed --color-harbor-950 background
+  // in *every* theme. --color-bone-100 looks like the right token for this at a glance (it's
+  // this same light value in light mode) but is wrong: it's the page-*background* token,
+  // deliberately redefined to go near-black in dark mode (see html.tawasol-dark below) — using
+  // it for "light text on a permanently-dark surface" produced literally invisible near-black-
+  // on-near-black text there once dark mode redefined it. This token exists so that pairing
+  // doesn't happen again; anything sitting on --color-harbor-950 should pair with this, not
+  // --color-bone-100.
+  --color-on-harbor-950: #f5f3ec;
   // Aliases onto Material's auto-computed M3 tones — not hardcoded, so light mode is untouched.
   --color-text-primary: var(--mat-sys-on-surface);
   --color-text-secondary: var(--mat-sys-on-surface-variant);

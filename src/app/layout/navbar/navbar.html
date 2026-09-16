@@ -41,7 +41,7 @@
         matBadgeSize="small"
         [attr.aria-label]="'navbar.notifications' | translate"
       >
-        <mat-icon class="text-(--color-bone-100)">notifications</mat-icon>
+        <mat-icon class="text-(--color-on-harbor-950)">notifications</mat-icon>
       </button>
     }
 
@@ -54,7 +54,7 @@
       "
       (click)="themeService.toggle()"
     >
-      <mat-icon class="text-(--color-bone-100)">
+      <mat-icon class="text-(--color-on-harbor-950)">
         {{ themeService.mode() === 'dark' ? 'light_mode' : 'dark_mode' }}
       </mat-icon>
     </button>
@@ -68,7 +68,7 @@
       "
       (click)="languageService.toggle()"
     >
-      <span class="text-sm font-bold text-(--color-bone-100)">
+      <span class="text-sm font-bold text-(--color-on-harbor-950)">
         {{ languageService.lang() === 'ar' ? 'EN' : 'AR' }}
       </span>
     </button>
@@ -77,14 +77,14 @@
   @if (authService.isAuthenticated()) {
     <a
       routerLink="/feed"
-      class="text-lg font-bold text-(--color-bone-100)"
+      class="text-lg font-bold text-(--color-on-harbor-950)"
       style="font-family: var(--font-display)"
       [attr.aria-label]="'navbar.goHome' | translate"
     >
       {{ 'navbar.brand' | translate }}
     </a>
   } @else {
-    <span class="text-lg font-bold text-(--color-bone-100)" style="font-family: var(--font-display)">
+    <span class="text-lg font-bold text-(--color-on-harbor-950)" style="font-family: var(--font-display)">
       {{ 'navbar.brand' | translate }}
     </span>
   }
