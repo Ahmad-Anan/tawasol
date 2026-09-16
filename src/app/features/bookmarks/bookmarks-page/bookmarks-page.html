@@ -1,7 +1,9 @@
 <div class="mx-auto flex max-w-2xl flex-col gap-4 px-4 py-6">
   @if (bookmarksService.isLoading()) {
-    <div class="flex justify-center py-10">
-      <mat-spinner diameter="36" />
+    <div class="flex flex-col gap-4" role="status" [attr.aria-label]="'shared.loading' | translate">
+      <app-post-card-skeleton />
+      <app-post-card-skeleton />
+      <app-post-card-skeleton />
     </div>
   } @else if (bookmarksService.posts().length === 0) {
     @if (bookmarksService.loadError()) {

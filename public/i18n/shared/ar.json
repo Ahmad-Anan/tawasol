@@ -1,5 +1,6 @@
 {
   "shared": {
+    "loading": "جارٍ التحميل…",
     "statusIndicator": {
       "online": "متصل الآن",
       "offline": "غير متصل"

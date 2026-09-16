@@ -6,11 +6,12 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { map } from 'rxjs';
 import { PostCard } from '../../feed/post-card/post-card';
 import { ProfileHeader } from '../profile-header/profile-header';
+import { ProfileHeaderSkeleton } from '../profile-header-skeleton/profile-header-skeleton';
 import { ProfileService } from '../services/profile.service';
 
 @Component({
   selector: 'app-profile-page',
-  imports: [ProfileHeader, PostCard, MatProgressSpinnerModule, TranslatePipe],
+  imports: [ProfileHeader, ProfileHeaderSkeleton, PostCard, MatProgressSpinnerModule, TranslatePipe],
   templateUrl: './profile-page.html',
   styleUrl: './profile-page.css',
 })

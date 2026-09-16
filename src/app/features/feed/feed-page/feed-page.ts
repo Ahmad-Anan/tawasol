@@ -10,6 +10,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { CreatePost } from '../create-post/create-post';
 import { FeedNav } from '../feed-nav/feed-nav';
 import { PostCard } from '../post-card/post-card';
+import { PostCardSkeleton } from '../post-card-skeleton/post-card-skeleton';
 import { PostsService } from '../services/posts.service';
 
 @Component({
@@ -18,6 +19,7 @@ import { PostsService } from '../services/posts.service';
     CreatePost,
     FeedNav,
     PostCard,
+    PostCardSkeleton,
     SuggestedFriends,
     MatButtonModule,
     MatButtonToggleModule,

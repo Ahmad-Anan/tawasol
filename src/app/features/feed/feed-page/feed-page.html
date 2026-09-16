@@ -32,8 +32,10 @@
     <app-create-post />
 
     @if (postsService.isLoading()) {
-      <div class="flex justify-center py-10">
-        <mat-spinner diameter="36" />
+      <div class="flex flex-col gap-4" role="status" [attr.aria-label]="'shared.loading' | translate">
+        <app-post-card-skeleton />
+        <app-post-card-skeleton />
+        <app-post-card-skeleton />
       </div>
     } @else if (postsService.posts().length === 0) {
       @if (postsService.loadError()) {

@@ -133,10 +133,6 @@
     @if (profileService.followError()) {
       <p class="mt-2 text-sm text-(--color-error-text)">{{ 'profile.errors.followFailed' | translate }}</p>
     }
-  } @else if (profileService.isLoading()) {
-    <div class="flex justify-center py-6">
-      <mat-spinner diameter="36" />
-    </div>
   } @else if (profileService.loadError()) {
     <p class="text-center text-(--color-error-text)">{{ 'profile.errors.loadFailed' | translate }}</p>
   }

@@ -1,5 +1,6 @@
 {
   "shared": {
+    "loading": "Loading…",
     "statusIndicator": {
       "online": "Online",
       "offline": "Offline"

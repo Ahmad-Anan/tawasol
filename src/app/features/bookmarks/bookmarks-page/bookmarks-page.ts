@@ -4,11 +4,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PostCard } from '../../feed/post-card/post-card';
+import { PostCardSkeleton } from '../../feed/post-card-skeleton/post-card-skeleton';
 import { BookmarksService } from '../services/bookmarks.service';
 
 @Component({
   selector: 'app-bookmarks-page',
-  imports: [PostCard, MatButtonModule, MatProgressSpinnerModule, TranslatePipe],
+  imports: [PostCard, PostCardSkeleton, MatButtonModule, MatProgressSpinnerModule, TranslatePipe],
   templateUrl: './bookmarks-page.html',
   styleUrl: './bookmarks-page.css',
 })
