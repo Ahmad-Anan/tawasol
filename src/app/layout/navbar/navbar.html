@@ -15,6 +15,10 @@
           <mat-icon>person</mat-icon>
           <span>{{ 'navbar.myProfile' | translate }}</span>
         </a>
+        <a mat-menu-item routerLink="/bookmarks">
+          <mat-icon>bookmark</mat-icon>
+          <span>{{ 'navbar.bookmarks' | translate }}</span>
+        </a>
         <a mat-menu-item routerLink="/change-password">
           <mat-icon>lock</mat-icon>
           <span>{{ 'navbar.changePassword' | translate }}</span>
@@ -24,17 +28,6 @@
           <span>{{ 'navbar.logout' | translate }}</span>
         </button>
       </mat-menu>
-    }
-
-    @if (authService.isAuthenticated()) {
-      <button
-        mat-icon-button
-        type="button"
-        routerLink="/bookmarks"
-        [attr.aria-label]="'navbar.bookmarks' | translate"
-      >
-        <mat-icon class="text-(--color-bone-100)">bookmark</mat-icon>
-      </button>
     }
 
     @if (authService.isAuthenticated()) {
