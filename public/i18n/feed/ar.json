@@ -41,6 +41,7 @@
       "likesAriaLabel": "{{count}} إعجاب",
       "comment": "تعليق",
       "commentsAriaLabel": "{{count}} تعليق",
+      "viewAllComments": "عرض كل التعليقات ({{count}})",
       "bookmark": "حفظ",
       "unbookmark": "إزالة من المحفوظات",
       "share": "مشاركة",

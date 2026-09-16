@@ -41,6 +41,7 @@
       "likesAriaLabel": "{{count}} likes",
       "comment": "Comment",
       "commentsAriaLabel": "{{count}} comments",
+      "viewAllComments": "View all comments ({{count}})",
       "bookmark": "Save",
       "unbookmark": "Remove from saved",
       "share": "Share",

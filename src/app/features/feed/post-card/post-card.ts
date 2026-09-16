@@ -69,6 +69,17 @@ export class PostCard {
 
   protected readonly showComments = signal(false);
 
+  /**
+   * The top-comment preview under each card (see post-card.html) reads `post().topComment`
+   * directly instead of a dedicated `CommentsService` fetch — every full-shape post (feed,
+   * profile, bookmarks) already carries its own top comment inline (see
+   * docs/api-reference.md > "The 'post' object has two different shapes…"), so there's no
+   * network request to make here at all, let alone one worth lazy-loading behind an
+   * IntersectionObserver. Fetching it separately via CommentsService would mean a second,
+   * possibly-inconsistent source of truth for the same comment and a redundant request per
+   * visible post — exactly the kind of avoidable extra fetch this codebase's race-condition
+   * lessons (PostsService/BookmarksService/CommentsService's own doc comments) argue against.
+   */
   protected toggleComments(): void {
     this.showComments.update((value) => !value);
   }
