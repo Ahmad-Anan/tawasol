@@ -1,10 +1,15 @@
 import { NgOptimizedImage } from '@angular/common';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ProfileService } from '../services/profile.service';
+import {
+  SuggestedFriendsDialog,
+  type SuggestedFriendsDialogData,
+} from '../../suggestions/suggested-friends-dialog/suggested-friends-dialog';
 
 /**
  * There's no name/bio-editing endpoint in this API (see docs/api-reference.md) — the only
@@ -20,6 +25,7 @@ import { ProfileService } from '../services/profile.service';
 export class ProfileHeader {
   protected readonly profileService = inject(ProfileService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dialog = inject(MatDialog);
 
   protected readonly previewUrl = signal<string | null>(null);
   private readonly selectedFile = signal<File | null>(null);
@@ -34,6 +40,16 @@ export class ProfileHeader {
     this.setFile(file);
     // Allows re-selecting the same file later (browsers don't fire `change` again otherwise).
     input.value = '';
+  }
+
+  /**
+   * There's no API endpoint for a user's actual followers/following list (verified live — see
+   * docs/api-reference.md) — this opens the suggested-friends dialog instead, which makes that
+   * limitation explicit to the person clicking rather than silently doing nothing or (worse)
+   * pretending to show a real list.
+   */
+  protected openSuggestionsDialog(context: SuggestedFriendsDialogData['context']): void {
+    this.dialog.open(SuggestedFriendsDialog, { data: { context }, autoFocus: 'first-tabbable', width: '420px' });
   }
 
   protected cancelPhotoChange(): void {

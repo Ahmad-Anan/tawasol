@@ -9,6 +9,12 @@
       "loadFailed": "Couldn't load suggestions.",
       "followFailed": "Couldn't follow. Please try again.",
       "loadMoreFailed": "Couldn't load more suggestions."
+    },
+    "dialog": {
+      "titleFollowers": "Followers",
+      "titleFollowing": "Following",
+      "disclaimer": "A detailed follower list isn't available yet — here are some people you might want to follow instead.",
+      "close": "Close"
     }
   }
 }

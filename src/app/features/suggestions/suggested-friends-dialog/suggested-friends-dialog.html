@@ -1,0 +1,16 @@
+<h2 mat-dialog-title style="font-family: var(--font-display)">
+  {{ (data.context === 'followers' ? 'suggestions.dialog.titleFollowers' : 'suggestions.dialog.titleFollowing')
+    | translate }}
+</h2>
+
+<mat-dialog-content>
+  <p class="mb-4 rounded-xl bg-(--color-bone-100) p-3 text-sm text-(--color-text-secondary)">
+    {{ 'suggestions.dialog.disclaimer' | translate }}
+  </p>
+
+  <app-suggested-friends />
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close>{{ 'suggestions.dialog.close' | translate }}</button>
+</mat-dialog-actions>

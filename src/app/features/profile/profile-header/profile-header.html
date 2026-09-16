@@ -65,28 +65,42 @@
       </div>
     </div>
 
-    <dl class="mt-4 grid grid-cols-[repeat(auto-fit,minmax(90px,1fr))] gap-2">
+    <div class="mt-4 grid grid-cols-[repeat(auto-fit,minmax(90px,1fr))] gap-2">
+      <button
+        type="button"
+        class="rounded-xl bg-(--color-bone-100) p-3 text-center transition-colors duration-150 hover:bg-(--color-surface)"
+        (click)="openSuggestionsDialog('followers')"
+      >
+        <span class="block text-xs text-(--color-text-secondary)">{{ 'profile.followers' | translate }}</span>
+        <span class="block font-(--font-mono) text-lg font-bold text-(--mat-sys-primary)">{{
+          profile.followersCount
+        }}</span>
+      </button>
+      <button
+        type="button"
+        class="rounded-xl bg-(--color-bone-100) p-3 text-center transition-colors duration-150 hover:bg-(--color-surface)"
+        (click)="openSuggestionsDialog('following')"
+      >
+        <span class="block text-xs text-(--color-text-secondary)">{{ 'profile.following' | translate }}</span>
+        <span class="block font-(--font-mono) text-lg font-bold text-(--mat-sys-primary)">{{
+          profile.followingCount
+        }}</span>
+      </button>
       <div class="rounded-xl bg-(--color-bone-100) p-3 text-center">
-        <dt class="text-xs text-(--color-text-secondary)">{{ 'profile.followers' | translate }}</dt>
-        <dd class="font-(--font-mono) text-lg font-bold text-(--mat-sys-primary)">{{ profile.followersCount }}</dd>
-      </div>
-      <div class="rounded-xl bg-(--color-bone-100) p-3 text-center">
-        <dt class="text-xs text-(--color-text-secondary)">{{ 'profile.following' | translate }}</dt>
-        <dd class="font-(--font-mono) text-lg font-bold text-(--mat-sys-primary)">{{ profile.followingCount }}</dd>
-      </div>
-      <div class="rounded-xl bg-(--color-bone-100) p-3 text-center">
-        <dt class="text-xs text-(--color-text-secondary)">{{ 'profile.posts' | translate }}</dt>
-        <dd class="font-(--font-mono) text-lg font-bold text-(--mat-sys-primary)">{{ profileService.postsTotal() }}</dd>
+        <span class="block text-xs text-(--color-text-secondary)">{{ 'profile.posts' | translate }}</span>
+        <span class="block font-(--font-mono) text-lg font-bold text-(--mat-sys-primary)">{{
+          profileService.postsTotal()
+        }}</span>
       </div>
       @if (profileService.bookmarksCount() !== null) {
         <div class="rounded-xl bg-(--color-bone-100) p-3 text-center">
-          <dt class="text-xs text-(--color-text-secondary)">{{ 'profile.bookmarks' | translate }}</dt>
-          <dd class="font-(--font-mono) text-lg font-bold text-(--mat-sys-primary)">
-            {{ profileService.bookmarksCount() }}
-          </dd>
+          <span class="block text-xs text-(--color-text-secondary)">{{ 'profile.bookmarks' | translate }}</span>
+          <span class="block font-(--font-mono) text-lg font-bold text-(--mat-sys-primary)">{{
+            profileService.bookmarksCount()
+          }}</span>
         </div>
       }
-    </dl>
+    </div>
 
     @if (previewUrl(); as preview) {
       <div class="mt-4 flex items-center gap-3 rounded-xl bg-(--color-bone-100) p-3">
