@@ -1,6 +1,7 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Component, ElementRef, PLATFORM_ID, effect, inject, viewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe } from '@ngx-translate/core';
 import { PostCard } from '../../feed/post-card/post-card';
@@ -9,7 +10,7 @@ import { BookmarksService } from '../services/bookmarks.service';
 
 @Component({
   selector: 'app-bookmarks-page',
-  imports: [PostCard, PostCardSkeleton, MatButtonModule, MatProgressSpinnerModule, TranslatePipe],
+  imports: [PostCard, PostCardSkeleton, MatButtonModule, MatIcon, MatProgressSpinnerModule, TranslatePipe],
   templateUrl: './bookmarks-page.html',
   styleUrl: './bookmarks-page.css',
 })

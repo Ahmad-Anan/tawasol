@@ -2,6 +2,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { Component, ElementRef, PLATFORM_ID, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe } from '@ngx-translate/core';
 import { NotificationItem } from '../notification-item/notification-item';
@@ -11,7 +12,14 @@ type NotificationsTab = 'all' | 'unread';
 
 @Component({
   selector: 'app-notifications-page',
-  imports: [NotificationItem, MatButtonModule, MatButtonToggleModule, MatProgressSpinnerModule, TranslatePipe],
+  imports: [
+    NotificationItem,
+    MatButtonModule,
+    MatButtonToggleModule,
+    MatIcon,
+    MatProgressSpinnerModule,
+    TranslatePipe,
+  ],
   templateUrl: './notifications-page.html',
   styleUrl: './notifications-page.css',
 })

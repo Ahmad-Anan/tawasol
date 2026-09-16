@@ -1,5 +1,5 @@
 import { isPlatformBrowser } from '@angular/common';
-import { Component, ElementRef, PLATFORM_ID, effect, inject, viewChild } from '@angular/core';
+import { Component, ElementRef, PLATFORM_ID, computed, effect, inject, viewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIcon } from '@angular/material/icon';
@@ -38,6 +38,26 @@ export class FeedPage {
   // Only rendered (see feed-page.html) while there's another page to fetch, so this signal
   // naturally becomes `undefined` again once the feed is exhausted.
   private readonly scrollSentinel = viewChild<ElementRef<HTMLElement>>('scrollSentinel');
+
+  /**
+   * Icon for the empty-state illustration — presentation-only, so it lives here rather than
+   * alongside PostsService.emptyStateKey() (which owns the equivalent *text* choice); mirrors
+   * that computed's exact branching so the icon and message always agree on which empty state
+   * is showing.
+   */
+  protected readonly emptyStateIcon = computed(() => {
+    if (this.postsService.hasImageFilter() !== null) {
+      return 'filter_alt_off';
+    }
+    switch (this.postsService.onlyFilter()) {
+      case 'following':
+        return 'people_outline';
+      case 'me':
+        return 'edit_note';
+      default:
+        return 'dynamic_feed';
+    }
+  });
 
   constructor() {
     // PostsService no longer starts fetching the feed merely by being constructed (it's also

@@ -32,9 +32,14 @@
         {{ 'notifications.errors.loadFailed' | translate }}
       </p>
     } @else {
-      <p class="rounded-2xl bg-(--color-surface) p-8 text-center text-(--color-text-secondary)">
-        {{ (activeTab() === 'unread' ? 'notifications.emptyUnread' : 'notifications.empty') | translate }}
-      </p>
+      <div
+        class="flex flex-col items-center gap-3 rounded-2xl bg-(--color-surface) p-8 text-center text-(--color-text-secondary)"
+      >
+        <mat-icon class="!h-12 !w-12 !text-5xl opacity-50">{{
+          activeTab() === 'unread' ? 'done_all' : 'notifications_none'
+        }}</mat-icon>
+        <p>{{ (activeTab() === 'unread' ? 'notifications.emptyUnread' : 'notifications.empty') | translate }}</p>
+      </div>
     }
   } @else {
     <div class="flex flex-col gap-2 rounded-2xl bg-(--color-surface) p-2 shadow-sm">

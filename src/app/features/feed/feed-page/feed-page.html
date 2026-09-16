@@ -48,9 +48,12 @@
           {{ 'feed.errors.loadFailed' | translate }}
         </p>
       } @else {
-        <p class="rounded-2xl bg-(--color-surface) p-8 text-center text-(--color-text-secondary)">
-          {{ postsService.emptyStateKey() | translate }}
-        </p>
+        <div
+          class="flex flex-col items-center gap-3 rounded-2xl bg-(--color-surface) p-8 text-center text-(--color-text-secondary)"
+        >
+          <mat-icon class="!h-12 !w-12 !text-5xl opacity-50">{{ emptyStateIcon() }}</mat-icon>
+          <p>{{ postsService.emptyStateKey() | translate }}</p>
+        </div>
       }
     } @else {
       @for (post of postsService.posts(); track post.id) {
