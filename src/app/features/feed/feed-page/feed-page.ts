@@ -6,7 +6,9 @@ import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe } from '@ngx-translate/core';
 import { SuggestedFriends } from '../../suggestions/suggested-friends/suggested-friends';
+import { AuthService } from '../../../core/services/auth.service';
 import { CreatePost } from '../create-post/create-post';
+import { FeedNav } from '../feed-nav/feed-nav';
 import { PostCard } from '../post-card/post-card';
 import { PostsService } from '../services/posts.service';
 
@@ -14,6 +16,7 @@ import { PostsService } from '../services/posts.service';
   selector: 'app-feed-page',
   imports: [
     CreatePost,
+    FeedNav,
     PostCard,
     SuggestedFriends,
     MatButtonModule,
@@ -27,6 +30,7 @@ import { PostsService } from '../services/posts.service';
 })
 export class FeedPage {
   protected readonly postsService = inject(PostsService);
+  protected readonly authService = inject(AuthService);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   // Only rendered (see feed-page.html) while there's another page to fetch, so this signal

@@ -6,6 +6,11 @@
     "emptyFiltered": "No posts match these filters.",
     "loadingMore": "Loading more posts…",
     "retry": "Retry",
+    "sidebar": {
+      "feed": "Feed",
+      "myPosts": "My Posts",
+      "bookmarks": "Bookmarks"
+    },
     "filters": {
       "onlyLabel": "Filter posts",
       "all": "All",

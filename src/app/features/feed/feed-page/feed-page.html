@@ -1,66 +1,72 @@
-<div class="mx-auto max-w-5xl px-4 py-6 lg:grid lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start lg:gap-6">
-<div class="mx-auto flex max-w-2xl flex-col gap-4 lg:mx-0 lg:max-w-none">
-  <div class="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-(--color-surface) p-2 shadow-sm">
-    <mat-button-toggle-group
-      [value]="postsService.onlyFilter()"
-      (change)="postsService.setOnlyFilter($event.value)"
-      [attr.aria-label]="'feed.filters.onlyLabel' | translate"
-    >
-      <mat-button-toggle value="all">{{ 'feed.filters.all' | translate }}</mat-button-toggle>
-      <mat-button-toggle value="following">{{ 'feed.filters.following' | translate }}</mat-button-toggle>
-      <mat-button-toggle value="me">{{ 'feed.filters.me' | translate }}</mat-button-toggle>
-    </mat-button-toggle-group>
+<div class="mx-auto max-w-6xl px-4 py-6 lg:grid lg:grid-cols-[200px_minmax(0,1fr)_280px] lg:items-start lg:gap-6">
+  @if (authService.isAuthenticated()) {
+    <aside class="hidden lg:sticky lg:top-4 lg:col-start-1 lg:block">
+      <app-feed-nav />
+    </aside>
+  }
 
-    <button
-      mat-stroked-button
-      type="button"
-      [style.color]="postsService.hasImageFilter() === true ? 'var(--color-harbor-600)' : null"
-      [attr.aria-pressed]="postsService.hasImageFilter() === true"
-      (click)="toggleHasImageFilter()"
-    >
-      <mat-icon>image</mat-icon>
-      {{ 'feed.filters.hasImage' | translate }}
-    </button>
+  <div class="mx-auto flex max-w-2xl flex-col gap-4 lg:col-start-2 lg:mx-0 lg:max-w-none">
+    <div class="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-(--color-surface) p-2 shadow-sm">
+      <mat-button-toggle-group
+        [value]="postsService.onlyFilter()"
+        (change)="postsService.setOnlyFilter($event.value)"
+        [attr.aria-label]="'feed.filters.onlyLabel' | translate"
+      >
+        <mat-button-toggle value="all">{{ 'feed.filters.all' | translate }}</mat-button-toggle>
+        <mat-button-toggle value="following">{{ 'feed.filters.following' | translate }}</mat-button-toggle>
+        <mat-button-toggle value="me">{{ 'feed.filters.me' | translate }}</mat-button-toggle>
+      </mat-button-toggle-group>
+
+      <button
+        mat-stroked-button
+        type="button"
+        [style.color]="postsService.hasImageFilter() === true ? 'var(--color-harbor-600)' : null"
+        [attr.aria-pressed]="postsService.hasImageFilter() === true"
+        (click)="toggleHasImageFilter()"
+      >
+        <mat-icon>image</mat-icon>
+        {{ 'feed.filters.hasImage' | translate }}
+      </button>
+    </div>
+
+    <app-create-post />
+
+    @if (postsService.isLoading()) {
+      <div class="flex justify-center py-10">
+        <mat-spinner diameter="36" />
+      </div>
+    } @else if (postsService.posts().length === 0) {
+      @if (postsService.loadError()) {
+        <p class="rounded-2xl bg-(--color-surface) p-8 text-center text-(--color-ember-600)">
+          {{ 'feed.errors.loadFailed' | translate }}
+        </p>
+      } @else {
+        <p class="rounded-2xl bg-(--color-surface) p-8 text-center text-(--color-text-secondary)">
+          {{ postsService.emptyStateKey() | translate }}
+        </p>
+      }
+    } @else {
+      @for (post of postsService.posts(); track post.id) {
+        <app-post-card [post]="post" />
+      }
+
+      @if (postsService.hasMore()) {
+        <div #scrollSentinel class="flex flex-col items-center gap-2 py-4">
+          @if (postsService.isLoadingMore()) {
+            <mat-spinner diameter="28" />
+            <span class="sr-only">{{ 'feed.loadingMore' | translate }}</span>
+          } @else if (postsService.loadMoreError()) {
+            <p class="text-sm text-(--color-ember-600)">{{ 'feed.errors.loadMoreFailed' | translate }}</p>
+            <button mat-button type="button" (click)="postsService.loadMore()">
+              {{ 'feed.retry' | translate }}
+            </button>
+          }
+        </div>
+      }
+    }
   </div>
 
-  <app-create-post />
-
-  @if (postsService.isLoading()) {
-    <div class="flex justify-center py-10">
-      <mat-spinner diameter="36" />
-    </div>
-  } @else if (postsService.posts().length === 0) {
-    @if (postsService.loadError()) {
-      <p class="rounded-2xl bg-(--color-surface) p-8 text-center text-(--color-ember-600)">
-        {{ 'feed.errors.loadFailed' | translate }}
-      </p>
-    } @else {
-      <p class="rounded-2xl bg-(--color-surface) p-8 text-center text-(--color-text-secondary)">
-        {{ postsService.emptyStateKey() | translate }}
-      </p>
-    }
-  } @else {
-    @for (post of postsService.posts(); track post.id) {
-      <app-post-card [post]="post" />
-    }
-
-    @if (postsService.hasMore()) {
-      <div #scrollSentinel class="flex flex-col items-center gap-2 py-4">
-        @if (postsService.isLoadingMore()) {
-          <mat-spinner diameter="28" />
-          <span class="sr-only">{{ 'feed.loadingMore' | translate }}</span>
-        } @else if (postsService.loadMoreError()) {
-          <p class="text-sm text-(--color-ember-600)">{{ 'feed.errors.loadMoreFailed' | translate }}</p>
-          <button mat-button type="button" (click)="postsService.loadMore()">
-            {{ 'feed.retry' | translate }}
-          </button>
-        }
-      </div>
-    }
-  }
-</div>
-
-  <aside class="hidden lg:sticky lg:top-4 lg:block">
+  <aside class="hidden lg:sticky lg:top-4 lg:col-start-3 lg:block">
     <app-suggested-friends />
   </aside>
 </div>
