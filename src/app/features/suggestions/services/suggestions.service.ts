@@ -68,9 +68,27 @@ export class SuggestionsService {
     });
   }
 
-  /** Called once by the widget on mount. A no-op on every call after the first. */
+  /**
+   * Called by the widget on every mount, not just the first — unlike PostsService/
+   * BookmarksService's `start()`, this one deliberately refetches from page 1 each time
+   * (verified live: `GET /users/suggestions` already excludes anyone already followed, so a
+   * fresh fetch is enough to reflect it). Without this, following someone through their profile
+   * page (or any other surface) while this widget's component was unmounted — e.g. you left the
+   * feed, followed someone from their profile, then came back — would leave them stuck showing
+   * "Follow" here until the app was reloaded: `SuggestionsService` has no shared store with
+   * ProfileService the way PostsService.mergePosts gives posts one (there's no equivalent
+   * "shared user store" in this app), so the only way to stay honest is to re-ask the server
+   * every time this widget becomes visible again.
+   */
   start(): void {
-    this._requested.set(true);
+    if (!this._requested()) {
+      this._requested.set(true);
+      return;
+    }
+    this._suggestions.set([]);
+    this._hasMore.set(true);
+    this._page.set(1);
+    this.suggestionsResource.reload();
   }
 
   loadMore(): void {
