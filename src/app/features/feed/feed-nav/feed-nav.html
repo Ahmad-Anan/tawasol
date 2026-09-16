@@ -1,7 +1,7 @@
 <nav class="flex flex-col gap-1 rounded-2xl bg-(--color-surface) p-2 shadow-sm">
   <a
     routerLink="/feed"
-    routerLinkActive="bg-(--color-bone-100) text-(--color-harbor-600)"
+    routerLinkActive="bg-(--color-bone-100) text-(--mat-sys-primary)"
     [routerLinkActiveOptions]="{ exact: true }"
     class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-(--color-text-primary)"
   >
@@ -12,7 +12,7 @@
   @if (authService.user(); as user) {
     <a
       [routerLink]="['/profile', user._id]"
-      routerLinkActive="bg-(--color-bone-100) text-(--color-harbor-600)"
+      routerLinkActive="bg-(--color-bone-100) text-(--mat-sys-primary)"
       class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-(--color-text-primary)"
     >
       <mat-icon>person</mat-icon>
@@ -22,7 +22,7 @@
 
   <a
     routerLink="/bookmarks"
-    routerLinkActive="bg-(--color-bone-100) text-(--color-harbor-600)"
+    routerLinkActive="bg-(--color-bone-100) text-(--mat-sys-primary)"
     class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-(--color-text-primary)"
   >
     <mat-icon>bookmark</mat-icon>

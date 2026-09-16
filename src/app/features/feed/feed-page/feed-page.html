@@ -20,7 +20,7 @@
       <button
         mat-stroked-button
         type="button"
-        [style.color]="postsService.hasImageFilter() === true ? 'var(--color-harbor-600)' : null"
+        [style.color]="postsService.hasImageFilter() === true ? 'var(--mat-sys-primary)' : null"
         [attr.aria-pressed]="postsService.hasImageFilter() === true"
         (click)="toggleHasImageFilter()"
       >

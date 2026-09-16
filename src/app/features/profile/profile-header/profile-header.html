@@ -68,20 +68,20 @@
     <dl class="mt-4 grid grid-cols-[repeat(auto-fit,minmax(90px,1fr))] gap-2">
       <div class="rounded-xl bg-(--color-bone-100) p-3 text-center">
         <dt class="text-xs text-(--color-text-secondary)">{{ 'profile.followers' | translate }}</dt>
-        <dd class="font-(--font-mono) text-lg font-bold text-(--color-harbor-600)">{{ profile.followersCount }}</dd>
+        <dd class="font-(--font-mono) text-lg font-bold text-(--mat-sys-primary)">{{ profile.followersCount }}</dd>
       </div>
       <div class="rounded-xl bg-(--color-bone-100) p-3 text-center">
         <dt class="text-xs text-(--color-text-secondary)">{{ 'profile.following' | translate }}</dt>
-        <dd class="font-(--font-mono) text-lg font-bold text-(--color-harbor-600)">{{ profile.followingCount }}</dd>
+        <dd class="font-(--font-mono) text-lg font-bold text-(--mat-sys-primary)">{{ profile.followingCount }}</dd>
       </div>
       <div class="rounded-xl bg-(--color-bone-100) p-3 text-center">
         <dt class="text-xs text-(--color-text-secondary)">{{ 'profile.posts' | translate }}</dt>
-        <dd class="font-(--font-mono) text-lg font-bold text-(--color-harbor-600)">{{ profileService.postsTotal() }}</dd>
+        <dd class="font-(--font-mono) text-lg font-bold text-(--mat-sys-primary)">{{ profileService.postsTotal() }}</dd>
       </div>
       @if (profileService.bookmarksCount() !== null) {
         <div class="rounded-xl bg-(--color-bone-100) p-3 text-center">
           <dt class="text-xs text-(--color-text-secondary)">{{ 'profile.bookmarks' | translate }}</dt>
-          <dd class="font-(--font-mono) text-lg font-bold text-(--color-harbor-600)">
+          <dd class="font-(--font-mono) text-lg font-bold text-(--mat-sys-primary)">
             {{ profileService.bookmarksCount() }}
           </dd>
         </div>

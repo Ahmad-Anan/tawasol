@@ -155,7 +155,7 @@
         mat-button
         type="button"
         [disabled]="isLiking()"
-        [style.color]="isLiked() ? 'var(--color-harbor-600)' : null"
+        [style.color]="isLiked() ? 'var(--mat-sys-primary)' : null"
         [attr.aria-label]="(isLiked() ? 'feed.postCard.unlike' : 'feed.postCard.like') | translate"
         (click)="onToggleLike()"
       >
@@ -166,7 +166,7 @@
       <button
         mat-button
         type="button"
-        [style.color]="showComments() ? 'var(--color-harbor-600)' : null"
+        [style.color]="showComments() ? 'var(--mat-sys-primary)' : null"
         [attr.aria-label]="'feed.postCard.comment' | translate"
         (click)="toggleComments()"
       >
@@ -178,7 +178,7 @@
         mat-icon-button
         type="button"
         [disabled]="isBookmarking()"
-        [style.color]="post().bookmarked ? 'var(--color-harbor-600)' : null"
+        [style.color]="post().bookmarked ? 'var(--mat-sys-primary)' : null"
         [attr.aria-label]="(post().bookmarked ? 'feed.postCard.unbookmark' : 'feed.postCard.bookmark') | translate"
         (click)="onToggleBookmark()"
       >
