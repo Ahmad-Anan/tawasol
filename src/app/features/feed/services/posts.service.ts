@@ -125,7 +125,17 @@ export class PostsService {
       this._posts.update((existing) =>
         this._cursor() ? [...existing, ...response.data.posts] : response.data.posts,
       );
-      this._hasMore.set(response.meta.feedMode === 'cursor' ? response.meta.cursor.hasMore : false);
+      // The very first request (no `cursor` sent yet) always comes back in page mode, not
+      // cursor mode — the API switches shape purely on whether `cursor` was present in the
+      // query string (see docs/api-reference.md > GET /posts/feed). Page mode signals "another
+      // page exists" via the *presence* of `pagination.nextPage` as a key (its absence, not a
+      // `null` value, means no more pages) — mirror that here instead of assuming page mode
+      // always means "done", which used to kill infinite scroll after the first page.
+      this._hasMore.set(
+        response.meta.feedMode === 'cursor'
+          ? response.meta.cursor.hasMore
+          : response.meta.pagination.nextPage !== undefined,
+      );
     });
   }
 
