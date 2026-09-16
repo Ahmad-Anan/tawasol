@@ -525,6 +525,8 @@ Notes:
 
 **Critical, verified live:** changing the password **invalidates the previously-issued token immediately** — a request made right after with the pre-change token gets `401 {"message":"invalid token .. login again", ...}`. The success response's `data.token` is a freshly-signed replacement. The client must overwrite its stored token with this one as part of a successful change, or the user gets silently logged out (every subsequent request 401s) the moment the password change succeeds. No `user` object comes back in this response — reuse the already-held `AuthService.user()`, don't expect a fresh one here.
 
+**No forgot-password/reset-password flow exists in this API** — checked live (2026-09-17): `POST /users/forgot-password`, `/forgotPassword`, `/reset-password`, `/resetPassword`, `/send-reset-code`, `/verify-reset-code`, `/auth/forgot-password` all `404 {"message":"route not found"}` (a route-level 404, same as the followers/following-list check above), and the public API docs at route-posts.routemisr.com/route-posts list nothing like it either. `PATCH /users/change-password` (above) is the *only* password-related endpoint, and it requires knowing the current password — there is no way for a signed-out user to recover a forgotten one against this API as it stands. A "Forgot password?" link is not buildable.
+
 ---
 
 ## Comments endpoints — general notes
