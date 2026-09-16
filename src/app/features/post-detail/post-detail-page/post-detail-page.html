@@ -6,7 +6,7 @@
       <mat-spinner diameter="36" />
     </div>
   } @else if (postsService.singlePostError()) {
-    <p class="rounded-2xl bg-(--color-surface) p-8 text-center text-(--color-ember-600)">
+    <p class="rounded-2xl bg-(--color-surface) p-8 text-center text-(--color-error-text)">
       {{ 'postDetail.errors.notFound' | translate }}
     </p>
   }

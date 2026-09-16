@@ -1,9 +1,9 @@
 <nav class="flex flex-col gap-1 rounded-2xl bg-(--color-surface) p-2 shadow-sm">
   <a
     routerLink="/feed"
-    routerLinkActive="bg-(--color-bone-100) text-(--mat-sys-primary)"
+    routerLinkActive="bg-(--color-hover-tint) text-(--mat-sys-primary)"
     [routerLinkActiveOptions]="{ exact: true }"
-    class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-(--color-text-primary) transition-colors duration-150 hover:bg-(--color-bone-100)"
+    class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-(--color-text-primary) transition-colors duration-150 hover:bg-(--color-hover-tint)"
   >
     <mat-icon>home</mat-icon>
     {{ 'feed.sidebar.feed' | translate }}
@@ -12,8 +12,8 @@
   @if (authService.user(); as user) {
     <a
       [routerLink]="['/profile', user._id]"
-      routerLinkActive="bg-(--color-bone-100) text-(--mat-sys-primary)"
-      class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-(--color-text-primary) transition-colors duration-150 hover:bg-(--color-bone-100)"
+      routerLinkActive="bg-(--color-hover-tint) text-(--mat-sys-primary)"
+      class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-(--color-text-primary) transition-colors duration-150 hover:bg-(--color-hover-tint)"
     >
       <mat-icon>person</mat-icon>
       {{ 'feed.sidebar.myPosts' | translate }}
@@ -22,8 +22,8 @@
 
   <a
     routerLink="/bookmarks"
-    routerLinkActive="bg-(--color-bone-100) text-(--mat-sys-primary)"
-    class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-(--color-text-primary) transition-colors duration-150 hover:bg-(--color-bone-100)"
+    routerLinkActive="bg-(--color-hover-tint) text-(--mat-sys-primary)"
+    class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-(--color-text-primary) transition-colors duration-150 hover:bg-(--color-hover-tint)"
   >
     <mat-icon>bookmark</mat-icon>
     {{ 'feed.sidebar.bookmarks' | translate }}

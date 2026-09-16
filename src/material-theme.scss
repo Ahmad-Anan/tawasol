@@ -27,6 +27,21 @@
   // doesn't happen again; anything sitting on --color-harbor-950 should pair with this, not
   // --color-bone-100.
   --color-on-harbor-950: #f5f3ec;
+  // Semantic error-text color — light mode: the literal Ember Clay brand value. Dark mode
+  // redefines this (see html.tawasol-dark below) to a lighter tone from the *same* generated
+  // tertiary palette (theme-colors.scss), since --color-ember-600 itself measured under WCAG
+  // AA's 4.5:1 for normal text against dark-mode --color-surface/--color-bone-100 (~3.2-4.2:1 —
+  // readable, but not compliant). Use this for error TEXT specifically; solid error-action
+  // BUTTON backgrounds (e.g. "Delete") stay on the literal --color-ember-600 in both themes —
+  // white text on that fixed value already clears AA comfortably either way, and repainting the
+  // background too would just be a second, unrelated color change no one asked for.
+  --color-error-text: var(--color-ember-600);
+  // Semantic hover/active tint for list rows and nav items. Light mode: --color-bone-100 (a
+  // warm off-white lift off --color-surface). Dark mode redefines this (see html.tawasol-dark
+  // below) to a lighter dark-neutral tone instead of reusing --color-bone-100 — in dark mode
+  // that token drops to near-black (darker than --color-surface itself), so a hover state built
+  // on it read as a barely-visible *darkening* instead of the intended highlight.
+  --color-hover-tint: var(--color-bone-100);
   // Aliases onto Material's auto-computed M3 tones — not hardcoded, so light mode is untouched.
   --color-text-primary: var(--mat-sys-on-surface);
   --color-text-secondary: var(--mat-sys-on-surface-variant);
@@ -97,6 +112,15 @@ html.tawasol-dark {
 
   --color-surface: #272b2a;
   --color-bone-100: #101413;
+  // Tone 70 of the same generated tertiary palette (theme-colors.scss) that --color-ember-600
+  // itself came from tone ~40-50 — a lighter, still-clearly-"Ember Clay" tone chosen for margin,
+  // not just barely clearing AA: measured ~8.1:1 against dark --color-bone-100 and ~6.3:1
+  // against dark --color-surface (both comfortably over the 4.5:1 minimum for normal text).
+  --color-error-text: #ff8c5e;
+  // Tone 22 of the generated neutral palette — one step lighter than dark --color-surface's own
+  // tone 17, i.e. a visible "lift" hover consistent with Material's own dark-elevation
+  // convention, instead of --color-bone-100's tone 6 (darker than the surface it's hovering on).
+  --color-hover-tint: #323635;
 
   @include mat.theme(
     (

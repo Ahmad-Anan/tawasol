@@ -1,6 +1,6 @@
 <form class="flex flex-col gap-1" (submit)="$event.preventDefault(); onSubmit()">
   @if (serverError()) {
-    <div class="mb-3 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+    <div class="mb-3 rounded-lg bg-(--color-bone-100) px-4 py-3 text-sm text-(--color-error-text)" role="alert">
       {{ serverError() }}
     </div>
   }
@@ -41,7 +41,7 @@
       <mat-radio-button value="female">{{ 'auth.register.genderFemale' | translate }}</mat-radio-button>
     </mat-radio-group>
     @if (registerForm.gender().touched() && registerForm.gender().invalid()) {
-      <p class="mt-1 text-xs text-red-600">{{ registerForm.gender().errors()[0]?.message }}</p>
+      <p class="mt-1 text-xs text-(--color-error-text)">{{ registerForm.gender().errors()[0]?.message }}</p>
     }
   </div>
 

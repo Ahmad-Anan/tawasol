@@ -6,7 +6,7 @@
       <mat-spinner diameter="28" />
     </div>
   } @else if (loadError()) {
-    <p class="py-6 text-center text-sm text-(--color-ember-600)">
+    <p class="py-6 text-center text-sm text-(--color-error-text)">
       {{ 'feed.postCard.likesDialog.errors.loadFailed' | translate }}
     </p>
   } @else if (likes().length === 0) {
@@ -33,7 +33,7 @@
             <mat-spinner diameter="20" />
             <span class="sr-only">{{ 'feed.postCard.likesDialog.loadingMore' | translate }}</span>
           } @else if (loadMoreError()) {
-            <p class="text-xs text-(--color-ember-600)">{{ 'feed.postCard.likesDialog.errors.loadMoreFailed' | translate }}</p>
+            <p class="text-xs text-(--color-error-text)">{{ 'feed.postCard.likesDialog.errors.loadMoreFailed' | translate }}</p>
             <button mat-button type="button" class="!text-xs" (click)="loadMore()">
               {{ 'feed.postCard.likesDialog.retry' | translate }}
             </button>

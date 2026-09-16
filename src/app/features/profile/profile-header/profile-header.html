@@ -128,16 +128,16 @@
     }
 
     @if (profileService.uploadError()) {
-      <p class="mt-2 text-sm text-(--color-ember-600)">{{ 'profile.errors.uploadFailed' | translate }}</p>
+      <p class="mt-2 text-sm text-(--color-error-text)">{{ 'profile.errors.uploadFailed' | translate }}</p>
     }
     @if (profileService.followError()) {
-      <p class="mt-2 text-sm text-(--color-ember-600)">{{ 'profile.errors.followFailed' | translate }}</p>
+      <p class="mt-2 text-sm text-(--color-error-text)">{{ 'profile.errors.followFailed' | translate }}</p>
     }
   } @else if (profileService.isLoading()) {
     <div class="flex justify-center py-6">
       <mat-spinner diameter="36" />
     </div>
   } @else if (profileService.loadError()) {
-    <p class="text-center text-(--color-ember-600)">{{ 'profile.errors.loadFailed' | translate }}</p>
+    <p class="text-center text-(--color-error-text)">{{ 'profile.errors.loadFailed' | translate }}</p>
   }
 </section>

@@ -93,7 +93,7 @@
       }
 
       @if (editError()) {
-        <p class="mt-2 text-sm text-(--color-ember-600)">{{ editError() }}</p>
+        <p class="mt-2 text-sm text-(--color-error-text)">{{ editError() }}</p>
       }
 
       <div class="mt-2 flex justify-end gap-2">
@@ -151,7 +151,7 @@
     </div>
 
     @if (deleteError()) {
-      <p class="mt-2 text-sm text-(--color-ember-600)">{{ deleteError() }}</p>
+      <p class="mt-2 text-sm text-(--color-error-text)">{{ deleteError() }}</p>
     }
   } @else if (!isEditing()) {
     <div class="mt-4 flex items-center justify-between border-t border-black/5 pt-2 dark:border-white/10">
@@ -215,7 +215,7 @@
     </div>
 
     @if (actionError()) {
-      <p class="mt-2 text-sm text-(--color-ember-600)">{{ actionError() }}</p>
+      <p class="mt-2 text-sm text-(--color-error-text)">{{ actionError() }}</p>
     }
 
     @if (!showComments() && post().topComment; as topComment) {

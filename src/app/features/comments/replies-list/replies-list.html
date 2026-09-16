@@ -4,7 +4,7 @@
       <mat-spinner diameter="20" />
     </div>
   } @else if (thread().loadError) {
-    <p class="text-xs text-(--color-ember-600)">{{ 'comments.errors.loadFailed' | translate }}</p>
+    <p class="text-xs text-(--color-error-text)">{{ 'comments.errors.loadFailed' | translate }}</p>
   } @else {
     @for (reply of thread().comments; track reply._id) {
       <app-comment-body [comment]="reply" [postId]="postId()" [parentCommentId]="parentCommentId()" />
