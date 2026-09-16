@@ -4,6 +4,12 @@
     "markAllAsRead": "Mark all as read",
     "unread": "Unread",
     "empty": "No notifications yet.",
+    "emptyUnread": "You're all caught up — no unread notifications.",
+    "tabs": {
+      "label": "Filter notifications",
+      "all": "All",
+      "unread": "Unread"
+    },
     "loadingMore": "Loading more…",
     "retry": "Retry",
     "messages": {

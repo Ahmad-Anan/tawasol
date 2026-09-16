@@ -13,23 +13,32 @@
     </button>
   </div>
 
+  <mat-button-toggle-group
+    [value]="activeTab()"
+    (change)="setActiveTab($event.value)"
+    [attr.aria-label]="'notifications.tabs.label' | translate"
+  >
+    <mat-button-toggle value="all">{{ 'notifications.tabs.all' | translate }}</mat-button-toggle>
+    <mat-button-toggle value="unread">{{ 'notifications.tabs.unread' | translate }}</mat-button-toggle>
+  </mat-button-toggle-group>
+
   @if (notificationsService.isLoading()) {
     <div class="flex justify-center py-10">
       <mat-spinner diameter="36" />
     </div>
-  } @else if (notificationsService.notifications().length === 0) {
+  } @else if (filteredNotifications().length === 0) {
     @if (notificationsService.loadError()) {
       <p class="rounded-2xl bg-(--color-surface) p-8 text-center text-(--color-ember-600)">
         {{ 'notifications.errors.loadFailed' | translate }}
       </p>
     } @else {
       <p class="rounded-2xl bg-(--color-surface) p-8 text-center text-(--color-text-secondary)">
-        {{ 'notifications.empty' | translate }}
+        {{ (activeTab() === 'unread' ? 'notifications.emptyUnread' : 'notifications.empty') | translate }}
       </p>
     }
   } @else {
     <div class="flex flex-col gap-2 rounded-2xl bg-(--color-surface) p-2 shadow-sm">
-      @for (notification of notificationsService.notifications(); track notification._id) {
+      @for (notification of filteredNotifications(); track notification._id) {
         <app-notification-item [notification]="notification" />
       }
     </div>
