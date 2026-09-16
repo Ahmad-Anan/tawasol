@@ -27,21 +27,6 @@
         @if (profile.bio) {
           <p class="mt-2 text-(--color-text-primary)">{{ profile.bio }}</p>
         }
-
-        <div class="mt-3 flex justify-center gap-6 sm:justify-start">
-          <span class="text-sm text-(--color-text-secondary)">
-            <strong class="font-(--font-mono) text-(--color-text-primary)">{{ profile.followersCount }}</strong>
-            {{ 'profile.followers' | translate }}
-          </span>
-          <span class="text-sm text-(--color-text-secondary)">
-            <strong class="font-(--font-mono) text-(--color-text-primary)">{{ profile.followingCount }}</strong>
-            {{ 'profile.following' | translate }}
-          </span>
-          <span class="text-sm text-(--color-text-secondary)">
-            <strong class="font-(--font-mono) text-(--color-text-primary)">{{ profileService.postsTotal() }}</strong>
-            {{ 'profile.posts' | translate }}
-          </span>
-        </div>
       </div>
 
       <div class="shrink-0">
@@ -79,6 +64,29 @@
         }
       </div>
     </div>
+
+    <dl class="mt-4 grid grid-cols-[repeat(auto-fit,minmax(90px,1fr))] gap-2">
+      <div class="rounded-xl bg-(--color-bone-100) p-3 text-center">
+        <dt class="text-xs text-(--color-text-secondary)">{{ 'profile.followers' | translate }}</dt>
+        <dd class="font-(--font-mono) text-lg font-bold text-(--color-harbor-600)">{{ profile.followersCount }}</dd>
+      </div>
+      <div class="rounded-xl bg-(--color-bone-100) p-3 text-center">
+        <dt class="text-xs text-(--color-text-secondary)">{{ 'profile.following' | translate }}</dt>
+        <dd class="font-(--font-mono) text-lg font-bold text-(--color-harbor-600)">{{ profile.followingCount }}</dd>
+      </div>
+      <div class="rounded-xl bg-(--color-bone-100) p-3 text-center">
+        <dt class="text-xs text-(--color-text-secondary)">{{ 'profile.posts' | translate }}</dt>
+        <dd class="font-(--font-mono) text-lg font-bold text-(--color-harbor-600)">{{ profileService.postsTotal() }}</dd>
+      </div>
+      @if (profileService.bookmarksCount() !== null) {
+        <div class="rounded-xl bg-(--color-bone-100) p-3 text-center">
+          <dt class="text-xs text-(--color-text-secondary)">{{ 'profile.bookmarks' | translate }}</dt>
+          <dd class="font-(--font-mono) text-lg font-bold text-(--color-harbor-600)">
+            {{ profileService.bookmarksCount() }}
+          </dd>
+        </div>
+      }
+    </dl>
 
     @if (previewUrl(); as preview) {
       <div class="mt-4 flex items-center gap-3 rounded-xl bg-(--color-bone-100) p-3">

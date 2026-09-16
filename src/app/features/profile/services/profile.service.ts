@@ -1,8 +1,9 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Service, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { API_BASE_URL } from '../../../core/constants/api';
 import { AuthService } from '../../../core/services/auth.service';
+import type { BookmarksApiResponse } from '../../bookmarks/bookmarks.interface';
 import type { Post } from '../../feed/feed.interface';
 import { PostsService } from '../../feed/services/posts.service';
 import type {
@@ -40,6 +41,12 @@ export class ProfileService {
    * counter exact isn't worth it here.
    */
   private readonly _postsTotal = signal(0);
+  /**
+   * Only ever populated for the signed-in user's own profile (see `load()`) — there's no
+   * endpoint for *another* user's bookmark count, and it wouldn't be a public stat anyway.
+   * `null` means "not applicable" (someone else's profile), distinct from `0` bookmarks.
+   */
+  private readonly _bookmarksCount = signal<number | null>(null);
   private readonly _isLoading = signal(false);
   private readonly _loadError = signal(false);
   private readonly _isTogglingFollow = signal(false);
@@ -50,6 +57,7 @@ export class ProfileService {
   readonly profile = this._profile.asReadonly();
   readonly isFollowing = this._isFollowing.asReadonly();
   readonly postsTotal = this._postsTotal.asReadonly();
+  readonly bookmarksCount = this._bookmarksCount.asReadonly();
   readonly isLoading = this._isLoading.asReadonly();
   readonly loadError = this._loadError.asReadonly();
   readonly isTogglingFollow = this._isTogglingFollow.asReadonly();
@@ -71,12 +79,15 @@ export class ProfileService {
     this._loadError.set(false);
     this._profile.set(null);
     this._postIds.set([]);
+    this._bookmarksCount.set(null);
     try {
       const isOwn = userId === this.authService.user()?._id;
-      // Fired together, not awaited one after another — the profile and the post list are
-      // independent reads (see docs/api-reference.md), so there's no reason to make the user
-      // wait for both round trips in sequence.
-      const [profileResult, postsResponse] = await Promise.all([
+      // Fired together, not awaited one after another — the profile, the post list, and (for
+      // one's own profile) the bookmarks count are independent reads (see
+      // docs/api-reference.md), so there's no reason to make the user wait for each round trip
+      // in sequence. `limit=1` on the bookmarks request — only `meta.pagination.total` is read,
+      // the bookmarks themselves are irrelevant here (BookmarksService owns the actual list).
+      const [profileResult, postsResponse, bookmarksCount] = await Promise.all([
         isOwn
           ? firstValueFrom(this.http.get<MyProfileApiResponse>(`${API_BASE_URL}/users/profile-data`)).then(
               (response) => ({ user: response.data.user, isFollowing: false }),
@@ -85,6 +96,13 @@ export class ProfileService {
               (response) => ({ user: response.data.user, isFollowing: response.data.isFollowing }),
             ),
         firstValueFrom(this.http.get<UserPostsApiResponse>(`${API_BASE_URL}/users/${userId}/posts`)),
+        isOwn
+          ? firstValueFrom(
+              this.http.get<BookmarksApiResponse>(`${API_BASE_URL}/users/bookmarks`, {
+                params: new HttpParams().set('limit', 1),
+              }),
+            ).then((response) => response.meta.pagination.total)
+          : Promise.resolve(null),
       ]);
 
       this._profile.set(profileResult.user);
@@ -92,6 +110,7 @@ export class ProfileService {
       this.postsService.mergePosts(postsResponse.data.posts);
       this._postIds.set(postsResponse.data.posts.map((post) => post.id));
       this._postsTotal.set(postsResponse.meta.pagination.total);
+      this._bookmarksCount.set(bookmarksCount);
     } catch {
       this._loadError.set(true);
     } finally {
