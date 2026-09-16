@@ -1,17 +1,19 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Service, computed, inject, signal } from '@angular/core';
+import { Service, computed, effect, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { API_BASE_URL } from '../../../core/constants/api';
 import { ProfileService } from '../../profile/services/profile.service';
-import type { SuggestionsApiResponse } from '../suggestions.interface';
+import type { SuggestedUser, SuggestionsApiResponse } from '../suggestions.interface';
 
-const SUGGESTIONS_LIMIT = 5;
+const SUGGESTIONS_PAGE_SIZE = 10;
 
 /**
- * Signal-based state for the "suggested friends" widget, following the same shape as
- * BookmarksService: private writable signals internally, readonly signals exposed, `@Service()`
- * singleton. Only ever shows one page — this is a small sidebar widget, not a paginated list —
- * so there's no `loadMore()`/cursor here.
+ * Signal-based state for the "suggested friends" widget, following the same page-based
+ * pagination shape as BookmarksService (`_page` signal, accumulate onto `_suggestions`,
+ * `hasMore` from `pagination.nextPage`'s presence) — verified live (see
+ * docs/api-reference.md > GET /users/suggestions) that this endpoint's pagination is real
+ * (distinct, non-overlapping pages over a large pool), not just a fixed-size cap, so real
+ * infinite scroll is safe to build against it.
  *
  * IMPORTANT (the recurring race-condition lesson in this codebase — see PostsService/
  * BookmarksService's own doc comments): `suggestionsResource` must NOT start fetching merely
@@ -24,29 +26,62 @@ export class SuggestionsService {
   private readonly profileService = inject(ProfileService);
 
   private readonly _requested = signal(false);
+  private readonly _page = signal(1);
+  private readonly _suggestions = signal<SuggestedUser[]>([]);
+  private readonly _hasMore = signal(true);
   /** Ids the widget has already followed this session — filtered out of `suggestions` immediately, no need to wait for a refetch. */
   private readonly _followedIds = signal<ReadonlySet<string>>(new Set());
   private readonly _followingIds = signal<ReadonlySet<string>>(new Set());
   private readonly _followErrorIds = signal<ReadonlySet<string>>(new Set());
 
   private readonly suggestionsResource = rxResource({
-    params: () => (this._requested() ? {} : undefined),
-    stream: () => {
-      const params = new HttpParams().set('limit', SUGGESTIONS_LIMIT);
-      return this.http.get<SuggestionsApiResponse>(`${API_BASE_URL}/users/suggestions`, { params });
+    params: () => (this._requested() ? { page: this._page() } : undefined),
+    stream: ({ params }) => {
+      const httpParams = new HttpParams().set('page', params.page).set('limit', SUGGESTIONS_PAGE_SIZE);
+      return this.http.get<SuggestionsApiResponse>(`${API_BASE_URL}/users/suggestions`, { params: httpParams });
     },
   });
 
-  readonly isLoading = computed(() => this.suggestionsResource.isLoading());
-  readonly loadError = computed(() => this.suggestionsResource.error());
+  readonly isLoading = computed(() => this.suggestionsResource.isLoading() && this._suggestions().length === 0);
+  readonly isLoadingMore = computed(() => this.suggestionsResource.isLoading() && this._suggestions().length > 0);
+  readonly loadError = computed(() => (this._suggestions().length === 0 ? this.suggestionsResource.error() : undefined));
+  readonly loadMoreError = computed(() => (this._suggestions().length > 0 ? this.suggestionsResource.error() : undefined));
+  readonly hasMore = this._hasMore.asReadonly();
+
   readonly suggestions = computed(() => {
     const followed = this._followedIds();
-    return (this.suggestionsResource.value()?.data.suggestions ?? []).filter((user) => !followed.has(user._id));
+    return this._suggestions().filter((user) => !followed.has(user._id));
   });
+
+  constructor() {
+    // Appends a page onto the accumulated list instead of the resource's default "replace the
+    // whole value" behaviour — same pattern as PostsService/BookmarksService.
+    effect(() => {
+      const response = this.suggestionsResource.value();
+      if (!response) {
+        return;
+      }
+      this._suggestions.update((existing) =>
+        this._page() > 1 ? [...existing, ...response.data.suggestions] : response.data.suggestions,
+      );
+      this._hasMore.set(response.meta.pagination.nextPage !== undefined);
+    });
+  }
 
   /** Called once by the widget on mount. A no-op on every call after the first. */
   start(): void {
     this._requested.set(true);
+  }
+
+  loadMore(): void {
+    if (!this._hasMore() || this.suggestionsResource.isLoading()) {
+      return;
+    }
+    if (this.loadMoreError()) {
+      this.suggestionsResource.reload();
+      return;
+    }
+    this._page.update((page) => page + 1);
   }
 
   isFollowing(userId: string): boolean {

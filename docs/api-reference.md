@@ -498,6 +498,7 @@ Notes:
 - `mutualFollowersCount` was `0` on every suggestion returned for this test account (which follows no one) — plausibly non-zero for an account with an existing follow graph, not independently verified.
 - There's no per-suggestion "already following"/dismiss flag — the client follows via the existing `PUT /users/:id/follow` (see above) using `_id`.
 - Same pagination convention as everywhere else: `nextPage` is only present as a key when another page exists.
+- **Verified (2026-09-16) that pagination is real, not just a cap:** `page=1/2/3` with `limit=3` returned three distinct, non-overlapping sets of `_id`s, with `total: 8755` and `numberOfPages: 2919` — genuinely paginated over a huge suggestion pool, safe to drive real infinite scroll (not a fixed-size list truncated by `limit`).
 
 ### PATCH /users/change-password
 
