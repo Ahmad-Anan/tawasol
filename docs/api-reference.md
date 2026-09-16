@@ -430,6 +430,8 @@ Toggles follow for the signed-in user (no body). `404` for an unknown id (`"user
 
 `followersCount` here is the **target user's** new total follower count (not the caller's) — verified by toggling and cross-checking against the target's own `GET /users/:id/profile` immediately after. The client patches this straight onto the locally-held profile.
 
+**No endpoint returns the actual list of followers/following users** — checked live (2026-09-16): `GET /users/:id/followers`, `/users/:id/following`, `/users/:id/follows`, `/users/followers`, `/users/following`, and `/users/:id/network` all `404 {"message":"route not found"}` (a route-level 404, not an auth/ownership one), and the public API docs at route-posts.routemisr.com/route-posts (Users & Auth tab) list no such endpoint either. Only the aggregate `followersCount`/`followingCount` numbers exist (`GET /users/:id/profile`, `GET /users/profile-data`, and the `user` object on a few other responses) — there's no way to enumerate *who* those followers/following are. A "view full followers/following list" UI feature is not buildable against this API as it stands.
+
 ### PUT /users/upload-photo
 
 Multipart form-data, field name `photo` (a `400` with a Multer-shaped validation error — `"\"fieldname\" is required,…"` — if the field is missing). Response:
