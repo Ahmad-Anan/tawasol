@@ -1,3 +1,7 @@
 .post-card {
   transition: box-shadow 150ms ease;
 }
+
+.post-card:hover {
+  box-shadow: var(--mat-sys-level2);
+}
