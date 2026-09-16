@@ -1,4 +1,9 @@
 <div class="mx-auto max-w-6xl px-4 py-6 lg:grid lg:grid-cols-[200px_minmax(0,1fr)_280px] lg:items-start lg:gap-6">
+  <!-- Visually hidden: the navbar brand + FeedNav's own "Feed" link already provide the visual
+       wayfinding, but the page had no h1 at all — leaving SuggestedFriends' h2 ("People you may
+       know") as the first, orphaned heading level on this page. -->
+  <h1 class="sr-only">{{ 'feed.sidebar.feed' | translate }}</h1>
+
   @if (authService.isAuthenticated()) {
     <aside class="hidden lg:sticky lg:top-4 lg:col-start-1 lg:block">
       <app-feed-nav />
