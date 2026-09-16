@@ -1,0 +1,11 @@
+{
+  "suggestions": {
+    "title": "People you may know",
+    "follow": "Follow",
+    "empty": "No suggestions right now.",
+    "errors": {
+      "loadFailed": "Couldn't load suggestions.",
+      "followFailed": "Couldn't follow. Please try again."
+    }
+  }
+}

@@ -107,16 +107,28 @@ export class ProfileService {
     this._isTogglingFollow.set(true);
     this._followError.set(false);
     try {
-      const response = await firstValueFrom(
-        this.http.put<FollowToggleApiResponse>(`${API_BASE_URL}/users/${profile._id}/follow`, {}),
-      );
-      this._isFollowing.set(response.data.following);
-      this._profile.set({ ...profile, followersCount: response.data.followersCount });
+      const result = await this.followUserId(profile._id);
+      this._isFollowing.set(result.following);
+      this._profile.set({ ...profile, followersCount: result.followersCount });
     } catch {
       this._followError.set(true);
     } finally {
       this._isTogglingFollow.set(false);
     }
+  }
+
+  /**
+   * The bare `PUT /users/:id/follow` call, usable for any user id — not just whichever profile
+   * is currently loaded into this service. `toggleFollow()` above is this plus the bookkeeping
+   * for the loaded profile's own `_isFollowing`/`followersCount`; callers that just need to
+   * follow an arbitrary user (e.g. the suggested-friends widget) use this directly instead of
+   * duplicating the endpoint URL.
+   */
+  async followUserId(userId: string): Promise<FollowToggleApiResponse['data']> {
+    const response = await firstValueFrom(
+      this.http.put<FollowToggleApiResponse>(`${API_BASE_URL}/users/${userId}/follow`, {}),
+    );
+    return response.data;
   }
 
   async uploadPhoto(file: File): Promise<void> {

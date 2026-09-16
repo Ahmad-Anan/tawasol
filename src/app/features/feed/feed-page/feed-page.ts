@@ -5,6 +5,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe } from '@ngx-translate/core';
+import { SuggestedFriends } from '../../suggestions/suggested-friends/suggested-friends';
 import { CreatePost } from '../create-post/create-post';
 import { PostCard } from '../post-card/post-card';
 import { PostsService } from '../services/posts.service';
@@ -14,6 +15,7 @@ import { PostsService } from '../services/posts.service';
   imports: [
     CreatePost,
     PostCard,
+    SuggestedFriends,
     MatButtonModule,
     MatButtonToggleModule,
     MatIcon,

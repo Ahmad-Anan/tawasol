@@ -1,0 +1,47 @@
+<section class="rounded-2xl bg-(--color-surface) p-4 shadow-sm">
+  <h2 class="text-sm font-bold text-(--color-text-primary)" style="font-family: var(--font-display)">
+    {{ 'suggestions.title' | translate }}
+  </h2>
+
+  @if (suggestionsService.isLoading()) {
+    <div class="flex justify-center py-6">
+      <mat-spinner diameter="28" />
+    </div>
+  } @else if (suggestionsService.loadError()) {
+    <p class="mt-3 text-sm text-(--color-text-secondary)">{{ 'suggestions.errors.loadFailed' | translate }}</p>
+  } @else if (suggestionsService.suggestions().length === 0) {
+    <p class="mt-3 text-sm text-(--color-text-secondary)">{{ 'suggestions.empty' | translate }}</p>
+  } @else {
+    <ul class="mt-3 flex flex-col gap-3">
+      @for (user of suggestionsService.suggestions(); track user._id) {
+        <li class="flex items-center gap-2">
+          <a [routerLink]="['/profile', user._id]" class="h-10 w-10 shrink-0">
+            <img [ngSrc]="user.photo" width="40" height="40" alt="" class="h-10 w-10 rounded-full object-cover" />
+          </a>
+          <a [routerLink]="['/profile', user._id]" class="min-w-0 flex-1">
+            <p class="truncate text-sm font-semibold text-(--color-text-primary)">{{ user.name }}</p>
+            <p class="truncate font-(--font-mono) text-xs text-(--color-text-secondary)">
+              &#64;{{ user.username }}
+            </p>
+          </a>
+          <button
+            mat-stroked-button
+            type="button"
+            class="!min-w-0 shrink-0"
+            [disabled]="suggestionsService.isFollowing(user._id)"
+            (click)="suggestionsService.follow(user._id)"
+          >
+            @if (suggestionsService.isFollowing(user._id)) {
+              <mat-spinner diameter="16" class="mx-auto" />
+            } @else {
+              {{ 'suggestions.follow' | translate }}
+            }
+          </button>
+        </li>
+        @if (suggestionsService.hasFollowError(user._id)) {
+          <p class="-mt-2 text-xs text-(--color-ember-600)">{{ 'suggestions.errors.followFailed' | translate }}</p>
+        }
+      }
+    </ul>
+  }
+</section>
