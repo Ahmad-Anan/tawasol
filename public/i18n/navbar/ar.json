@@ -1,6 +1,7 @@
 {
   "navbar": {
     "brand": "تواصل",
+    "goHome": "الذهاب إلى الرئيسية",
     "myProfile": "ملفي الشخصي",
     "bookmarks": "المحفوظات",
     "notifications": "الإشعارات",

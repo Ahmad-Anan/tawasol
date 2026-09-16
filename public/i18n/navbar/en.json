@@ -1,6 +1,7 @@
 {
   "navbar": {
     "brand": "Tawasol",
+    "goHome": "Go to feed",
     "myProfile": "My profile",
     "bookmarks": "Bookmarks",
     "notifications": "Notifications",

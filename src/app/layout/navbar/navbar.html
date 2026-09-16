@@ -65,7 +65,18 @@
     </button>
   </div>
 
-  <span class="text-lg font-bold text-(--color-bone-100)" style="font-family: var(--font-display)">
-    {{ 'navbar.brand' | translate }}
-  </span>
+  @if (authService.isAuthenticated()) {
+    <a
+      routerLink="/feed"
+      class="text-lg font-bold text-(--color-bone-100)"
+      style="font-family: var(--font-display)"
+      [attr.aria-label]="'navbar.goHome' | translate"
+    >
+      {{ 'navbar.brand' | translate }}
+    </a>
+  } @else {
+    <span class="text-lg font-bold text-(--color-bone-100)" style="font-family: var(--font-display)">
+      {{ 'navbar.brand' | translate }}
+    </span>
+  }
 </nav>
