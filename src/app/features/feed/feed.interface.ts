@@ -120,6 +120,13 @@ export interface AllPostsApiResponse extends ApiSuccessResponse<FeedResponseData
 
 export interface SinglePostApiResponse extends ApiSuccessResponse<{ post: Post }> {}
 
+/** `GET /posts/:id/likes` — page-based, real pagination (verified live). */
+export interface PostLikesApiResponse extends ApiSuccessResponse<{ likes: PostAuthorWithStats[] }> {
+  meta: { pagination: FeedPagePagination };
+}
+
+export interface SinglePostApiResponse extends ApiSuccessResponse<{ post: Post }> {}
+
 export interface CreateOrEditPostApiResponse extends ApiSuccessResponse<{ post: MutatedPost }> {}
 
 export interface DeletePostApiResponse extends ApiSuccessResponse<{ post: MutatedPost }> {}

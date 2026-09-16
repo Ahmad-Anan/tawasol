@@ -13,6 +13,7 @@ import type {
   MutatedPost,
   Post,
   SharePostApiResponse,
+  SinglePostApiResponse,
 } from '../feed.interface';
 
 const FEED_PAGE_SIZE = 10;
@@ -53,10 +54,19 @@ export class PostsService {
   // filter values — see docs/api-reference.md > GET /posts/feed.
   private readonly _hasImageFilter = signal<boolean | null>(null);
 
+  // State for PostDetailPage's single-post permalink view. Separate from `_posts`/`hasMore`
+  // above (the feed's own accumulated list) — a permalink load neither replaces nor appends to
+  // that list, it just upserts the one post into the shared store via `mergePosts` below, same
+  // as ProfileService/BookmarksService already do.
+  private readonly _singlePostLoading = signal(false);
+  private readonly _singlePostError = signal(false);
+
   readonly posts = this._posts.asReadonly();
   readonly hasMore = this._hasMore.asReadonly();
   readonly onlyFilter = this._onlyFilter.asReadonly();
   readonly hasImageFilter = this._hasImageFilter.asReadonly();
+  readonly singlePostLoading = this._singlePostLoading.asReadonly();
+  readonly singlePostError = this._singlePostError.asReadonly();
 
   /**
    * Which empty-state message fits the current filter combination — a "no posts at all" empty
@@ -142,6 +152,25 @@ export class PostsService {
   /** Called once by FeedPage on mount — see `_feedRequested`. A no-op on every call after the first. */
   start(): void {
     this._feedRequested.set(true);
+  }
+
+  /**
+   * `GET /posts/:id` — called explicitly by PostDetailPage on mount, never merely by injection
+   * (same race-condition lesson as everywhere else in this service). Upserts into the shared
+   * `_posts` store via `mergePosts` so the returned post renders through the same `PostCard`
+   * (and keeps working for like/bookmark/share/edit/delete) as every other list in the app.
+   */
+  async loadPost(postId: string): Promise<void> {
+    this._singlePostLoading.set(true);
+    this._singlePostError.set(false);
+    try {
+      const response = await firstValueFrom(this.http.get<SinglePostApiResponse>(`${API_BASE_URL}/posts/${postId}`));
+      this.mergePosts([response.data.post]);
+    } catch {
+      this._singlePostError.set(true);
+    } finally {
+      this._singlePostLoading.set(false);
+    }
   }
 
   setOnlyFilter(value: FeedOnlyFilter): void {

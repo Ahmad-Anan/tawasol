@@ -1,0 +1,49 @@
+<h2 mat-dialog-title style="font-family: var(--font-display)">{{ 'feed.postCard.likesDialog.title' | translate }}</h2>
+
+<mat-dialog-content #scrollContainer>
+  @if (isLoading()) {
+    <div class="flex justify-center py-6">
+      <mat-spinner diameter="28" />
+    </div>
+  } @else if (loadError()) {
+    <p class="py-6 text-center text-sm text-(--color-ember-600)">
+      {{ 'feed.postCard.likesDialog.errors.loadFailed' | translate }}
+    </p>
+  } @else if (likes().length === 0) {
+    <p class="py-6 text-center text-sm text-(--color-text-secondary)">
+      {{ 'feed.postCard.likesDialog.empty' | translate }}
+    </p>
+  } @else {
+    <ul class="flex flex-col gap-3">
+      @for (user of likes(); track user.id) {
+        <li class="flex items-center gap-2">
+          <a [routerLink]="['/profile', user._id]" class="h-10 w-10 shrink-0">
+            <img [ngSrc]="user.photo" width="40" height="40" alt="" class="h-10 w-10 rounded-full object-cover" />
+          </a>
+          <a [routerLink]="['/profile', user._id]" class="min-w-0 flex-1">
+            <p class="truncate text-sm font-semibold text-(--color-text-primary)">{{ user.name }}</p>
+            <p class="truncate font-(--font-mono) text-xs text-(--color-text-secondary)">&#64;{{ user.username }}</p>
+          </a>
+        </li>
+      }
+
+      @if (hasMore()) {
+        <li #scrollSentinel class="flex flex-col items-center gap-2 py-2">
+          @if (isLoadingMore()) {
+            <mat-spinner diameter="20" />
+            <span class="sr-only">{{ 'feed.postCard.likesDialog.loadingMore' | translate }}</span>
+          } @else if (loadMoreError()) {
+            <p class="text-xs text-(--color-ember-600)">{{ 'feed.postCard.likesDialog.errors.loadMoreFailed' | translate }}</p>
+            <button mat-button type="button" class="!text-xs" (click)="loadMore()">
+              {{ 'feed.postCard.likesDialog.retry' | translate }}
+            </button>
+          }
+        </li>
+      }
+    </ul>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close>{{ 'feed.postCard.likesDialog.close' | translate }}</button>
+</mat-dialog-actions>

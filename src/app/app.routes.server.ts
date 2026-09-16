@@ -31,6 +31,12 @@ export const serverRoutes: ServerRoute[] = [
     path: 'change-password',
     renderMode: RenderMode.Client,
   },
+  // Same reasoning as '/change-password' above, plus ':id' has no fixed set of values to
+  // prerender (same as '/profile/:id').
+  {
+    path: 'posts/:id',
+    renderMode: RenderMode.Client,
+  },
   // Navbar is rendered on every route (see app.html), and its bookmarks/profile/notifications
   // buttons are each conditional on AuthService.isAuthenticated()/user() — real, token-derived
   // state that's always false at prerender time (no token exists at build time) but can be

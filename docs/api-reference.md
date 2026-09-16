@@ -232,6 +232,8 @@ All posts (not personalized/filtered by follows). Same full post shape, page-bas
 
 Note there's no `feedMode` key here (that's a `/posts/feed`-only field) — otherwise the `pagination` object is identical in shape to the feed's page mode.
 
+**Verified (2026-09-16): identical to `GET /posts/feed?only=all`.** Same `limit=3` request against both, same moment: identical `total`, identical `posts` (same three authors, same order). `only=all` on the feed already *is* "every post, unfiltered" — there's no daylight between the two for this account, so there's no product reason to build a separate "Explore/All posts" surface backed by this endpoint; the feed's own "All" filter tab already covers it. Left unused deliberately, not for lack of trying.
+
 ### POST /posts
 
 Multipart form-data, not JSON: `body` (text, optional) and/or `image` (file, optional) — a post needs at least one of the two in practice, though the API's own minimum-content validation wasn't independently tested (the client enforces "at least one of body/image" itself before submitting either way). `privacy` was not sent in testing and defaulted to `"public"` server-side.
@@ -240,7 +242,7 @@ Multipart form-data, not JSON: `body` (text, optional) and/or `image` (file, opt
 
 ### GET /posts/:id
 
-Full shape, single post, wrapped as `{ "success": true, "message": "success", "data": { "post": { …full shape… } } }`. `404` for an unknown id: `{"success":false,"message":"Post Not Found","errors":"Post Not Found"}`.
+Full shape, single post, wrapped as `{ "success": true, "message": "success", "data": { "post": { …full shape… } } }`. `404` for an unknown id: `{"success":false,"message":"Post Not Found","errors":"Post Not Found"}`. Backs `PostDetailPage` (`/posts/:id`, the permalink view reached from notifications and a post's own timestamp link).
 
 ### PUT /posts/:id
 
@@ -285,7 +287,7 @@ Paginated list of likers (page-based). Response:
 }
 ```
 
-Not consumed by this pass of the feature (no "who liked this" UI yet) — documented for when that's built.
+**Verified (2026-09-16) that pagination is real:** `limit=2` on a post with 3 likes returned page 1 (2 likers, `nextPage: 2`) then page 2 (the 3rd liker, no `nextPage`) — same convention as everywhere else. Consumed by `PostLikesDialog`, opened from a post's like count.
 
 ### PUT /posts/:id/bookmark
 

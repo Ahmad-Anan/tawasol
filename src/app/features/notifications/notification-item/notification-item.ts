@@ -3,16 +3,17 @@ import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LanguageService } from '../../../core/services/language';
-import type { AppNotification } from '../notifications.interface';
+import type { AppNotification, NotificationCommentEntity } from '../notifications.interface';
 import { NotificationsService } from '../services/notifications.service';
 
 /**
- * One notification row. Always links to the actor's profile (`/profile/:actorId`) — this app
- * has no single-post detail route to link to (posts are only ever shown inline in a list), so
- * "go to the post" isn't actually buildable; the actor's profile is the closest meaningful,
- * honest destination for every notification type, including a reply (where the notification's
- * own `entity` is the parent comment that was replied to, not the reply itself — see
- * docs/api-reference.md). Clicking always marks it read, whether or not it already was.
+ * One notification row. Links to the post it concerns (`/posts/:id`, the permalink page) for
+ * `like_post`/`share_post`/a top-level `comment_post` (`entityType: 'post'`, `entity.id` is the
+ * post itself) and for a reply (`entityType: 'comment'`, where `entity` is the *parent* comment
+ * that was replied to — see docs/api-reference.md — so `entity.post` is used instead; there's no
+ * way to deep-link to the reply itself, but the post is still the right destination). Only
+ * `follow_user` (`entityType: 'user'`) links to a profile. Clicking always marks it read,
+ * whether or not it already was.
  */
 @Component({
   selector: 'app-notification-item',
@@ -48,6 +49,17 @@ export class NotificationItem {
   });
 
   protected readonly formattedDate = computed(() => this.formatDate(this.notification().createdAt));
+
+  protected readonly targetLink = computed((): [string, string] => {
+    const notification = this.notification();
+    if (notification.entityType === 'user') {
+      return ['/profile', notification.entityId];
+    }
+    if (notification.entityType === 'post') {
+      return ['/posts', notification.entityId];
+    }
+    return ['/posts', (notification.entity as NotificationCommentEntity).post];
+  });
 
   protected onClick(): void {
     if (!this.notification().isRead) {

@@ -31,4 +31,8 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./features/change-password/change-password.routes').then((m) => m.CHANGE_PASSWORD_ROUTES),
   },
+  {
+    path: 'posts',
+    loadChildren: () => import('./features/post-detail/post-detail.routes').then((m) => m.POST_DETAIL_ROUTES),
+  },
 ];

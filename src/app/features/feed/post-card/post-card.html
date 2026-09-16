@@ -40,14 +40,18 @@
       <app-status-indicator class="absolute -end-0.5 -bottom-0.5" [online]="true" />
     </a>
 
-    <a [routerLink]="['/profile', displayedPost.user._id]" class="min-w-0 flex-1">
-      <p class="truncate font-semibold text-(--color-text-primary)" style="font-family: var(--font-display)">
-        {{ displayedPost.user.name }}
-      </p>
+    <div class="min-w-0 flex-1">
+      <a [routerLink]="['/profile', displayedPost.user._id]" class="block">
+        <p class="truncate font-semibold text-(--color-text-primary)" style="font-family: var(--font-display)">
+          {{ displayedPost.user.name }}
+        </p>
+      </a>
       <p class="truncate font-(--font-mono) text-xs text-(--color-text-secondary)">
-        &#64;{{ displayedPost.user.username }} · {{ formattedDate() }}
+        <a [routerLink]="['/profile', displayedPost.user._id]">&#64;{{ displayedPost.user.username }}</a>
+        ·
+        <a [routerLink]="['/posts', post().id]">{{ formattedDate() }}</a>
       </p>
-    </a>
+    </div>
 
     @if (canEdit()) {
       <button
@@ -151,17 +155,27 @@
     }
   } @else if (!isEditing()) {
     <div class="mt-4 flex items-center justify-between border-t border-black/5 pt-2 dark:border-white/10">
-      <button
-        mat-button
-        type="button"
-        [disabled]="isLiking()"
-        [style.color]="isLiked() ? 'var(--mat-sys-primary)' : null"
-        [attr.aria-label]="(isLiked() ? 'feed.postCard.unlike' : 'feed.postCard.like') | translate"
-        (click)="onToggleLike()"
-      >
-        <mat-icon>{{ isLiked() ? 'favorite' : 'favorite_border' }}</mat-icon>
-        <span>{{ 'feed.postCard.likesAriaLabel' | translate: { count: post().likesCount } }}</span>
-      </button>
+      <div class="flex items-center">
+        <button
+          mat-icon-button
+          type="button"
+          [disabled]="isLiking()"
+          [style.color]="isLiked() ? 'var(--mat-sys-primary)' : null"
+          [attr.aria-label]="(isLiked() ? 'feed.postCard.unlike' : 'feed.postCard.like') | translate"
+          (click)="onToggleLike()"
+        >
+          <mat-icon>{{ isLiked() ? 'favorite' : 'favorite_border' }}</mat-icon>
+        </button>
+        <button
+          mat-button
+          type="button"
+          class="!min-w-0 !px-2"
+          [attr.aria-label]="'feed.postCard.viewLikes' | translate"
+          (click)="openLikesDialog()"
+        >
+          {{ 'feed.postCard.likesAriaLabel' | translate: { count: post().likesCount } }}
+        </button>
+      </div>
 
       <button
         mat-button

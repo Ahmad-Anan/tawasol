@@ -39,6 +39,7 @@
       "like": "Like",
       "unlike": "Unlike",
       "likesAriaLabel": "{{count}} likes",
+      "viewLikes": "View who liked this post",
       "comment": "Comment",
       "commentsAriaLabel": "{{count}} comments",
       "viewAllComments": "View all comments ({{count}})",
@@ -55,6 +56,17 @@
       "errors": {
         "actionFailed": "Something went wrong. Please try again.",
         "editBodyRequired": "Write something before saving"
+      },
+      "likesDialog": {
+        "title": "Liked by",
+        "empty": "No likes yet.",
+        "loadingMore": "Loading more…",
+        "retry": "Retry",
+        "close": "Close",
+        "errors": {
+          "loadFailed": "Couldn't load likes.",
+          "loadMoreFailed": "Couldn't load more likes."
+        }
       }
     }
   }

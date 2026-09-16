@@ -1,0 +1,7 @@
+{
+  "postDetail": {
+    "errors": {
+      "notFound": "This post couldn't be found. It may have been deleted."
+    }
+  }
+}

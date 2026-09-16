@@ -1,0 +1,13 @@
+<div class="mx-auto max-w-2xl px-4 py-6">
+  @if (post(); as p) {
+    <app-post-card [post]="p" [expandCommentsByDefault]="true" />
+  } @else if (postsService.singlePostLoading()) {
+    <div class="flex justify-center py-10">
+      <mat-spinner diameter="36" />
+    </div>
+  } @else if (postsService.singlePostError()) {
+    <p class="rounded-2xl bg-(--color-surface) p-8 text-center text-(--color-ember-600)">
+      {{ 'postDetail.errors.notFound' | translate }}
+    </p>
+  }
+</div>

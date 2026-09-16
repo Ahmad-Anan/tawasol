@@ -39,6 +39,7 @@
       "like": "إعجاب",
       "unlike": "إلغاء الإعجاب",
       "likesAriaLabel": "{{count}} إعجاب",
+      "viewLikes": "عرض من أعجب بهذا المنشور",
       "comment": "تعليق",
       "commentsAriaLabel": "{{count}} تعليق",
       "viewAllComments": "عرض كل التعليقات ({{count}})",
@@ -55,6 +56,17 @@
       "errors": {
         "actionFailed": "حدث خطأ ما. حاول مرة أخرى.",
         "editBodyRequired": "اكتب شيئًا قبل الحفظ"
+      },
+      "likesDialog": {
+        "title": "أعجب به",
+        "empty": "لا توجد إعجابات بعد.",
+        "loadingMore": "جارٍ تحميل المزيد…",
+        "retry": "إعادة المحاولة",
+        "close": "إغلاق",
+        "errors": {
+          "loadFailed": "تعذّر تحميل الإعجابات.",
+          "loadMoreFailed": "تعذّر تحميل المزيد من الإعجابات."
+        }
       }
     }
   }

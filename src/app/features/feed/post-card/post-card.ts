@@ -1,6 +1,7 @@
 import { NgOptimizedImage } from '@angular/common';
-import { Component, computed, inject, input, signal, type WritableSignal } from '@angular/core';
+import { Component, computed, inject, input, linkedSignal, signal, type WritableSignal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -13,6 +14,7 @@ import { LanguageService } from '../../../core/services/language';
 import { StatusIndicator } from '../../../shared/status-indicator/status-indicator';
 import { CommentsList } from '../../comments/comments-list/comments-list';
 import type { Post } from '../feed.interface';
+import { PostLikesDialog } from '../post-likes-dialog/post-likes-dialog';
 import { PostsService } from '../services/posts.service';
 
 @Component({
@@ -38,8 +40,11 @@ export class PostCard {
   private readonly postsService = inject(PostsService);
   private readonly languageService = inject(LanguageService);
   private readonly translate = inject(TranslateService);
+  private readonly dialog = inject(MatDialog);
 
   readonly post = input.required<Post>();
+  /** Set by PostDetailPage so its permalink view opens with comments already visible. */
+  readonly expandCommentsByDefault = input(false);
 
   protected readonly isLiked = computed(() => this.postsService.isLikedBy(this.post(), this.authService.user()?._id));
   protected readonly formattedDate = computed(() => this.formatDate(this.post().createdAt));
@@ -67,7 +72,16 @@ export class PostCard {
   protected readonly isDeleting = signal(false);
   protected readonly deleteError = signal<string | null>(null);
 
-  protected readonly showComments = signal(false);
+  // `linkedSignal`, not a plain `signal(false)`: it needs to track `expandCommentsByDefault()`
+  // (true on PostDetailPage, false everywhere else) while still being locally toggleable by
+  // `toggleComments()` below without that toggle being immediately overwritten back to the
+  // input's value — exactly the "derived from a reactive source but independently settable"
+  // case `linkedSignal` exists for.
+  protected readonly showComments = linkedSignal(() => this.expandCommentsByDefault());
+
+  protected openLikesDialog(): void {
+    this.dialog.open(PostLikesDialog, { data: { postId: this.post().id }, autoFocus: 'first-tabbable', width: '380px' });
+  }
 
   /**
    * The top-comment preview under each card (see post-card.html) reads `post().topComment`
