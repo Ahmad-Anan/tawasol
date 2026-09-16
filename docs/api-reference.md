@@ -467,6 +467,59 @@ Notes:
 - An empty list is `{"bookmarks": [], "meta": {"pagination": {"currentPage": 1, "limit": 20, "total": 0, "numberOfPages": 1}}}` — `numberOfPages: 1` even with zero results, not `0`.
 - Requires the same `Authorization: Bearer <token>` as every other endpoint here; `401 "token not provided"` without it.
 
+### GET /users/suggestions
+
+**Verified (live test, 2026-09-16)** against the `diagtester916` disposable test account. People-you-may-know style suggestions, page-based pagination (`?page=`/`?limit=`, default `limit: 10`):
+
+```json
+{
+  "success": true,
+  "message": "success",
+  "data": {
+    "suggestions": [
+      {
+        "_id": "69d1166e40873fb7bdfea7ab",
+        "name": "Ahmed Abd Al-Muti",
+        "username": "ahmedmutti",
+        "photo": "https://…/linkedPosts/….webp",
+        "mutualFollowersCount": 0,
+        "followersCount": 307
+      }
+    ]
+  },
+  "meta": { "pagination": { "currentPage": 1, "limit": 5, "total": 8756, "numberOfPages": 1752, "nextPage": 2 } }
+}
+```
+
+Notes:
+- A suggestion object has **no `id` field** — only `_id` (unlike posts/comments, which alias both). Use `_id` as the `@for` track key.
+- `mutualFollowersCount` was `0` on every suggestion returned for this test account (which follows no one) — plausibly non-zero for an account with an existing follow graph, not independently verified.
+- There's no per-suggestion "already following"/dismiss flag — the client follows via the existing `PUT /users/:id/follow` (see above) using `_id`.
+- Same pagination convention as everywhere else: `nextPage` is only present as a key when another page exists.
+
+### PATCH /users/change-password
+
+**Verified (live test, 2026-09-16)** against the `diagtester916` disposable test account — a real password change, confirmed by signing in with the old password (now rejected) and the new one (accepted) immediately after.
+
+**Request body** — note the current-password field is `password`, **not** `currentPassword`:
+
+```json
+{ "password": "current plaintext password", "newPassword": "new plaintext password" }
+```
+
+- Both fields required — a `400` lists every missing one at once: `{"message":"\"password\" is required,\"newPassword\" is required", ...}`.
+- `newPassword` is validated server-side against `/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/` (min 8 chars, at least one uppercase, one lowercase, one digit, one of `#?!@$%^&*-`) — a `400` on failure names the pattern verbatim: `"\"newPassword\" with value \"weak\" fails to match the required pattern: /…/"`.
+- A wrong `password` fails the same generic way as a bad sign-in, not a distinguishable error: `400 {"message":"incorrect email or password", ...}`.
+- No `rePassword`/confirm field in the request — the client owns confirming the new password matches before submitting.
+
+**Success (`200`)**:
+
+```json
+{ "success": true, "message": "password changed successfully", "data": { "token": "…", "tokenType": "Bearer", "expiresIn": "7d" } }
+```
+
+**Critical, verified live:** changing the password **invalidates the previously-issued token immediately** — a request made right after with the pre-change token gets `401 {"message":"invalid token .. login again", ...}`. The success response's `data.token` is a freshly-signed replacement. The client must overwrite its stored token with this one as part of a successful change, or the user gets silently logged out (every subsequent request 401s) the moment the password change succeeds. No `user` object comes back in this response — reuse the already-held `AuthService.user()`, don't expect a fresh one here.
+
 ---
 
 ## Comments endpoints — general notes
