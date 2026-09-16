@@ -72,6 +72,21 @@ export class AuthService {
     this.setSession(response.data);
   }
 
+  /**
+   * `PATCH /users/change-password` — verified live (see docs/api-reference.md) to invalidate
+   * the previously-issued token immediately, replacing it with the fresh one this response
+   * carries. Persisting that new token here (not just returning it to the caller) is what keeps
+   * the signed-in session alive across the change — without it, the very next authenticated
+   * request after a successful change would 401 on the now-dead old token. No `user` comes back
+   * in this response (see the docs), so `_user` is left untouched.
+   */
+  async changePassword(payload: { password: string; newPassword: string }): Promise<void> {
+    const response = await firstValueFrom(
+      this.http.patch<ApiSuccessResponse<{ token: string }>>(`${API_BASE_URL}/users/change-password`, payload),
+    );
+    this.persistToken(response.data.token);
+  }
+
   logout(): void {
     this._token.set(null);
     this._user.set(null);
@@ -81,10 +96,14 @@ export class AuthService {
   }
 
   private setSession(data: AuthResponseData): void {
-    this._token.set(data.token);
     this._user.set(data.user);
+    this.persistToken(data.token);
+  }
+
+  private persistToken(token: string): void {
+    this._token.set(token);
     if (this.isBrowser) {
-      localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
+      localStorage.setItem(TOKEN_STORAGE_KEY, token);
     }
   }
 

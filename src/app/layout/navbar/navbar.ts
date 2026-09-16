@@ -3,6 +3,7 @@ import { Component, inject } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
@@ -12,7 +13,7 @@ import { NotificationsService } from '../../features/notifications/services/noti
 
 @Component({
   selector: 'app-navbar',
-  imports: [NgOptimizedImage, MatBadgeModule, MatIconButton, MatIcon, RouterLink, TranslatePipe],
+  imports: [NgOptimizedImage, MatBadgeModule, MatIconButton, MatIcon, MatMenuModule, RouterLink, TranslatePipe],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
 })

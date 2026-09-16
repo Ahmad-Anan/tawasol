@@ -2,7 +2,9 @@
   "navbar": {
     "brand": "Tawasol",
     "goHome": "Go to feed",
+    "userMenu": "Account menu",
     "myProfile": "My profile",
+    "changePassword": "Change password",
     "bookmarks": "Bookmarks",
     "notifications": "Notifications",
     "themeToggle": {

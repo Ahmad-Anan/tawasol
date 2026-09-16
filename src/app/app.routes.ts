@@ -26,4 +26,9 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./features/notifications/notifications.routes').then((m) => m.NOTIFICATIONS_ROUTES),
   },
+  {
+    path: 'change-password',
+    loadChildren: () =>
+      import('./features/change-password/change-password.routes').then((m) => m.CHANGE_PASSWORD_ROUTES),
+  },
 ];

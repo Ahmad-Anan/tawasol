@@ -1,0 +1,20 @@
+{
+  "changePassword": {
+    "title": "تغيير كلمة المرور",
+    "currentPasswordLabel": "كلمة المرور الحالية",
+    "newPasswordLabel": "كلمة المرور الجديدة",
+    "newPasswordHint": "8 أحرف على الأقل، تحتوي على حرف كبير وحرف صغير ورقم ورمز.",
+    "confirmNewPasswordLabel": "تأكيد كلمة المرور الجديدة",
+    "submit": "تحديث كلمة المرور",
+    "success": "تم تغيير كلمة المرور بنجاح.",
+    "errors": {
+      "currentPasswordRequired": "أدخل كلمة المرور الحالية",
+      "newPasswordRequired": "أدخل كلمة مرور جديدة",
+      "newPasswordMinLength": "يجب أن تتكوّن كلمة المرور من 8 أحرف على الأقل",
+      "newPasswordPattern": "يجب أن تحتوي كلمة المرور على حرف كبير وحرف صغير ورقم ورمز (#?!@$%^&*-)",
+      "confirmRequired": "أكّد كلمة المرور الجديدة",
+      "confirmMismatch": "كلمتا المرور غير متطابقتين",
+      "unexpected": "تعذّر تغيير كلمة المرور. حاول مرة أخرى."
+    }
+  }
+}

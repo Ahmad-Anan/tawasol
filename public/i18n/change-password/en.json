@@ -1,0 +1,20 @@
+{
+  "changePassword": {
+    "title": "Change Password",
+    "currentPasswordLabel": "Current password",
+    "newPasswordLabel": "New password",
+    "newPasswordHint": "At least 8 characters, with an uppercase letter, a lowercase letter, a number, and a symbol.",
+    "confirmNewPasswordLabel": "Confirm new password",
+    "submit": "Update password",
+    "success": "Your password was changed successfully.",
+    "errors": {
+      "currentPasswordRequired": "Enter your current password",
+      "newPasswordRequired": "Enter a new password",
+      "newPasswordMinLength": "Password must be at least 8 characters",
+      "newPasswordPattern": "Password must include an uppercase letter, a lowercase letter, a number, and a symbol (#?!@$%^&*-)",
+      "confirmRequired": "Confirm your new password",
+      "confirmMismatch": "Passwords don't match",
+      "unexpected": "Couldn't change your password. Please try again."
+    }
+  }
+}
