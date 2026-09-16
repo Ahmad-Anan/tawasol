@@ -4,7 +4,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
 import { ThemeService } from '../../core/services/theme';
@@ -21,9 +21,15 @@ export class Navbar {
   protected readonly authService = inject(AuthService);
   protected readonly themeService = inject(ThemeService);
   protected readonly languageService = inject(LanguageService);
+  private readonly router = inject(Router);
   // Injecting this is what starts its unread-count tracking (reacting to auth state) — see
   // the service's own doc comment on why that's the one deliberate exception to "nothing
   // loads merely by injection". Navbar is always rendered, so this happens as early as
   // possible, well before the user ever opens /notifications.
   protected readonly notificationsService = inject(NotificationsService);
+
+  protected logout(): void {
+    this.authService.logout();
+    this.router.navigateByUrl('/auth/login');
+  }
 }

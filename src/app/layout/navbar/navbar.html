@@ -19,6 +19,10 @@
           <mat-icon>lock</mat-icon>
           <span>{{ 'navbar.changePassword' | translate }}</span>
         </a>
+        <button mat-menu-item type="button" (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          <span>{{ 'navbar.logout' | translate }}</span>
+        </button>
       </mat-menu>
     }
 
