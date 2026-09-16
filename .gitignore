@@ -39,6 +39,12 @@ testem.log
 /typings
 __screenshots__/
 
+# Vercel
+.vercel
+.env
+.env.local
+.env.*.local
+
 # System files
 .DS_Store
 Thumbs.db
