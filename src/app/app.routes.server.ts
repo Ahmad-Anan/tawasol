@@ -24,6 +24,13 @@ export const serverRoutes: ServerRoute[] = [
     path: 'notifications',
     renderMode: RenderMode.Client,
   },
+  // Same reasoning as '/feed' above — authGuard would otherwise see no token at prerender
+  // time (this route would silently fall through to the '**' catch-all below, which
+  // prerenders) and bake a server-side redirect to /auth/login into the static output.
+  {
+    path: 'change-password',
+    renderMode: RenderMode.Client,
+  },
   // Navbar is rendered on every route (see app.html), and its bookmarks/profile/notifications
   // buttons are each conditional on AuthService.isAuthenticated()/user() — real, token-derived
   // state that's always false at prerender time (no token exists at build time) but can be
