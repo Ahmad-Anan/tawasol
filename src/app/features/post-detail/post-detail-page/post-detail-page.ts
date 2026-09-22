@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -19,6 +19,7 @@ import { PostsService } from '../../feed/services/posts.service';
   imports: [PostCard, MatProgressSpinnerModule, TranslatePipe],
   templateUrl: './post-detail-page.html',
   styleUrl: './post-detail-page.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PostDetailPage {
   protected readonly postsService = inject(PostsService);

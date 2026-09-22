@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 /**
  * Static placeholder shaped like `ProfileHeader`, shown during a profile's first load instead of
@@ -10,5 +10,6 @@ import { Component } from '@angular/core';
   templateUrl: './profile-header-skeleton.html',
   styleUrl: './profile-header-skeleton.css',
   host: { 'aria-hidden': 'true' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfileHeaderSkeleton {}

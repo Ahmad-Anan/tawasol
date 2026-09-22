@@ -1,5 +1,15 @@
 import { isPlatformBrowser } from '@angular/common';
-import { Component, ElementRef, PLATFORM_ID, computed, effect, inject, input, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  PLATFORM_ID,
+  computed,
+  effect,
+  inject,
+  input,
+  viewChild,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -20,6 +30,7 @@ import { CommentsService } from '../services/comments.service';
   imports: [CommentComposer, CommentItem, MatButtonModule, MatProgressSpinnerModule, TranslatePipe],
   templateUrl: './comments-list.html',
   styleUrl: './comments-list.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CommentsList {
   protected readonly commentsService = inject(CommentsService);

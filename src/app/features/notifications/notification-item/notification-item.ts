@@ -1,5 +1,5 @@
 import { NgOptimizedImage } from '@angular/common';
-import { Component, computed, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LanguageService } from '../../../core/services/language';
@@ -20,6 +20,7 @@ import { NotificationsService } from '../services/notifications.service';
   imports: [NgOptimizedImage, RouterLink, TranslatePipe],
   templateUrl: './notification-item.html',
   styleUrl: './notification-item.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NotificationItem {
   private readonly notificationsService = inject(NotificationsService);

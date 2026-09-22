@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -23,6 +23,7 @@ export interface SuggestedFriendsDialogData {
   imports: [MatButtonModule, MatDialogModule, TranslatePipe, SuggestedFriends],
   templateUrl: './suggested-friends-dialog.html',
   styleUrl: './suggested-friends-dialog.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SuggestedFriendsDialog {
   protected readonly data = inject<SuggestedFriendsDialogData>(MAT_DIALOG_DATA);

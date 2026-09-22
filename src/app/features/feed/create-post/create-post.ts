@@ -1,6 +1,6 @@
 import { NgOptimizedImage } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { FormField, form, validate, submit } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -30,6 +30,7 @@ interface CreatePostFormModel {
   ],
   templateUrl: './create-post.html',
   styleUrl: './create-post.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CreatePost {
   private readonly authService = inject(AuthService);

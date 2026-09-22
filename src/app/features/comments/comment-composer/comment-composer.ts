@@ -1,5 +1,13 @@
 import { NgOptimizedImage } from '@angular/common';
-import { Component, DestroyRef, inject, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
@@ -29,6 +37,7 @@ import { CommentsService } from '../services/comments.service';
   ],
   templateUrl: './comment-composer.html',
   styleUrl: './comment-composer.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CommentComposer {
   private readonly authService = inject(AuthService);

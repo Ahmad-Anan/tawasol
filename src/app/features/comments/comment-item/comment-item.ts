@@ -1,4 +1,4 @@
-import { Component, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core';
 import type { Comment } from '../comments.interface';
 import { CommentBody } from '../comment-body/comment-body';
 import { CommentComposer } from '../comment-composer/comment-composer';
@@ -17,6 +17,7 @@ import { RepliesList } from '../replies-list/replies-list';
   imports: [CommentBody, CommentComposer, RepliesList],
   templateUrl: './comment-item.html',
   styleUrl: './comment-item.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CommentItem {
   readonly comment = input.required<Comment>();

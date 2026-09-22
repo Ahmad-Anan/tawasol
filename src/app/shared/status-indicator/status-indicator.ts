@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
 /**
@@ -22,6 +22,7 @@ import { TranslateService } from '@ngx-translate/core';
     '[class.status-indicator--offline]': '!online()',
     '[attr.aria-label]': 'ariaLabel()',
   },
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StatusIndicator {
   private readonly translate = inject(TranslateService);

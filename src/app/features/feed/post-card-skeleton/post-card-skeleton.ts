@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 /**
  * Static placeholder shaped like `PostCard`, shown while a post list is loading (feed, profile,
@@ -12,5 +12,6 @@ import { Component } from '@angular/core';
   templateUrl: './post-card-skeleton.html',
   styleUrl: './post-card-skeleton.css',
   host: { 'aria-hidden': 'true' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PostCardSkeleton {}

@@ -1,5 +1,15 @@
 import { isPlatformBrowser } from '@angular/common';
-import { Component, ElementRef, PLATFORM_ID, computed, effect, inject, signal, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  PLATFORM_ID,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIcon } from '@angular/material/icon';
@@ -22,6 +32,7 @@ type NotificationsTab = 'all' | 'unread';
   ],
   templateUrl: './notifications-page.html',
   styleUrl: './notifications-page.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NotificationsPage {
   protected readonly notificationsService = inject(NotificationsService);

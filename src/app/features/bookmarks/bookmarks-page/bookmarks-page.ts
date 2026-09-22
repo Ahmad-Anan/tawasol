@@ -1,5 +1,13 @@
 import { isPlatformBrowser } from '@angular/common';
-import { Component, ElementRef, PLATFORM_ID, effect, inject, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  PLATFORM_ID,
+  effect,
+  inject,
+  viewChild,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -13,6 +21,7 @@ import { BookmarksService } from '../services/bookmarks.service';
   imports: [PostCard, PostCardSkeleton, MatButtonModule, MatIcon, MatProgressSpinnerModule, TranslatePipe],
   templateUrl: './bookmarks-page.html',
   styleUrl: './bookmarks-page.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BookmarksPage {
   protected readonly bookmarksService = inject(BookmarksService);

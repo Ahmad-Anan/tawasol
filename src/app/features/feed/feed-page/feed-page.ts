@@ -1,5 +1,14 @@
 import { isPlatformBrowser } from '@angular/common';
-import { Component, ElementRef, PLATFORM_ID, computed, effect, inject, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  PLATFORM_ID,
+  computed,
+  effect,
+  inject,
+  viewChild,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIcon } from '@angular/material/icon';
@@ -29,6 +38,7 @@ import { PostsService } from '../services/posts.service';
   ],
   templateUrl: './feed-page.html',
   styleUrl: './feed-page.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FeedPage {
   protected readonly postsService = inject(PostsService);

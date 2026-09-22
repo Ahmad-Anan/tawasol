@@ -1,5 +1,14 @@
 import { NgOptimizedImage } from '@angular/common';
-import { Component, computed, inject, input, linkedSignal, signal, type WritableSignal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  linkedSignal,
+  signal,
+  type WritableSignal,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -34,6 +43,7 @@ import { PostsService } from '../services/posts.service';
   ],
   templateUrl: './post-card.html',
   styleUrl: './post-card.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PostCard {
   private readonly authService = inject(AuthService);

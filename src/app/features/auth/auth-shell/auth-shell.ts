@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -12,6 +12,7 @@ import { Register } from '../register/register';
   imports: [MatTabsModule, TranslatePipe, Login, Register],
   templateUrl: './auth-shell.html',
   styleUrl: './auth-shell.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuthShell {
   private readonly router = inject(Router);

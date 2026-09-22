@@ -1,5 +1,13 @@
 import { isPlatformBrowser, NgOptimizedImage } from '@angular/common';
-import { Component, ElementRef, PLATFORM_ID, effect, inject, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  PLATFORM_ID,
+  effect,
+  inject,
+  viewChild,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
@@ -22,6 +30,7 @@ import { SuggestionsService } from '../services/suggestions.service';
   imports: [NgOptimizedImage, MatButtonModule, MatProgressSpinnerModule, RouterLink, TranslatePipe],
   templateUrl: './suggested-friends.html',
   styleUrl: './suggested-friends.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SuggestedFriends {
   protected readonly suggestionsService = inject(SuggestionsService);

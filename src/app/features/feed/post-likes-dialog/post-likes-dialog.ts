@@ -1,5 +1,15 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Component, ElementRef, PLATFORM_ID, computed, effect, inject, signal, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  PLATFORM_ID,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { isPlatformBrowser, NgOptimizedImage } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -32,6 +42,7 @@ export interface PostLikesDialogData {
   imports: [MatButtonModule, MatDialogModule, MatProgressSpinnerModule, NgOptimizedImage, RouterLink, TranslatePipe],
   templateUrl: './post-likes-dialog.html',
   styleUrl: './post-likes-dialog.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PostLikesDialog {
   private readonly http = inject(HttpClient);

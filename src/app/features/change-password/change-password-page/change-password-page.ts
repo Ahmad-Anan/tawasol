@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormField, form, minLength, pattern, required, validate, submit } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
@@ -26,6 +26,7 @@ const NEW_PASSWORD_PATTERN = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[#?!@$%^&*-]).
   imports: [FormField, MatButtonModule, MatFormFieldModule, MatInputModule, MatProgressSpinnerModule, TranslatePipe],
   templateUrl: './change-password-page.html',
   styleUrl: './change-password-page.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChangePasswordPage {
   private readonly authService = inject(AuthService);

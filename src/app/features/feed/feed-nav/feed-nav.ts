@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -15,6 +15,7 @@ import { AuthService } from '../../../core/services/auth.service';
   imports: [MatIcon, RouterLink, RouterLinkActive, TranslatePipe],
   templateUrl: './feed-nav.html',
   styleUrl: './feed-nav.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FeedNav {
   protected readonly authService = inject(AuthService);

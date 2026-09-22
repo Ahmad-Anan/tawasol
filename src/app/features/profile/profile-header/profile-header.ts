@@ -1,5 +1,5 @@
 import { NgOptimizedImage } from '@angular/common';
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
@@ -21,6 +21,7 @@ import {
   imports: [NgOptimizedImage, MatButtonModule, MatIcon, MatProgressSpinnerModule, TranslatePipe],
   templateUrl: './profile-header.html',
   styleUrl: './profile-header.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfileHeader {
   protected readonly profileService = inject(ProfileService);

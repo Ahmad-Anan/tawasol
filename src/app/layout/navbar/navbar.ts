@@ -1,5 +1,5 @@
 import { NgOptimizedImage } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
@@ -16,6 +16,7 @@ import { NotificationsService } from '../../features/notifications/services/noti
   imports: [NgOptimizedImage, MatBadgeModule, MatIconButton, MatIcon, MatMenuModule, RouterLink, TranslatePipe],
   templateUrl: './navbar.html',
   styleUrl: './navbar.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Navbar {
   protected readonly authService = inject(AuthService);

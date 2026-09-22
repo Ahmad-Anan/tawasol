@@ -1,4 +1,11 @@
-import { Component, computed, effect, inject, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -24,6 +31,7 @@ import { CommentsService } from '../services/comments.service';
   imports: [CommentBody, MatButtonModule, MatProgressSpinnerModule, TranslatePipe],
   templateUrl: './replies-list.html',
   styleUrl: './replies-list.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RepliesList {
   protected readonly commentsService = inject(CommentsService);

@@ -1,4 +1,4 @@
-import { Component, effect, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -14,6 +14,7 @@ import { ProfileService } from '../services/profile.service';
   imports: [ProfileHeader, ProfileHeaderSkeleton, PostCard, MatProgressSpinnerModule, TranslatePipe],
   templateUrl: './profile-page.html',
   styleUrl: './profile-page.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfilePage {
   protected readonly profileService = inject(ProfileService);
