@@ -4,7 +4,20 @@
 
     <div class="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:text-start">
       <div class="relative h-24 w-24 shrink-0">
-        <img [ngSrc]="profile.photo" width="96" height="96" alt="" class="h-24 w-24 rounded-full object-cover" />
+        <!-- The camera button below is a sibling, not a descendant, so its click never reaches this handler. -->
+        <img
+          [ngSrc]="profile.photo"
+          width="96"
+          height="96"
+          alt=""
+          class="h-24 w-24 cursor-pointer rounded-full object-cover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--color-harbor-600)"
+          role="button"
+          tabindex="0"
+          [attr.aria-label]="'shared.imageLightbox.open' | translate"
+          (click)="openPhoto(profile.photo)"
+          (keydown.enter)="openPhoto(profile.photo)"
+          (keydown.space)="$event.preventDefault(); openPhoto(profile.photo)"
+        />
         @if (profileService.isOwnProfile()) {
           <button
             mat-icon-button

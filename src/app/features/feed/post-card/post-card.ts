@@ -20,6 +20,7 @@ import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { LanguageService } from '../../../core/services/language';
+import { openImageLightbox } from '../../../shared/image-lightbox/image-lightbox';
 import { StatusIndicator } from '../../../shared/status-indicator/status-indicator';
 import { CommentsList } from '../../comments/comments-list/comments-list';
 import type { Post } from '../feed.interface';
@@ -91,6 +92,10 @@ export class PostCard {
 
   protected openLikesDialog(): void {
     this.dialog.open(PostLikesDialog, { data: { postId: this.post().id }, autoFocus: 'first-tabbable', width: '380px' });
+  }
+
+  protected openImage(src: string): void {
+    openImageLightbox(this.dialog, this.translate, { src, altKey: 'shared.imageLightbox.postImage' });
   }
 
   /**

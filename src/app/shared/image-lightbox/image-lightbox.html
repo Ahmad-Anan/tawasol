@@ -1,0 +1,14 @@
+<!-- Mouse-only convenience: keyboard users close via Escape or the focused close button. -->
+<div class="image-lightbox__stage" (click)="onStageClick($event)">
+  <img [src]="data.src" [alt]="data.altKey | translate" class="image-lightbox__image" />
+
+  <button
+    mat-icon-button
+    type="button"
+    class="image-lightbox__close"
+    [attr.aria-label]="'shared.imageLightbox.close' | translate"
+    (click)="close()"
+  >
+    <mat-icon>close</mat-icon>
+  </button>
+</div>

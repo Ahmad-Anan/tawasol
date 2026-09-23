@@ -4,6 +4,14 @@
     "statusIndicator": {
       "online": "متصل الآن",
       "offline": "غير متصل"
+    },
+    "imageLightbox": {
+      "close": "إغلاق الصورة",
+      "dialogLabel": "الصورة بالحجم الكامل",
+      "open": "عرض الصورة بالحجم الكامل",
+      "postImage": "صورة المنشور",
+      "commentImage": "صورة التعليق",
+      "profilePhoto": "صورة الملف الشخصي"
     }
   }
 }

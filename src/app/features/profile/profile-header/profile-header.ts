@@ -4,7 +4,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { openImageLightbox } from '../../../shared/image-lightbox/image-lightbox';
 import { ProfileService } from '../services/profile.service';
 import {
   SuggestedFriendsDialog,
@@ -27,6 +28,7 @@ export class ProfileHeader {
   protected readonly profileService = inject(ProfileService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialog = inject(MatDialog);
+  private readonly translate = inject(TranslateService);
 
   protected readonly previewUrl = signal<string | null>(null);
   private readonly selectedFile = signal<File | null>(null);
@@ -51,6 +53,10 @@ export class ProfileHeader {
    */
   protected openSuggestionsDialog(context: SuggestedFriendsDialogData['context']): void {
     this.dialog.open(SuggestedFriendsDialog, { data: { context }, autoFocus: 'first-tabbable', width: '420px' });
+  }
+
+  protected openPhoto(src: string): void {
+    openImageLightbox(this.dialog, this.translate, { src, altKey: 'shared.imageLightbox.profilePhoto' });
   }
 
   protected cancelPhotoChange(): void {

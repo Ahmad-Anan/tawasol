@@ -33,3 +33,23 @@
     background: var(--color-bone-100);
   }
 }
+
+/* ImageLightbox overlay (shared/image-lightbox) — global because these classes land on CDK
+   overlay elements outside the component's view encapsulation. The backdrop is Night Harbor
+   (--color-harbor-950, fixed in both themes) at high opacity, and the dialog surface itself is
+   made fully transparent so only the image and its close button show on top of it. */
+.image-lightbox-backdrop {
+  background: color-mix(in srgb, var(--color-harbor-950) 92%, transparent);
+}
+
+.image-lightbox-panel {
+  --mat-dialog-container-color: transparent;
+  --mat-dialog-container-elevation-shadow: none;
+  --mat-dialog-container-shape: 0;
+}
+
+.image-lightbox-panel .mat-mdc-dialog-surface {
+  background: transparent;
+  box-shadow: none;
+  overflow: hidden;
+}

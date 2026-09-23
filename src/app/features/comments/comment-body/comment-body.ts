@@ -9,6 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -17,6 +18,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import { LanguageService } from '../../../core/services/language';
+import { openImageLightbox } from '../../../shared/image-lightbox/image-lightbox';
 import { StatusIndicator } from '../../../shared/status-indicator/status-indicator';
 import type { Comment } from '../comments.interface';
 import { CommentsService } from '../services/comments.service';
@@ -56,6 +58,7 @@ export class CommentBody {
   private readonly commentsService = inject(CommentsService);
   private readonly languageService = inject(LanguageService);
   private readonly translate = inject(TranslateService);
+  private readonly dialog = inject(MatDialog);
 
   readonly comment = input.required<Comment>();
   readonly postId = input.required<string>();
@@ -87,6 +90,10 @@ export class CommentBody {
   protected readonly isConfirmingDelete = signal(false);
   protected readonly isDeleting = signal(false);
   protected readonly deleteError = signal<string | null>(null);
+
+  protected openImage(src: string): void {
+    openImageLightbox(this.dialog, this.translate, { src, altKey: 'shared.imageLightbox.commentImage' });
+  }
 
   protected async onToggleLike(): Promise<void> {
     if (this.isLiking()) {

@@ -4,6 +4,14 @@
     "statusIndicator": {
       "online": "Online",
       "offline": "Offline"
+    },
+    "imageLightbox": {
+      "close": "Close image",
+      "dialogLabel": "Full-size image",
+      "open": "View image full size",
+      "postImage": "Post image",
+      "commentImage": "Comment image",
+      "profilePhoto": "Profile photo"
     }
   }
 }

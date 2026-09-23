@@ -77,7 +77,16 @@
         }
 
         @if (comment().image) {
-          <div class="relative mt-1 w-full max-w-xs overflow-hidden rounded-xl" style="aspect-ratio: 16 / 9">
+          <div
+            class="relative mt-1 w-full max-w-xs cursor-pointer overflow-hidden rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--color-harbor-600)"
+            style="aspect-ratio: 16 / 9"
+            role="button"
+            tabindex="0"
+            [attr.aria-label]="'shared.imageLightbox.open' | translate"
+            (click)="openImage(comment().image!)"
+            (keydown.enter)="openImage(comment().image!)"
+            (keydown.space)="$event.preventDefault(); openImage(comment().image!)"
+          >
             <img [ngSrc]="comment().image!" fill class="object-cover" alt="" />
           </div>
         }
