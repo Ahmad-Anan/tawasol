@@ -65,3 +65,43 @@ describe('PasswordChecklist', () => {
     expect(render('A', true).querySelectorAll('.rule--unmet-invalid').length).toBe(4);
   });
 });
+
+describe('PasswordChecklist keyboard notice', () => {
+  let fixture: ComponentFixture<PasswordChecklist>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [PasswordChecklist],
+      providers: [provideTranslateService({ lang: 'en', fallbackLang: 'en' })],
+    }).compileComponents();
+    fixture = TestBed.createComponent(PasswordChecklist);
+  });
+
+  function notice(password: string): HTMLElement | null {
+    fixture.componentRef.setInput('password', password);
+    fixture.detectChanges();
+    return fixture.nativeElement.querySelector('[data-testid="keyboard-notice"]');
+  }
+
+  it('asks to switch the keyboard when the password has Arabic letters', () => {
+    expect(notice('شسيب1234!')?.textContent).toContain('shared.passwordChecklist.switchKeyboard');
+  });
+
+  it('shows it for mixed Arabic and English input too', () => {
+    expect(notice('Tawasol1!ش')).not.toBeNull();
+  });
+
+  it('stays hidden for English input, and disappears once the Arabic letters are removed', () => {
+    expect(notice('Tawasol1!')).toBeNull();
+    expect(notice('ش')).not.toBeNull();
+    expect(notice('')).toBeNull();
+  });
+
+  it('sits inside a polite live region that exists before the notice appears', () => {
+    notice('Tawasol1!');
+    const region = fixture.nativeElement.querySelector('div[aria-live="polite"]');
+    expect(region).not.toBeNull();
+    notice('ش');
+    expect(region.querySelector('[data-testid="keyboard-notice"]')).not.toBeNull();
+  });
+});

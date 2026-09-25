@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
-import { passwordRuleStatus } from './password-rules';
+import { hasNonEnglishCharacters, passwordRuleStatus } from './password-rules';
 
 /**
  * Live checklist of the password requirements, shown as the password field's hint on the
@@ -26,4 +26,6 @@ export class PasswordChecklist {
   readonly invalid = input(false);
 
   protected readonly rules = computed(() => passwordRuleStatus(this.password()));
+  /** Arabic (or other non-English) input can never meet the letter requirements — say why. */
+  protected readonly hasNonEnglishCharacters = computed(() => hasNonEnglishCharacters(this.password()));
 }
