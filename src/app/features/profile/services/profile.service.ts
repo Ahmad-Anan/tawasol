@@ -49,6 +49,8 @@ export class ProfileService {
   private readonly _bookmarksCount = signal<number | null>(null);
   private readonly _isLoading = signal(false);
   private readonly _loadError = signal(false);
+  /** The id `load()` was last called with, so `retryLoad()` can re-request it. */
+  private lastRequestedUserId: string | null = null;
   private readonly _isTogglingFollow = signal(false);
   private readonly _followError = signal(false);
   private readonly _isUploadingPhoto = signal(false);
@@ -74,7 +76,15 @@ export class ProfileService {
       .filter((post): post is Post => post !== undefined);
   });
 
+  /** Retries a failed `load()` for the same profile. */
+  retryLoad(): void {
+    if (this.lastRequestedUserId !== null && !this._isLoading()) {
+      void this.load(this.lastRequestedUserId);
+    }
+  }
+
   async load(userId: string): Promise<void> {
+    this.lastRequestedUserId = userId;
     this._isLoading.set(true);
     this._loadError.set(false);
     this._profile.set(null);

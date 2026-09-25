@@ -128,10 +128,12 @@ export class PostsService {
     // the whole value" behaviour. `_cursor` only ever changes from `loadMore()`, so this
     // never fires for a reason other than "a new page of posts arrived".
     effect(() => {
-      const response = this.feedResource.value();
-      if (!response) {
+      // hasValue(), not value(): value() throws while the resource is in its error state (a
+      // failed request), which surfaced as an uncaught error on every failed load.
+      if (!this.feedResource.hasValue()) {
         return;
       }
+      const response = this.feedResource.value();
       this._posts.update((existing) =>
         this._cursor() ? [...existing, ...response.data.posts] : response.data.posts,
       );
@@ -200,6 +202,13 @@ export class PostsService {
     this._posts.set([]);
     this._cursor.set(undefined);
     this._hasMore.set(true);
+  }
+
+  /** Retries a failed first page (`loadError`) — the params didn't change, so reload in place. */
+  retryLoad(): void {
+    if (!this.feedResource.isLoading()) {
+      this.feedResource.reload();
+    }
   }
 
   loadMore(): void {

@@ -118,6 +118,27 @@ describe('FeedPage', () => {
     expect(fixture.nativeElement.querySelectorAll('app-post-card').length).toBe(0);
   });
 
+  it('offers a Retry button when the first page fails, and re-requests the feed on click', async () => {
+    fixture.detectChanges();
+    TestBed.tick();
+    httpMock
+      .expectOne((r) => r.url === `${API_BASE_URL}/posts/feed`)
+      .flush(null, { status: 500, statusText: 'Server Error' });
+    await settle();
+
+    const retry: HTMLButtonElement | undefined = [...fixture.nativeElement.querySelectorAll('button')].find(
+      (button: HTMLButtonElement) => button.textContent?.includes('feed.retry'),
+    );
+    expect(retry).toBeTruthy();
+
+    retry?.click();
+    await settle();
+
+    flushFeedRequest(exhaustedPageResponse([makePost({ id: 'p1' })]));
+    await settle();
+    expect(fixture.nativeElement.querySelectorAll('app-post-card').length).toBe(1);
+  });
+
   it('re-fetches with the new filter when the "only" toggle changes', async () => {
     fixture.detectChanges();
     flushFeedRequest(exhaustedPageResponse([makePost({ id: 'p1' })]));

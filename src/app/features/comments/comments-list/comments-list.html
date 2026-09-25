@@ -6,7 +6,13 @@
       <mat-spinner diameter="28" />
     </div>
   } @else if (thread().loadError) {
-    <p class="text-sm text-(--color-error-text)">{{ 'comments.errors.loadFailed' | translate }}</p>
+    <!-- A failed first load leaves `hasFetched` false, so loadComments() simply tries again. -->
+    <div class="flex flex-col items-center gap-2 py-2">
+      <p class="text-sm text-(--color-error-text)">{{ 'comments.errors.loadFailed' | translate }}</p>
+      <button mat-button type="button" (click)="commentsService.loadComments(postId())">
+        {{ 'comments.retry' | translate }}
+      </button>
+    </div>
   } @else if (thread().comments.length === 0) {
     <p class="text-center text-sm text-(--color-text-secondary)">{{ 'comments.empty' | translate }}</p>
   } @else {

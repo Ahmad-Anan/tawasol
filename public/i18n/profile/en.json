@@ -16,6 +16,7 @@
       "loadFailed": "Couldn't load this profile. Please try again later.",
       "followFailed": "Something went wrong. Please try again.",
       "uploadFailed": "Couldn't upload the photo. Please try again."
-    }
+    },
+    "retry": "Retry"
   }
 }

@@ -60,10 +60,11 @@ export class BookmarksService {
 
   constructor() {
     effect(() => {
-      const response = this.bookmarksResource.value();
-      if (!response) {
+      // hasValue(), not value(): value() throws in the resource's error state — see PostsService.
+      if (!this.bookmarksResource.hasValue()) {
         return;
       }
+      const response = this.bookmarksResource.value();
       this.postsService.mergePosts(response.data.bookmarks);
       const ids = response.data.bookmarks.map((post) => post.id);
       this._postIds.update((existing) => (this._page() > 1 ? [...existing, ...ids] : ids));

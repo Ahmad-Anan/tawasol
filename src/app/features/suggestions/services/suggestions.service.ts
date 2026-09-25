@@ -57,10 +57,11 @@ export class SuggestionsService {
     // Appends a page onto the accumulated list instead of the resource's default "replace the
     // whole value" behaviour — same pattern as PostsService/BookmarksService.
     effect(() => {
-      const response = this.suggestionsResource.value();
-      if (!response) {
+      // hasValue(), not value(): value() throws in the resource's error state — see PostsService.
+      if (!this.suggestionsResource.hasValue()) {
         return;
       }
+      const response = this.suggestionsResource.value();
       this._suggestions.update((existing) =>
         this._page() > 1 ? [...existing, ...response.data.suggestions] : response.data.suggestions,
       );
