@@ -64,6 +64,7 @@ You are an expert in TypeScript, Angular, and scalable web application developme
   - `--color-harbor-950: #10302C` — deep teal-ink, used for nav/header backgrounds and primary text
   - `--color-harbor-600: #146B63` — primary interactive color (links, buttons, active states, avatar placeholder fill)
   - `--color-ember-600: #C1592E` — accent color, used SPARINGLY (max 3-4 places: notification badge, one primary CTA) — never as a general-purpose color
+  - `--color-ember-strong: #BF582E` — button-fill-only Ember: the closest shade to `#C1592E` that reaches WCAG AA 4.5:1 with white text (the original measures 4.43:1). Use it for solid Ember button backgrounds only; everything else keeps `--color-ember-600`
   - `--color-bone-100: #F5F3EC` — warm off-white, page background
   - `--color-surface: #FFFFFF` — card/surface background
 - **Typography:**

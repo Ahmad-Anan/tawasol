@@ -15,6 +15,11 @@
   --color-harbor-950: #10302c;
   --color-harbor-600: #146b63;
   --color-ember-600: #c1592e;
+  // Button-fill-only Ember. White text on --color-ember-600 measures 4.43:1 — just under WCAG
+  // AA's 4.5:1 for normal text — so solid Ember buttons use this instead: the closest shade to
+  // #C1592E (same hue/saturation, HSL lightness stepped down) that reaches 4.5:1 with white
+  // (measures 4.52:1). Everything else keeps the original --color-ember-600.
+  --color-ember-strong: #bf582e;
   --color-bone-100: #f5f3ec;
   --color-surface: #ffffff;
   // Fixed (never redefined in the dark block below) — for text/icons on the navbar and the
@@ -32,9 +37,8 @@
   // tertiary palette (theme-colors.scss), since --color-ember-600 itself measured under WCAG
   // AA's 4.5:1 for normal text against dark-mode --color-surface/--color-bone-100 (~3.2-4.2:1 —
   // readable, but not compliant). Use this for error TEXT specifically; solid error-action
-  // BUTTON backgrounds (e.g. "Delete") stay on the literal --color-ember-600 in both themes —
-  // white text on that fixed value already clears AA comfortably either way, and repainting the
-  // background too would just be a second, unrelated color change no one asked for.
+  // BUTTON backgrounds (e.g. "Delete") use the fixed --color-ember-strong in both themes
+  // instead — white text on --color-ember-600 itself is only 4.43:1, just short of AA.
   --color-error-text: var(--color-ember-600);
   // Semantic hover/active tint for list rows and nav items. Light mode: --color-bone-100 (a
   // warm off-white lift off --color-surface). Dark mode redefines this (see html.tawasol-dark
