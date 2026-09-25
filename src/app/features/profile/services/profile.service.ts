@@ -5,11 +5,11 @@ import { Subject, catchError, firstValueFrom, forkJoin, map, of, switchMap, tap 
 import { API_BASE_URL } from '../../../core/constants/api';
 import { AuthService } from '../../../core/services/auth.service';
 import { DemoAccountService } from '../../../core/services/demo-account';
+import { FollowService } from '../../../core/services/follow';
 import type { BookmarksApiResponse } from '../../bookmarks/bookmarks.interface';
 import type { Post } from '../../feed/feed.interface';
 import { PostsService } from '../../feed/services/posts.service';
 import type {
-  FollowToggleApiResponse,
   MyProfileApiResponse,
   ProfileUser,
   UploadPhotoApiResponse,
@@ -28,6 +28,9 @@ export class ProfileService {
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
   private readonly demoAccount = inject(DemoAccountService);
+  // Follow state lives in FollowService (shared with the suggested-friends widget); this service
+  // only seeds it from the loaded profile and keeps the profile's counts in sync with it.
+  private readonly followService = inject(FollowService);
   // PostCard always mutates through PostsService (like/bookmark/share/edit/delete), regardless
   // of which list rendered it — see PostsService.mergePosts. So this profile's posts read the
   // actual, always-current post objects from there, and only track *which* ids (and in what
@@ -35,7 +38,6 @@ export class ProfileService {
   private readonly postsService = inject(PostsService);
 
   private readonly _profile = signal<ProfileUser | null>(null);
-  private readonly _isFollowing = signal(false);
   private readonly _postIds = signal<string[]>([]);
   /**
    * From `meta.pagination.total`, not `posts().length` — the endpoint caps at 40 posts (see
@@ -54,23 +56,44 @@ export class ProfileService {
   private readonly _loadError = signal(false);
   /** The id `load()` was last called with, so `retryLoad()` can re-request it. */
   private lastRequestedUserId: string | null = null;
-  private readonly _isTogglingFollow = signal(false);
-  private readonly _followError = signal(false);
   private readonly _isUploadingPhoto = signal(false);
   private readonly _uploadError = signal(false);
 
   readonly profile = this._profile.asReadonly();
-  readonly isFollowing = this._isFollowing.asReadonly();
   readonly postsTotal = this._postsTotal.asReadonly();
   readonly bookmarksCount = this._bookmarksCount.asReadonly();
   readonly isLoading = this._isLoading.asReadonly();
   readonly loadError = this._loadError.asReadonly();
-  readonly isTogglingFollow = this._isTogglingFollow.asReadonly();
-  readonly followError = this._followError.asReadonly();
   readonly isUploadingPhoto = this._isUploadingPhoto.asReadonly();
   readonly uploadError = this._uploadError.asReadonly();
 
   readonly isOwnProfile = computed(() => this._profile()?._id === this.authService.user()?._id);
+
+  /** Whether the signed-in user follows the loaded profile (via FollowService, so it's shared). */
+  readonly isFollowing = computed(() => {
+    const profile = this._profile();
+    return profile ? this.followService.isFollowing(profile._id) : false;
+  });
+  /** A follow/unfollow request for the loaded profile is in flight. */
+  readonly isTogglingFollow = computed(() => {
+    const profile = this._profile();
+    return profile ? this.followService.isPending(profile._id) : false;
+  });
+  /** The follow/unfollow that last failed (and was rolled back) for the loaded profile, if any. */
+  readonly followError = computed(() => {
+    const profile = this._profile();
+    return profile ? this.followService.failure(profile._id) : null;
+  });
+
+  async toggleFollow(): Promise<void> {
+    const profile = this._profile();
+    if (!profile) {
+      return;
+    }
+    await (this.isFollowing()
+      ? this.followService.unfollow(profile._id)
+      : this.followService.follow(profile._id));
+  }
 
   readonly posts = computed(() => {
     const byId = new Map(this.postsService.posts().map((post) => [post.id, post]));
@@ -109,7 +132,9 @@ export class ProfileService {
         if (outcome.ok) {
           const { profileResult, postsResponse, bookmarksCount } = outcome.result;
           this._profile.set(profileResult.user);
-          this._isFollowing.set(profileResult.isFollowing);
+          if (!this.isOwnProfile()) {
+            this.followService.seed(profileResult.user._id, profileResult.isFollowing);
+          }
           this.postsService.mergePosts(postsResponse.data.posts);
           this._postIds.set(postsResponse.data.posts.map((post) => post.id));
           this._postsTotal.set(postsResponse.meta.pagination.total);
@@ -119,6 +144,28 @@ export class ProfileService {
         }
         this._isLoading.set(false);
       });
+
+    // Keep the loaded profile's counts in step with follows/unfollows made anywhere (this
+    // profile's own button, or the suggested-friends widget/dialog): the target's follower
+    // count, and — when this is the signed-in user's own profile — their following count.
+    this.followService.countChanges$.pipe(takeUntilDestroyed()).subscribe((change) => {
+      const profile = this._profile();
+      if (!profile) {
+        return;
+      }
+      if (profile._id === change.userId) {
+        this._profile.set({
+          ...profile,
+          followersCount:
+            change.followersCount ?? Math.max(0, profile.followersCount + change.followersDelta),
+        });
+      } else if (this.isOwnProfile() && change.followersDelta !== 0) {
+        this._profile.set({
+          ...profile,
+          followingCount: Math.max(0, profile.followingCount + change.followersDelta),
+        });
+      }
+    });
   }
 
   /** Retries a failed `load()` for the same profile. */
@@ -147,46 +194,21 @@ export class ProfileService {
             .pipe(map((response) => ({ user: response.data.user, isFollowing: false })))
         : this.http
             .get<UserProfileApiResponse>(`${API_BASE_URL}/users/${userId}/profile`)
-            .pipe(map((response) => ({ user: response.data.user, isFollowing: response.data.isFollowing }))),
+            .pipe(
+              map((response) => ({
+                user: response.data.user,
+                isFollowing: response.data.isFollowing,
+              })),
+            ),
       postsResponse: this.http.get<UserPostsApiResponse>(`${API_BASE_URL}/users/${userId}/posts`),
       bookmarksCount: isOwn
         ? this.http
-            .get<BookmarksApiResponse>(`${API_BASE_URL}/users/bookmarks`, { params: new HttpParams().set('limit', 1) })
+            .get<BookmarksApiResponse>(`${API_BASE_URL}/users/bookmarks`, {
+              params: new HttpParams().set('limit', 1),
+            })
             .pipe(map((response): number | null => response.meta.pagination.total))
         : of(null),
     });
-  }
-
-  async toggleFollow(): Promise<void> {
-    const profile = this._profile();
-    if (!profile || this._isTogglingFollow()) {
-      return;
-    }
-    this._isTogglingFollow.set(true);
-    this._followError.set(false);
-    try {
-      const result = await this.followUserId(profile._id);
-      this._isFollowing.set(result.following);
-      this._profile.set({ ...profile, followersCount: result.followersCount });
-    } catch {
-      this._followError.set(true);
-    } finally {
-      this._isTogglingFollow.set(false);
-    }
-  }
-
-  /**
-   * The bare `PUT /users/:id/follow` call, usable for any user id — not just whichever profile
-   * is currently loaded into this service. `toggleFollow()` above is this plus the bookkeeping
-   * for the loaded profile's own `_isFollowing`/`followersCount`; callers that just need to
-   * follow an arbitrary user (e.g. the suggested-friends widget) use this directly instead of
-   * duplicating the endpoint URL.
-   */
-  async followUserId(userId: string): Promise<FollowToggleApiResponse['data']> {
-    const response = await firstValueFrom(
-      this.http.put<FollowToggleApiResponse>(`${API_BASE_URL}/users/${userId}/follow`, {}),
-    );
-    return response.data;
   }
 
   async uploadPhoto(file: File): Promise<void> {

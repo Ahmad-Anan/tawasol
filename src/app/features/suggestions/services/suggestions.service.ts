@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Service, computed, effect, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { API_BASE_URL } from '../../../core/constants/api';
-import { ProfileService } from '../../profile/services/profile.service';
+import { FollowService } from '../../../core/services/follow';
 import type { SuggestedUser, SuggestionsApiResponse } from '../suggestions.interface';
 
 const SUGGESTIONS_PAGE_SIZE = 10;
@@ -23,7 +23,7 @@ const SUGGESTIONS_PAGE_SIZE = 10;
 @Service()
 export class SuggestionsService {
   private readonly http = inject(HttpClient);
-  private readonly profileService = inject(ProfileService);
+  private readonly followService = inject(FollowService);
 
   private readonly _requested = signal(false);
   private readonly _page = signal(1);
@@ -31,21 +31,31 @@ export class SuggestionsService {
   private readonly _hasMore = signal(true);
   /** Ids the widget has already followed this session — filtered out of `suggestions` immediately, no need to wait for a refetch. */
   private readonly _followedIds = signal<ReadonlySet<string>>(new Set());
-  private readonly _followingIds = signal<ReadonlySet<string>>(new Set());
-  private readonly _followErrorIds = signal<ReadonlySet<string>>(new Set());
 
   private readonly suggestionsResource = rxResource({
     params: () => (this._requested() ? { page: this._page() } : undefined),
     stream: ({ params }) => {
-      const httpParams = new HttpParams().set('page', params.page).set('limit', SUGGESTIONS_PAGE_SIZE);
-      return this.http.get<SuggestionsApiResponse>(`${API_BASE_URL}/users/suggestions`, { params: httpParams });
+      const httpParams = new HttpParams()
+        .set('page', params.page)
+        .set('limit', SUGGESTIONS_PAGE_SIZE);
+      return this.http.get<SuggestionsApiResponse>(`${API_BASE_URL}/users/suggestions`, {
+        params: httpParams,
+      });
     },
   });
 
-  readonly isLoading = computed(() => this.suggestionsResource.isLoading() && this._suggestions().length === 0);
-  readonly isLoadingMore = computed(() => this.suggestionsResource.isLoading() && this._suggestions().length > 0);
-  readonly loadError = computed(() => (this._suggestions().length === 0 ? this.suggestionsResource.error() : undefined));
-  readonly loadMoreError = computed(() => (this._suggestions().length > 0 ? this.suggestionsResource.error() : undefined));
+  readonly isLoading = computed(
+    () => this.suggestionsResource.isLoading() && this._suggestions().length === 0,
+  );
+  readonly isLoadingMore = computed(
+    () => this.suggestionsResource.isLoading() && this._suggestions().length > 0,
+  );
+  readonly loadError = computed(() =>
+    this._suggestions().length === 0 ? this.suggestionsResource.error() : undefined,
+  );
+  readonly loadMoreError = computed(() =>
+    this._suggestions().length > 0 ? this.suggestionsResource.error() : undefined,
+  );
   readonly hasMore = this._hasMore.asReadonly();
 
   readonly suggestions = computed(() => {
@@ -103,36 +113,19 @@ export class SuggestionsService {
     this._page.update((page) => page + 1);
   }
 
+  /** A follow request for this suggestion is in flight (see FollowService). */
   isFollowing(userId: string): boolean {
-    return this._followingIds().has(userId);
+    return this.followService.isPending(userId);
   }
 
   hasFollowError(userId: string): boolean {
-    return this._followErrorIds().has(userId);
+    return this.followService.failure(userId) !== null;
   }
 
   async follow(userId: string): Promise<void> {
-    if (this._followingIds().has(userId)) {
-      return;
-    }
-    this._followingIds.update((ids) => new Set(ids).add(userId));
-    this._followErrorIds.update((ids) => without(ids, userId));
-    try {
-      await this.profileService.followUserId(userId);
+    await this.followService.follow(userId);
+    if (this.followService.isFollowing(userId)) {
       this._followedIds.update((ids) => new Set(ids).add(userId));
-    } catch {
-      this._followErrorIds.update((ids) => new Set(ids).add(userId));
-    } finally {
-      this._followingIds.update((ids) => without(ids, userId));
     }
   }
-}
-
-function without<T>(set: ReadonlySet<T>, value: T): ReadonlySet<T> {
-  if (!set.has(value)) {
-    return set;
-  }
-  const next = new Set(set);
-  next.delete(value);
-  return next;
 }
