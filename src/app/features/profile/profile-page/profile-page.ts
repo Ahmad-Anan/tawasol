@@ -32,7 +32,7 @@ export class ProfilePage {
     effect(() => {
       const id = this.userId();
       if (id) {
-        void this.profileService.load(id);
+        this.profileService.load(id);
       }
     });
   }

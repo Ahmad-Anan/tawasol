@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Service, computed, inject, signal } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subject, catchError, firstValueFrom, forkJoin, map, of, switchMap, tap } from 'rxjs';
 import { API_BASE_URL } from '../../../core/constants/api';
 import { AuthService } from '../../../core/services/auth.service';
 import type { BookmarksApiResponse } from '../../bookmarks/bookmarks.interface';
@@ -76,56 +77,82 @@ export class ProfileService {
       .filter((post): post is Post => post !== undefined);
   });
 
+  /**
+   * Every `load()` call feeds this stream, and `switchMap` below unsubscribes from the previous
+   * profile's requests — which cancels the in-flight HTTP calls — as soon as a new id arrives.
+   * So only the latest request can ever write to state: navigating quickly from profile A to
+   * profile B can no longer let A's slower response land on top of B's page.
+   */
+  private readonly loadRequests = new Subject<string>();
+
+  constructor() {
+    this.loadRequests
+      .pipe(
+        tap(() => {
+          this._isLoading.set(true);
+          this._loadError.set(false);
+          this._profile.set(null);
+          this._postIds.set([]);
+          this._bookmarksCount.set(null);
+        }),
+        switchMap((userId) =>
+          this.fetchProfile(userId).pipe(
+            map((result) => ({ ok: true as const, result })),
+            catchError(() => of({ ok: false as const })),
+          ),
+        ),
+        takeUntilDestroyed(),
+      )
+      .subscribe((outcome) => {
+        if (outcome.ok) {
+          const { profileResult, postsResponse, bookmarksCount } = outcome.result;
+          this._profile.set(profileResult.user);
+          this._isFollowing.set(profileResult.isFollowing);
+          this.postsService.mergePosts(postsResponse.data.posts);
+          this._postIds.set(postsResponse.data.posts.map((post) => post.id));
+          this._postsTotal.set(postsResponse.meta.pagination.total);
+          this._bookmarksCount.set(bookmarksCount);
+        } else {
+          this._loadError.set(true);
+        }
+        this._isLoading.set(false);
+      });
+  }
+
   /** Retries a failed `load()` for the same profile. */
   retryLoad(): void {
     if (this.lastRequestedUserId !== null && !this._isLoading()) {
-      void this.load(this.lastRequestedUserId);
+      this.load(this.lastRequestedUserId);
     }
   }
 
-  async load(userId: string): Promise<void> {
+  load(userId: string): void {
     this.lastRequestedUserId = userId;
-    this._isLoading.set(true);
-    this._loadError.set(false);
-    this._profile.set(null);
-    this._postIds.set([]);
-    this._bookmarksCount.set(null);
-    try {
-      const isOwn = userId === this.authService.user()?._id;
-      // Fired together, not awaited one after another — the profile, the post list, and (for
-      // one's own profile) the bookmarks count are independent reads (see
-      // docs/api-reference.md), so there's no reason to make the user wait for each round trip
-      // in sequence. `limit=1` on the bookmarks request — only `meta.pagination.total` is read,
-      // the bookmarks themselves are irrelevant here (BookmarksService owns the actual list).
-      const [profileResult, postsResponse, bookmarksCount] = await Promise.all([
-        isOwn
-          ? firstValueFrom(this.http.get<MyProfileApiResponse>(`${API_BASE_URL}/users/profile-data`)).then(
-              (response) => ({ user: response.data.user, isFollowing: false }),
-            )
-          : firstValueFrom(this.http.get<UserProfileApiResponse>(`${API_BASE_URL}/users/${userId}/profile`)).then(
-              (response) => ({ user: response.data.user, isFollowing: response.data.isFollowing }),
-            ),
-        firstValueFrom(this.http.get<UserPostsApiResponse>(`${API_BASE_URL}/users/${userId}/posts`)),
-        isOwn
-          ? firstValueFrom(
-              this.http.get<BookmarksApiResponse>(`${API_BASE_URL}/users/bookmarks`, {
-                params: new HttpParams().set('limit', 1),
-              }),
-            ).then((response) => response.meta.pagination.total)
-          : Promise.resolve(null),
-      ]);
+    this.loadRequests.next(userId);
+  }
 
-      this._profile.set(profileResult.user);
-      this._isFollowing.set(profileResult.isFollowing);
-      this.postsService.mergePosts(postsResponse.data.posts);
-      this._postIds.set(postsResponse.data.posts.map((post) => post.id));
-      this._postsTotal.set(postsResponse.meta.pagination.total);
-      this._bookmarksCount.set(bookmarksCount);
-    } catch {
-      this._loadError.set(true);
-    } finally {
-      this._isLoading.set(false);
-    }
+  private fetchProfile(userId: string) {
+    const isOwn = userId === this.authService.user()?._id;
+    // Fired together, not one after another — the profile, the post list, and (for one's own
+    // profile) the bookmarks count are independent reads (see docs/api-reference.md), so
+    // there's no reason to make the user wait for each round trip in sequence. `limit=1` on
+    // the bookmarks request — only `meta.pagination.total` is read, the bookmarks themselves
+    // are irrelevant here (BookmarksService owns the actual list).
+    return forkJoin({
+      profileResult: isOwn
+        ? this.http
+            .get<MyProfileApiResponse>(`${API_BASE_URL}/users/profile-data`)
+            .pipe(map((response) => ({ user: response.data.user, isFollowing: false })))
+        : this.http
+            .get<UserProfileApiResponse>(`${API_BASE_URL}/users/${userId}/profile`)
+            .pipe(map((response) => ({ user: response.data.user, isFollowing: response.data.isFollowing }))),
+      postsResponse: this.http.get<UserPostsApiResponse>(`${API_BASE_URL}/users/${userId}/posts`),
+      bookmarksCount: isOwn
+        ? this.http
+            .get<BookmarksApiResponse>(`${API_BASE_URL}/users/bookmarks`, { params: new HttpParams().set('limit', 1) })
+            .pipe(map((response): number | null => response.meta.pagination.total))
+        : of(null),
+    });
   }
 
   async toggleFollow(): Promise<void> {
