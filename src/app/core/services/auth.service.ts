@@ -54,8 +54,25 @@ export class AuthService {
     // to a microtask lets this constructor return (and Angular mark the instance constructed)
     // before hydrateUser()'s request ever reaches the interceptor.
     if (this.isBrowser && this._token()) {
-      queueMicrotask(() => void this.hydrateUser());
+      this.hydration = new Promise<void>((resolve) => queueMicrotask(() => void this.hydrateUser().finally(resolve)));
     }
+  }
+
+  /** Settles once the startup `hydrateUser()` request (if any) has finished, either way. */
+  private hydration: Promise<void> = Promise.resolve();
+
+  /**
+   * The signed-in user once it's known, or `null` when signed out. Unlike `user()`, this waits
+   * for the startup hydration after a hard reload (when a stored token exists but the user
+   * object hasn't been fetched yet), so guards can decide based on *who* is signed in rather
+   * than reading a not-yet-loaded `null`.
+   */
+  async whenUserResolved(): Promise<AuthUser | null> {
+    if (this._user() || !this._token()) {
+      return this._user();
+    }
+    await this.hydration;
+    return this._user();
   }
 
   async signup(payload: SignupRequest): Promise<void> {

@@ -7,6 +7,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
+import { DemoAccountService } from '../../core/services/demo-account';
 import { ThemeService } from '../../core/services/theme';
 import { LanguageService } from '../../core/services/language';
 import { NotificationsService } from '../../features/notifications/services/notifications.service';
@@ -22,6 +23,7 @@ export class Navbar {
   protected readonly authService = inject(AuthService);
   protected readonly themeService = inject(ThemeService);
   protected readonly languageService = inject(LanguageService);
+  protected readonly demoAccount = inject(DemoAccountService);
   private readonly router = inject(Router);
   // Injecting this is what starts its unread-count tracking (reacting to auth state) — see
   // the service's own doc comment on why that's the one deliberate exception to "nothing

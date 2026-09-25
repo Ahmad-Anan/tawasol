@@ -10,4 +10,8 @@ export const environment = {
   // protected in the UI instead (see core/services/demo-account.ts).
   demoLogin: 'tawasol_demo',
   demoPassword: 'Aa123456#',
+  // The demo account's user `_id` (read from its own sign-in response). The app recognises the
+  // demo account by comparing the signed-in user's `_id` to this — never by username — so the
+  // restrictions hold however the visitor signed in, and survive a page reload.
+  demoUserId: '6ab61f4f8ebe92c2c0ca67ff',
 };

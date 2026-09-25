@@ -8,11 +8,25 @@ import { AuthService } from './auth.service';
 const TOKEN_STORAGE_KEY = 'tawasol-token';
 
 function makeUser(overrides: Partial<AuthUser> = {}): AuthUser {
-  return { _id: 'u1', name: 'Ahmed', username: 'ahmed', email: 'ahmed@example.com', photo: '', cover: '', ...overrides };
+  return {
+    _id: 'u1',
+    name: 'Ahmed',
+    username: 'ahmed',
+    email: 'ahmed@example.com',
+    photo: '',
+    cover: '',
+    ...overrides,
+  };
 }
 
 function makeAuthResponse(overrides: Partial<AuthResponseData> = {}): AuthResponseData {
-  return { token: 'token-123', tokenType: 'Bearer', expiresIn: '30d', user: makeUser(), ...overrides };
+  return {
+    token: 'token-123',
+    tokenType: 'Bearer',
+    expiresIn: '30d',
+    user: makeUser(),
+    ...overrides,
+  };
 }
 
 describe('AuthService', () => {
@@ -61,7 +75,11 @@ describe('AuthService', () => {
 
     const req = httpMock.expectOne(`${API_BASE_URL}/users/signin`);
     req.flush(
-      { success: false, message: 'incorrect email or password', errors: 'incorrect email or password' },
+      {
+        success: false,
+        message: 'incorrect email or password',
+        errors: 'incorrect email or password',
+      },
       { status: 401, statusText: 'Unauthorized' },
     );
 
@@ -96,7 +114,9 @@ describe('AuthService', () => {
   it('logout() clears the token, the user, and localStorage', async () => {
     const service = TestBed.inject(AuthService);
     const promise = service.signin({ login: 'ahmed@example.com', password: 'Passw0rd!' });
-    httpMock.expectOne(`${API_BASE_URL}/users/signin`).flush({ success: true, message: 'ok', data: makeAuthResponse() });
+    httpMock
+      .expectOne(`${API_BASE_URL}/users/signin`)
+      .flush({ success: true, message: 'ok', data: makeAuthResponse() });
     await promise;
 
     service.logout();
@@ -146,11 +166,49 @@ describe('AuthService', () => {
 
     await Promise.resolve();
     const req = httpMock.expectOne(`${API_BASE_URL}/users/profile-data`);
-    req.flush({ success: false, message: 'invalid token', errors: 'invalid token' }, { status: 401, statusText: 'Unauthorized' });
+    req.flush(
+      { success: false, message: 'invalid token', errors: 'invalid token' },
+      { status: 401, statusText: 'Unauthorized' },
+    );
     await Promise.resolve();
 
     expect(service.isAuthenticated()).toBe(false);
     expect(service.user()).toBeNull();
     expect(localStorage.getItem(TOKEN_STORAGE_KEY)).toBeNull();
+  });
+
+  describe('whenUserResolved()', () => {
+    it('resolves to null straight away when signed out', async () => {
+      const service = TestBed.inject(AuthService);
+      expect(await service.whenUserResolved()).toBeNull();
+    });
+
+    it('waits for the startup hydration after a reload, then resolves to the user', async () => {
+      localStorage.setItem(TOKEN_STORAGE_KEY, 'stored-token');
+      const service = TestBed.inject(AuthService);
+      let resolvedUser: AuthUser | null | undefined;
+      const pending = service.whenUserResolved().then((user) => (resolvedUser = user));
+
+      await Promise.resolve();
+      expect(resolvedUser).toBeUndefined(); // still waiting on the profile-data request
+
+      httpMock
+        .expectOne(`${API_BASE_URL}/users/profile-data`)
+        .flush({ success: true, message: 'ok', data: { user: makeUser({ _id: 'hydrated' }) } });
+      await pending;
+      expect(resolvedUser?._id).toBe('hydrated');
+    });
+
+    it('resolves to null when the stored token turns out to be invalid', async () => {
+      localStorage.setItem(TOKEN_STORAGE_KEY, 'stale-token');
+      const service = TestBed.inject(AuthService);
+      const pending = service.whenUserResolved();
+
+      await Promise.resolve();
+      httpMock
+        .expectOne(`${API_BASE_URL}/users/profile-data`)
+        .flush({ message: 'invalid token' }, { status: 401, statusText: 'Unauthorized' });
+      expect(await pending).toBeNull();
+    });
   });
 });
