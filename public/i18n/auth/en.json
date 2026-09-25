@@ -46,7 +46,8 @@
         "usernameCharacters": "Use only lowercase English letters (a–z), numbers and underscores (_)",
         "usernameLength": "Username must be 3 to 30 characters",
         "dobTooYoung": "You must be at least {{min}} years old to sign up",
-        "dobTooOld": "Enter a real date of birth (age {{max}} or younger)"
+        "dobTooOld": "Enter a real date of birth (age {{max}} or younger)",
+        "nameMinLength": "Name must be at least 2 characters"
       },
       "nameHint": "e.g. Tawasol User",
       "usernameHint": "e.g. tawasol_user. Lowercase English letters, numbers and underscores",

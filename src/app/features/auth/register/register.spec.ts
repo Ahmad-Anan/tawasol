@@ -183,6 +183,29 @@ describe('Register', () => {
     });
   }
 
+  it('blocks a one-character full name, matching the server minimum of 2', async () => {
+    fillValidForm();
+    setInput('input[autocomplete="name"]', 'A');
+
+    submitForm();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(authService.signup).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.textContent).toContain('auth.register.errors.nameMinLength');
+  });
+
+  it('accepts a two-character name in any script (no pattern)', async () => {
+    authService.signup.mockResolvedValue(undefined);
+    fillValidForm();
+    setInput('input[autocomplete="name"]', 'مي');
+
+    submitForm();
+    await fixture.whenStable();
+
+    expect(authService.signup).toHaveBeenCalledWith(expect.objectContaining({ name: 'مي' }));
+  });
+
   it('shows the live password checklist under the password field', () => {
     expect(fixture.nativeElement.querySelectorAll('app-password-checklist li').length).toBe(5);
   });

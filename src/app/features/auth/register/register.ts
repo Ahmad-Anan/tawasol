@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { FormField, form, email, pattern, required, validate, submit } from '@angular/forms/signals';
+import { FormField, form, email, minLength, pattern, required, validate, submit } from '@angular/forms/signals';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -64,6 +64,11 @@ export class Register {
     // reactively when the active language changes — `translate.translate()` returns a
     // signal, and calling it here registers the dependency inside the field's reactive graph.
     required(p.name, { message: () => this.translate.translate('auth.register.errors.nameRequired')() as string });
+    // Matches the server's own minimum (see docs/api-reference.md > POST /users/signup). No pattern:
+    // names stay free text in any script.
+    minLength(p.name, 2, {
+      message: () => this.translate.translate('auth.register.errors.nameMinLength')() as string,
+    });
 
     // Optional, but when filled in it must match the API's rule (see validators/username.ts).
     // Capitals and spaces never reach this check — onUsernameInput() fixes them as they're typed.
