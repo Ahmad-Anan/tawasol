@@ -7,9 +7,6 @@
     <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
       <mat-label>{{ 'feed.createPost.placeholder' | translate }}</mat-label>
       <textarea matInput rows="2" [formField]="createForm.body"></textarea>
-      @if (createForm.body().touched() && createForm.body().invalid()) {
-        <mat-error>{{ createForm.body().errors()[0]?.message }}</mat-error>
-      }
     </mat-form-field>
   </div>
 
@@ -28,8 +25,9 @@
     </div>
   }
 
-  @if (serverError()) {
-    <p class="mt-2 text-sm text-(--color-error-text)">{{ serverError() }}</p>
+  <!-- Real failures only (API error, unusable image), next to the Post button. -->
+  @if (error()) {
+    <p class="mt-2 text-end text-sm text-(--color-error-text)" role="alert">{{ error() }}</p>
   }
 
   <div class="mt-3 flex items-center justify-between">
@@ -43,11 +41,18 @@
       <mat-icon class="text-(--mat-sys-primary)">image</mat-icon>
     </button>
 
+    <!--
+      Disabled while there's nothing to post, but disabledInteractive keeps it focusable (with
+      aria-disabled) so a screen reader user can reach it and hear why via aria-describedby.
+    -->
+    <span id="create-post-empty-hint" class="sr-only">{{ 'shared.composer.emptyHint' | translate }}</span>
     <button
       mat-flat-button
       type="submit"
-      class="bg-(--color-harbor-600)! text-white!"
-      [disabled]="createForm().submitting()"
+      class="composer-submit"
+      [disabled]="!canPost() || createForm().submitting()"
+      [disabledInteractive]="true"
+      [attr.aria-describedby]="canPost() ? null : 'create-post-empty-hint'"
     >
       @if (createForm().submitting()) {
         <mat-spinner diameter="20" class="mx-auto" />

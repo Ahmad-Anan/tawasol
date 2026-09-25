@@ -28,7 +28,6 @@
     "errors": {
       "loadFailed": "Couldn't load comments. Please try again later.",
       "loadMoreFailed": "Couldn't load more comments.",
-      "contentRequired": "Write something or add an image before posting",
       "actionFailed": "Something went wrong. Please try again."
     }
   }

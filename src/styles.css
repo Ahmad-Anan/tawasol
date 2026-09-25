@@ -43,6 +43,15 @@
   min-height: 20px;
 }
 
+/* Post/comment/reply composers' submit button. Sets Material's *enabled* filled-button tokens
+   rather than forcing the colors with utility classes, so Material's own disabled tokens (12%
+   on-surface container, 38% on-surface label) still apply — a disabled Post button looks
+   clearly disabled in both themes instead of identical to an enabled one. */
+.composer-submit {
+  --mat-button-filled-container-color: var(--color-harbor-600);
+  --mat-button-filled-label-text-color: #fff;
+}
+
 /* ImageLightbox overlay (shared/image-lightbox) — global because these classes land on CDK
    overlay elements outside the component's view encapsulation. The backdrop is Night Harbor
    (--color-harbor-950, fixed in both themes) at high opacity, and the dialog surface itself is

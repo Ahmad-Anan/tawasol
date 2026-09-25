@@ -25,6 +25,13 @@
         "special": "A special character: # ? ! @ $ % ^ & * -"
       },
       "switchKeyboard": "Switch your keyboard to English. The password needs English letters."
+    },
+    "composer": {
+      "emptyHint": "Write something or add an image to post.",
+      "errors": {
+        "imageType": "That file isn't an image. Choose a JPG, PNG, GIF or WebP file.",
+        "imageSize": "That image is too large. Choose one that is {{max}} MB or smaller."
+      }
     }
   }
 }

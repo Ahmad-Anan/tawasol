@@ -29,7 +29,6 @@
       "submit": "Post",
       "posting": "Posting…",
       "errors": {
-        "contentRequired": "Write something or add an image before posting",
         "unexpected": "Couldn't create the post. Please try again."
       }
     },

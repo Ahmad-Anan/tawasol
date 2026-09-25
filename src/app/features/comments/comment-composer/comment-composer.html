@@ -26,8 +26,9 @@
       </div>
     }
 
+    <!-- Real failures only (API error, unusable image), next to the Post button. -->
     @if (error()) {
-      <p class="mt-1 text-sm text-(--color-error-text)">{{ error() }}</p>
+      <p class="mt-1 text-end text-sm text-(--color-error-text)" role="alert">{{ error() }}</p>
     }
 
     <div class="mt-1 flex items-center justify-between">
@@ -41,11 +42,15 @@
         <mat-icon class="!text-base text-(--mat-sys-primary)">image</mat-icon>
       </button>
 
+      <!-- Same disabled-but-reachable arrangement as CreatePost's Post button. -->
+      <span [id]="emptyHintId" class="sr-only">{{ 'shared.composer.emptyHint' | translate }}</span>
       <button
         mat-flat-button
         type="submit"
-        class="bg-(--color-harbor-600)! text-white!"
-        [disabled]="isSubmitting()"
+        class="composer-submit"
+        [disabled]="!canPost() || isSubmitting()"
+        [disabledInteractive]="true"
+        [attr.aria-describedby]="canPost() ? null : emptyHintId"
       >
         @if (isSubmitting()) {
           <mat-spinner diameter="18" class="mx-auto" />
