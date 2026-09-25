@@ -19,6 +19,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
+import { DemoAccountService } from '../../../core/services/demo-account';
 import { LanguageService } from '../../../core/services/language';
 import { openImageLightbox } from '../../../shared/image-lightbox/image-lightbox';
 import { StatusIndicator } from '../../../shared/status-indicator/status-indicator';
@@ -48,6 +49,7 @@ import { PostsService } from '../services/posts.service';
 })
 export class PostCard {
   private readonly authService = inject(AuthService);
+  private readonly demoAccount = inject(DemoAccountService);
   private readonly postsService = inject(PostsService);
   private readonly languageService = inject(LanguageService);
   private readonly translate = inject(TranslateService);
@@ -68,6 +70,8 @@ export class PostCard {
   protected readonly isOwnPost = computed(() => this.post().user._id === this.authService.user()?._id);
   /** Shares carry no editable body/image of their own (see PostsService.sharePost docs). */
   protected readonly canEdit = computed(() => this.isOwnPost() && !this.post().isShare);
+  /** False only for the demo account's pre-existing posts (see DemoAccountService). */
+  protected readonly canDelete = computed(() => this.demoAccount.canDeletePost(this.post().id));
 
   protected readonly isLiking = signal(false);
   protected readonly isBookmarking = signal(false);
@@ -176,6 +180,10 @@ export class PostCard {
   }
 
   protected confirmDelete(): void {
+    // The menu item is disabled (with a note) when this is false; this is the backstop.
+    if (!this.canDelete()) {
+      return;
+    }
     this.deleteError.set(null);
     this.isConfirmingDelete.set(true);
   }
@@ -185,7 +193,7 @@ export class PostCard {
   }
 
   protected async deletePost(): Promise<void> {
-    if (this.isDeleting()) {
+    if (this.isDeleting() || !this.canDelete()) {
       return;
     }
     this.isDeleting.set(true);

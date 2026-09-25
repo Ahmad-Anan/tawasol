@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { API_BASE_URL } from '../../../core/constants/api';
+import { DemoAccountService } from '../../../core/services/demo-account';
 import type { FeedApiResponse, LikeToggleApiResponse, Post } from '../feed.interface';
 import { PostsService } from './posts.service';
 
@@ -49,7 +50,10 @@ function cursorResponse(posts: Post[], hasMore: boolean): FeedApiResponse {
     success: true,
     message: 'ok',
     data: { posts },
-    meta: { feedMode: 'cursor', cursor: { limit: 10, hasMore, nextCursor: hasMore ? 'next' : null } },
+    meta: {
+      feedMode: 'cursor',
+      cursor: { limit: 10, hasMore, nextCursor: hasMore ? 'next' : null },
+    },
   };
 }
 
@@ -200,7 +204,10 @@ describe('PostsService', () => {
   it('toggleLike() patches only likes/likesCount on the affected post', async () => {
     service.start();
     const req = expectFeedRequest();
-    await flushFeed(req, pageResponse([makePost({ id: 'p1', likes: [], likesCount: 0, body: 'original' })]));
+    await flushFeed(
+      req,
+      pageResponse([makePost({ id: 'p1', likes: [], likesCount: 0, body: 'original' })]),
+    );
 
     const promise = service.toggleLike('p1');
     const likeReq = httpMock.expectOne(`${API_BASE_URL}/posts/p1/like`);
@@ -245,7 +252,11 @@ describe('PostsService', () => {
     const promise = service.toggleBookmark('p1');
     const bookmarkReq = httpMock.expectOne(`${API_BASE_URL}/posts/p1/bookmark`);
     expect(bookmarkReq.request.method).toBe('PUT');
-    bookmarkReq.flush({ success: true, message: 'ok', data: { bookmarked: true, bookmarksCount: 5 } });
+    bookmarkReq.flush({
+      success: true,
+      message: 'ok',
+      data: { bookmarked: true, bookmarksCount: 5 },
+    });
     await promise;
 
     expect(service.posts()[0].bookmarked).toBe(true);
@@ -253,7 +264,10 @@ describe('PostsService', () => {
 
   it('mergePosts() adds only posts not already known, leaving existing entries untouched', () => {
     service.mergePosts([makePost({ id: 'p1', body: 'first' })]);
-    service.mergePosts([makePost({ id: 'p1', body: 'duplicate, should be ignored' }), makePost({ id: 'p2' })]);
+    service.mergePosts([
+      makePost({ id: 'p1', body: 'duplicate, should be ignored' }),
+      makePost({ id: 'p2' }),
+    ]);
 
     const ids = service.posts().map((p) => p.id);
     expect(ids).toEqual(['p1', 'p2']);
@@ -265,5 +279,63 @@ describe('PostsService', () => {
     expect(service.isLikedBy(post, 'u1')).toBe(true);
     expect(service.isLikedBy(post, 'u3')).toBe(false);
     expect(service.isLikedBy(post, undefined)).toBe(false);
+  });
+});
+
+describe('PostsService on the demo account', () => {
+  let service: PostsService;
+  let httpMock: HttpTestingController;
+  let recordCreatedPost: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    recordCreatedPost = vi.fn();
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: DemoAccountService, useValue: { recordCreatedPost, canDeletePost: () => true } },
+      ],
+    });
+    service = TestBed.inject(PostsService);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => httpMock.verify());
+
+  it('records a newly created post so it can be deleted this session', async () => {
+    const created = service.createPost({ body: 'hi' });
+    httpMock.expectOne(`${API_BASE_URL}/posts`).flush({
+      success: true,
+      message: 'ok',
+      data: {
+        post: {
+          _id: 'new-1',
+          id: 'new-1',
+          body: 'hi',
+          privacy: 'public',
+          user: 'me',
+          likes: [],
+          likesCount: 0,
+          isShare: false,
+          sharedPost: null,
+          createdAt: '2026-09-25T00:00:00.000Z',
+        },
+      },
+    });
+    await created;
+    expect(recordCreatedPost).toHaveBeenCalledWith('new-1');
+  });
+
+  it('records a new share post too', async () => {
+    const shared = service.sharePost('original');
+    httpMock
+      .expectOne(`${API_BASE_URL}/posts/original/share`)
+      .flush({
+        success: true,
+        message: 'ok',
+        data: { post: makePost({ id: 'share-1', isShare: true }) },
+      });
+    await shared;
+    expect(recordCreatedPost).toHaveBeenCalledWith('share-1');
   });
 });

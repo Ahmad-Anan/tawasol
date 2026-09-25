@@ -16,9 +16,25 @@
           <mat-icon>more_horiz</mat-icon>
         </button>
         <mat-menu #shareMenu="matMenu">
-          <button mat-menu-item type="button" (click)="confirmDelete()">
+          <!--
+          Disabled with a note for the demo account's pre-existing posts (see canDelete). Not [disabled]:
+          the menu's keyboard navigation skips disabled items, but keyboard and screen-reader users
+          should still reach it — the note inside is part of its accessible name, so they hear why.
+        -->
+          <button
+            mat-menu-item
+            type="button"
+            class="delete-menu-item"
+            [class.delete-menu-item--disabled]="!canDelete()"
+            (click)="confirmDelete()"
+          >
             <mat-icon>delete_outline</mat-icon>
-            <span>{{ 'feed.postCard.delete' | translate }}</span>
+            <span class="flex flex-col">
+              <span>{{ 'feed.postCard.delete' | translate }}</span>
+              @if (!canDelete()) {
+                <span class="text-xs text-(--color-text-secondary)">{{ 'shared.demo.disabled' | translate }}</span>
+              }
+            </span>
           </button>
         </mat-menu>
       }
@@ -67,9 +83,25 @@
           <mat-icon>edit</mat-icon>
           <span>{{ 'feed.postCard.edit' | translate }}</span>
         </button>
-        <button mat-menu-item type="button" (click)="confirmDelete()">
+        <!--
+          Disabled with a note for the demo account's pre-existing posts (see canDelete). Not [disabled]:
+          the menu's keyboard navigation skips disabled items, but keyboard and screen-reader users
+          should still reach it — the note inside is part of its accessible name, so they hear why.
+        -->
+        <button
+          mat-menu-item
+          type="button"
+          class="delete-menu-item"
+          [class.delete-menu-item--disabled]="!canDelete()"
+          (click)="confirmDelete()"
+        >
           <mat-icon>delete_outline</mat-icon>
-          <span>{{ 'feed.postCard.delete' | translate }}</span>
+          <span class="flex flex-col">
+            <span>{{ 'feed.postCard.delete' | translate }}</span>
+            @if (!canDelete()) {
+              <span class="text-xs text-(--color-text-secondary)">{{ 'shared.demo.disabled' | translate }}</span>
+            }
+          </span>
         </button>
       </mat-menu>
     }

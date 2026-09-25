@@ -4,6 +4,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
 import { API_BASE_URL } from '../../../core/constants/api';
 import { AuthService } from '../../../core/services/auth.service';
+import { DemoAccountService } from '../../../core/services/demo-account';
 import type {
   BookmarkToggleApiResponse,
   CreateOrEditPostApiResponse,
@@ -31,6 +32,8 @@ export interface PostFormPayload {
 export class PostsService {
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
+  // Records posts the demo account creates/shares, the only ones it may delete (see DemoAccountService).
+  private readonly demoAccount = inject(DemoAccountService);
 
   private readonly _cursor = signal<string | undefined>(undefined);
   private readonly _posts = signal<Post[]>([]);
@@ -233,6 +236,7 @@ export class PostsService {
       this.http.post<CreateOrEditPostApiResponse>(`${API_BASE_URL}/posts`, this.buildFormData(payload)),
     );
     this._posts.update((existing) => [this.toDisplayPost(response.data.post), ...existing]);
+    this.demoAccount.recordCreatedPost(response.data.post.id);
   }
 
   /** Not wired to any UI yet in this pass — see the feed feature summary for why. */
@@ -277,6 +281,7 @@ export class PostsService {
     );
     const original = this._posts().find((post) => post.id === postId);
     this._posts.update((existing) => [response.data.post, ...existing]);
+    this.demoAccount.recordCreatedPost(response.data.post.id);
     if (original) {
       // The API doesn't return the original post's updated sharesCount, only the brand-new
       // share-post's (which is 0) — bump it locally since we know a share of it just

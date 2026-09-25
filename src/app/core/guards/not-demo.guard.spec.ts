@@ -16,7 +16,10 @@ describe('notDemoGuard', () => {
           { path: 'change-password', component: Stub, canActivate: [notDemoGuard] },
           { path: 'feed', component: Stub },
         ]),
-        { provide: AuthService, useValue: { user: () => null, whenUserResolved } },
+        {
+          provide: AuthService,
+          useValue: { user: () => null, isAuthenticated: () => true, whenUserResolved },
+        },
       ],
     });
     return TestBed.inject(Router);
