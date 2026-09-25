@@ -2,11 +2,16 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { API_BASE_URL } from '../../../core/constants/api';
+import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../core/services/auth.service';
 import { ProfileService } from './profile.service';
 
 function profileResponse(id: string) {
-  return { success: true, message: 'ok', data: { user: { _id: id, name: `User ${id}` }, isFollowing: false } };
+  return {
+    success: true,
+    message: 'ok',
+    data: { user: { _id: id, name: `User ${id}` }, isFollowing: false },
+  };
 }
 
 function postsResponse() {
@@ -22,7 +27,10 @@ describe('ProfileService', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: AuthService, useValue: { isAuthenticated: () => true, user: () => ({ _id: 'me' }), token: () => null } },
+        {
+          provide: AuthService,
+          useValue: { isAuthenticated: () => true, user: () => ({ _id: 'me' }), token: () => null },
+        },
       ],
     });
     service = TestBed.inject(ProfileService);
@@ -62,5 +70,31 @@ describe('ProfileService', () => {
 
     expect(service.profile()?._id).toBe('a');
     expect(service.loadError()).toBe(false);
+  });
+});
+
+describe('ProfileService on the demo account', () => {
+  it('never uploads a new profile photo', async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        {
+          provide: AuthService,
+          useValue: {
+            isAuthenticated: () => true,
+            user: () => ({ _id: environment.demoUserId }),
+            token: () => null,
+          },
+        },
+      ],
+    });
+    const service = TestBed.inject(ProfileService);
+    const httpMock = TestBed.inject(HttpTestingController);
+
+    await service.uploadPhoto(new File(['x'], 'a.png', { type: 'image/png' }));
+
+    httpMock.expectNone(`${API_BASE_URL}/users/upload-photo`);
+    httpMock.verify();
   });
 });

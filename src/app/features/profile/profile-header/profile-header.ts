@@ -5,6 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { DemoAccountService } from '../../../core/services/demo-account';
 import { openImageLightbox } from '../../../shared/image-lightbox/image-lightbox';
 import { ProfileService } from '../services/profile.service';
 import {
@@ -26,6 +27,7 @@ import {
 })
 export class ProfileHeader {
   protected readonly profileService = inject(ProfileService);
+  protected readonly demoAccount = inject(DemoAccountService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
@@ -40,7 +42,8 @@ export class ProfileHeader {
   protected onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0] ?? null;
-    this.setFile(file);
+    // The picker can't open from the disabled buttons, but never stage a demo-account photo.
+    this.setFile(this.demoAccount.isDemo() ? null : file);
     // Allows re-selecting the same file later (browsers don't fire `change` again otherwise).
     input.value = '';
   }

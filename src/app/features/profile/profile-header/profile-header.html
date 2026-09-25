@@ -19,14 +19,21 @@
           (keydown.space)="$event.preventDefault(); openPhoto(profile.photo)"
         />
         @if (profileService.isOwnProfile()) {
+          <!--
+            On the public demo account the photo can't be changed: the button stays visible and
+            focusable (disabledInteractive) but disabled, described by the note under "Edit Profile".
+          -->
           <button
             mat-icon-button
             type="button"
-            class="!absolute -end-1 -bottom-1 !h-8 !w-8 !min-w-0 !bg-(--color-harbor-600)"
+            class="photo-camera-button !absolute -end-1 -bottom-1 !h-8 !w-8 !min-w-0"
+            [disabled]="demoAccount.isDemo()"
+            [disabledInteractive]="true"
+            [attr.aria-describedby]="demoAccount.isDemo() ? 'profile-photo-demo-note' : null"
             [attr.aria-label]="'profile.changePhoto' | translate"
-            (click)="photoInput.click()"
+            (click)="!demoAccount.isDemo() && photoInput.click()"
           >
-            <mat-icon class="!text-base !text-white">photo_camera</mat-icon>
+            <mat-icon class="!text-base">photo_camera</mat-icon>
           </button>
         }
       </div>
@@ -44,9 +51,21 @@
 
       <div class="shrink-0">
         @if (profileService.isOwnProfile()) {
-          <button mat-stroked-button type="button" (click)="photoInput.click()">
+          <button
+            mat-stroked-button
+            type="button"
+            [disabled]="demoAccount.isDemo()"
+            [disabledInteractive]="true"
+            [attr.aria-describedby]="demoAccount.isDemo() ? 'profile-photo-demo-note' : null"
+            (click)="!demoAccount.isDemo() && photoInput.click()"
+          >
             {{ 'profile.editProfile' | translate }}
           </button>
+          @if (demoAccount.isDemo()) {
+            <p id="profile-photo-demo-note" class="mt-1 text-xs text-(--color-text-secondary)">
+              {{ 'shared.demo.disabled' | translate }}
+            </p>
+          }
         } @else if (profileService.isFollowing()) {
           <button
             mat-stroked-button

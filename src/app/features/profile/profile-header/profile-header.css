@@ -1,3 +1,16 @@
 :host {
   display: block;
 }
+
+/* The camera button on one's own avatar. Material marks it .mat-mdc-button-disabled (not
+   :disabled) because it stays focusable via disabledInteractive — e.g. on the demo account. */
+.photo-camera-button {
+  background-color: var(--color-harbor-600) !important;
+  color: #fff;
+}
+
+.photo-camera-button.mat-mdc-button-disabled {
+  background-color: var(--color-bone-100) !important;
+  color: var(--color-text-secondary);
+  box-shadow: 0 0 0 1px var(--mat-sys-outline-variant);
+}

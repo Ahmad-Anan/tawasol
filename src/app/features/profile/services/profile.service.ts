@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, catchError, firstValueFrom, forkJoin, map, of, switchMap, tap } from 'rxjs';
 import { API_BASE_URL } from '../../../core/constants/api';
 import { AuthService } from '../../../core/services/auth.service';
+import { DemoAccountService } from '../../../core/services/demo-account';
 import type { BookmarksApiResponse } from '../../bookmarks/bookmarks.interface';
 import type { Post } from '../../feed/feed.interface';
 import { PostsService } from '../../feed/services/posts.service';
@@ -26,6 +27,7 @@ import type {
 export class ProfileService {
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
+  private readonly demoAccount = inject(DemoAccountService);
   // PostCard always mutates through PostsService (like/bookmark/share/edit/delete), regardless
   // of which list rendered it — see PostsService.mergePosts. So this profile's posts read the
   // actual, always-current post objects from there, and only track *which* ids (and in what
@@ -188,7 +190,9 @@ export class ProfileService {
   }
 
   async uploadPhoto(file: File): Promise<void> {
-    if (this._isUploadingPhoto()) {
+    // The public demo account's photo is fixed (the UI disables the control too — this is the
+    // backstop so no code path can change it).
+    if (this._isUploadingPhoto() || this.demoAccount.isDemo()) {
       return;
     }
     this._isUploadingPhoto.set(true);

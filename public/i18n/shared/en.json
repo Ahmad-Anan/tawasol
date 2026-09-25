@@ -32,6 +32,9 @@
         "imageType": "That file isn't an image. Choose a JPG, PNG, GIF or WebP file.",
         "imageSize": "That image is too large. Choose one that is {{max}} MB or smaller."
       }
+    },
+    "demo": {
+      "disabled": "Disabled on the demo account"
     }
   }
 }
