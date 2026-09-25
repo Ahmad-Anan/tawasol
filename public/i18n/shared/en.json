@@ -35,6 +35,20 @@
     },
     "demo": {
       "disabled": "Disabled on the demo account"
+    },
+    "follow": {
+      "follow": "Follow",
+      "following": "Following",
+      "unfollow": "Unfollow",
+      "followAriaLabel": "Follow {{name}}",
+      "followingAriaLabel": "Following {{name}}. Activate to unfollow.",
+      "confirmTitle": "Unfollow {{name}}?",
+      "cancel": "Cancel",
+      "confirm": "Unfollow",
+      "errors": {
+        "followFailed": "Couldn't follow {{name}}. Please try again.",
+        "unfollowFailed": "Couldn't unfollow {{name}}. Please try again."
+      }
     }
   }
 }

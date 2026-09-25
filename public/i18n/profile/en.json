@@ -4,8 +4,6 @@
     "following": "Following",
     "posts": "Posts",
     "bookmarks": "Bookmarks",
-    "follow": "Follow",
-    "unfollow": "Unfollow",
     "editProfile": "Edit Profile",
     "changePhoto": "Change profile photo",
     "photoPreviewHint": "This is how your new photo will look.",
@@ -14,7 +12,6 @@
     "noPosts": "No posts yet.",
     "errors": {
       "loadFailed": "Couldn't load this profile. Please try again later.",
-      "followFailed": "Something went wrong. Please try again.",
       "uploadFailed": "Couldn't upload the photo. Please try again."
     },
     "retry": "Retry"

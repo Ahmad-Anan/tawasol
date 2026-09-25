@@ -85,16 +85,6 @@ export class ProfileService {
     return profile ? this.followService.failure(profile._id) : null;
   });
 
-  async toggleFollow(): Promise<void> {
-    const profile = this._profile();
-    if (!profile) {
-      return;
-    }
-    await (this.isFollowing()
-      ? this.followService.unfollow(profile._id)
-      : this.followService.follow(profile._id));
-  }
-
   readonly posts = computed(() => {
     const byId = new Map(this.postsService.posts().map((post) => [post.id, post]));
     return this._postIds()
@@ -192,14 +182,12 @@ export class ProfileService {
         ? this.http
             .get<MyProfileApiResponse>(`${API_BASE_URL}/users/profile-data`)
             .pipe(map((response) => ({ user: response.data.user, isFollowing: false })))
-        : this.http
-            .get<UserProfileApiResponse>(`${API_BASE_URL}/users/${userId}/profile`)
-            .pipe(
-              map((response) => ({
-                user: response.data.user,
-                isFollowing: response.data.isFollowing,
-              })),
-            ),
+        : this.http.get<UserProfileApiResponse>(`${API_BASE_URL}/users/${userId}/profile`).pipe(
+            map((response) => ({
+              user: response.data.user,
+              isFollowing: response.data.isFollowing,
+            })),
+          ),
       postsResponse: this.http.get<UserPostsApiResponse>(`${API_BASE_URL}/users/${userId}/posts`),
       bookmarksCount: isOwn
         ? this.http

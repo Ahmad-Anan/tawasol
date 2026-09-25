@@ -1,0 +1,22 @@
+<button
+  type="button"
+  class="follow-button"
+  [matButton]="appearance()"
+  [class.follow-button--following]="following()"
+  [class.follow-button--follow]="!following() && size() === 'default'"
+  [class.follow-button--compact]="size() === 'compact'"
+  [disabled]="pending()"
+  [disabledInteractive]="true"
+  [attr.aria-label]="
+    (following() ? 'shared.follow.followingAriaLabel' : 'shared.follow.followAriaLabel') | translate: { name: name() }
+  "
+  (click)="onClick()"
+>
+  @if (following()) {
+    <mat-icon aria-hidden="true">check</mat-icon>
+    <span class="follow-button__state">{{ 'shared.follow.following' | translate }}</span>
+    <span class="follow-button__hover" aria-hidden="true">{{ 'shared.follow.unfollow' | translate }}</span>
+  } @else {
+    {{ 'shared.follow.follow' | translate }}
+  }
+</button>

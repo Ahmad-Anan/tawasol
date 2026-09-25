@@ -66,33 +66,8 @@
               {{ 'shared.demo.disabled' | translate }}
             </p>
           }
-        } @else if (profileService.isFollowing()) {
-          <button
-            mat-stroked-button
-            type="button"
-            [disabled]="profileService.isTogglingFollow()"
-            (click)="profileService.toggleFollow()"
-          >
-            @if (profileService.isTogglingFollow()) {
-              <mat-spinner diameter="20" class="mx-auto" />
-            } @else {
-              {{ 'profile.unfollow' | translate }}
-            }
-          </button>
         } @else {
-          <button
-            mat-flat-button
-            type="button"
-            class="bg-(--color-harbor-600)! text-white!"
-            [disabled]="profileService.isTogglingFollow()"
-            (click)="profileService.toggleFollow()"
-          >
-            @if (profileService.isTogglingFollow()) {
-              <mat-spinner diameter="20" class="mx-auto" />
-            } @else {
-              {{ 'profile.follow' | translate }}
-            }
-          </button>
+          <app-follow-button [userId]="profile._id" [name]="profile.name" />
         }
       </div>
     </div>
@@ -162,8 +137,14 @@
     @if (profileService.uploadError()) {
       <p class="mt-2 text-sm text-(--color-error-text)">{{ 'profile.errors.uploadFailed' | translate }}</p>
     }
-    @if (profileService.followError()) {
-      <p class="mt-2 text-sm text-(--color-error-text)">{{ 'profile.errors.followFailed' | translate }}</p>
+    <!-- The follow/unfollow was rolled back (see FollowService) — say which one, and to whom. -->
+    @if (profileService.followError(); as failure) {
+      <p class="mt-2 text-sm text-(--color-error-text)" role="alert">
+        {{
+          (failure === 'follow' ? 'shared.follow.errors.followFailed' : 'shared.follow.errors.unfollowFailed')
+            | translate: { name: profile.name }
+        }}
+      </p>
     }
   } @else if (profileService.loadError()) {
     <div class="flex flex-col items-center gap-2 text-center">

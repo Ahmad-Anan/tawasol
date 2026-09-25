@@ -44,7 +44,6 @@ describe("ProfileHeader on one's own profile", () => {
             postsTotal: () => 0,
             bookmarksCount: () => 0,
             uploadPhoto,
-            toggleFollow: vi.fn(),
             retryLoad: vi.fn(),
           },
         },

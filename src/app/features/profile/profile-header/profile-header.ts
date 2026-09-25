@@ -6,6 +6,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { DemoAccountService } from '../../../core/services/demo-account';
+import { FollowButton } from '../../../shared/follow-button/follow-button';
 import { openImageLightbox } from '../../../shared/image-lightbox/image-lightbox';
 import { ProfileService } from '../services/profile.service';
 import {
@@ -20,7 +21,14 @@ import {
  */
 @Component({
   selector: 'app-profile-header',
-  imports: [NgOptimizedImage, MatButtonModule, MatIcon, MatProgressSpinnerModule, TranslatePipe],
+  imports: [
+    FollowButton,
+    NgOptimizedImage,
+    MatButtonModule,
+    MatIcon,
+    MatProgressSpinnerModule,
+    TranslatePipe,
+  ],
   templateUrl: './profile-header.html',
   styleUrl: './profile-header.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -55,11 +63,18 @@ export class ProfileHeader {
    * pretending to show a real list.
    */
   protected openSuggestionsDialog(context: SuggestedFriendsDialogData['context']): void {
-    this.dialog.open(SuggestedFriendsDialog, { data: { context }, autoFocus: 'first-tabbable', width: '420px' });
+    this.dialog.open(SuggestedFriendsDialog, {
+      data: { context },
+      autoFocus: 'first-tabbable',
+      width: '420px',
+    });
   }
 
   protected openPhoto(src: string): void {
-    openImageLightbox(this.dialog, this.translate, { src, altKey: 'shared.imageLightbox.profilePhoto' });
+    openImageLightbox(this.dialog, this.translate, {
+      src,
+      altKey: 'shared.imageLightbox.profilePhoto',
+    });
   }
 
   protected cancelPhotoChange(): void {

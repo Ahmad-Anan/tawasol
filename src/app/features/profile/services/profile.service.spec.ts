@@ -159,7 +159,7 @@ describe('ProfileService keeps counts in sync with follows', () => {
   it("updates the viewed profile's follower count optimistically, then to the server's total", async () => {
     loadProfile('other', { followersCount: 3, followingCount: 0 });
 
-    const done = service.toggleFollow();
+    const done = follow.follow('other');
     expect(service.profile()?.followersCount).toBe(4);
 
     httpMock
@@ -172,7 +172,7 @@ describe('ProfileService keeps counts in sync with follows', () => {
   it('rolls the follower count back when the request fails', async () => {
     loadProfile('other', { followersCount: 3, followingCount: 0 });
 
-    const done = service.toggleFollow();
+    const done = follow.follow('other');
     httpMock
       .expectOne(`${API_BASE_URL}/users/other/follow`)
       .flush({}, { status: 500, statusText: 'Error' });

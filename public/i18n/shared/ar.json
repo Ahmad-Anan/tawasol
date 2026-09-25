@@ -35,6 +35,20 @@
     },
     "demo": {
       "disabled": "غير متاح في الحساب التجريبي"
+    },
+    "follow": {
+      "follow": "متابعة",
+      "following": "تتابعه",
+      "unfollow": "إلغاء المتابعة",
+      "followAriaLabel": "متابعة {{name}}",
+      "followingAriaLabel": "تتابع {{name}}. اضغط لإلغاء المتابعة.",
+      "confirmTitle": "إلغاء متابعة {{name}}؟",
+      "cancel": "إلغاء",
+      "confirm": "إلغاء المتابعة",
+      "errors": {
+        "followFailed": "تعذّرت متابعة {{name}}. حاول مرة أخرى.",
+        "unfollowFailed": "تعذّر إلغاء متابعة {{name}}. حاول مرة أخرى."
+      }
     }
   }
 }

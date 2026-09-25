@@ -1,0 +1,43 @@
+/* A fixed minimum width so swapping "Follow" ↔ "Following" ↔ "Unfollow" doesn't make the
+   button (and whatever sits beside it) jump. */
+.follow-button {
+  min-width: 8.5rem;
+}
+
+.follow-button--compact {
+  min-width: 7rem;
+}
+
+/* The prominent Follow: Harbor Teal fill via Material's *enabled* tokens, so its own disabled
+   styling still applies while a request is in flight (same approach as .composer-submit). */
+.follow-button--follow {
+  --mat-button-filled-container-color: var(--color-harbor-600);
+  --mat-button-filled-label-text-color: #fff;
+}
+
+/* "Following": a quiet outlined state in the theme's primary text color. */
+.follow-button--following {
+  --mat-button-outlined-label-text-color: var(--color-text-primary);
+}
+
+.follow-button__hover {
+  display: none;
+}
+
+/* On devices that hover, "Following" previews the action it will take: "Unfollow", in the error
+   color. Touch devices skip straight to the confirmation, so they never need this. */
+@media (hover: hover) {
+  .follow-button--following:not(.mat-mdc-button-disabled):hover {
+    --mat-button-outlined-label-text-color: var(--color-error-text);
+    --mat-button-outlined-outline-color: var(--color-error-text);
+  }
+
+  .follow-button--following:not(.mat-mdc-button-disabled):hover .follow-button__state,
+  .follow-button--following:not(.mat-mdc-button-disabled):hover mat-icon {
+    display: none;
+  }
+
+  .follow-button--following:not(.mat-mdc-button-disabled):hover .follow-button__hover {
+    display: inline;
+  }
+}
