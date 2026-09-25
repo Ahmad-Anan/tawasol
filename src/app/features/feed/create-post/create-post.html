@@ -4,7 +4,7 @@
       <img [ngSrc]="user.photo" width="40" height="40" alt="" class="mt-1 h-10 w-10 shrink-0 rounded-full object-cover" />
     }
 
-    <mat-form-field appearance="outline" class="w-full">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
       <mat-label>{{ 'feed.createPost.placeholder' | translate }}</mat-label>
       <textarea matInput rows="2" [formField]="createForm.body"></textarea>
       @if (createForm.body().touched() && createForm.body().invalid()) {

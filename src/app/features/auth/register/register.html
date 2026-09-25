@@ -5,7 +5,7 @@
     </div>
   }
 
-  <mat-form-field appearance="outline" class="w-full">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
     <mat-label>{{ 'auth.register.nameLabel' | translate }}</mat-label>
     <input matInput [formField]="registerForm.name" autocomplete="name" />
     @if (registerForm.name().touched() && registerForm.name().invalid()) {
@@ -13,7 +13,7 @@
     }
   </mat-form-field>
 
-  <mat-form-field appearance="outline" class="w-full">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
     <mat-label>{{ 'auth.register.usernameLabel' | translate }}</mat-label>
     <input
       matInput
@@ -29,7 +29,7 @@
     }
   </mat-form-field>
 
-  <mat-form-field appearance="outline" class="w-full">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
     <mat-label>{{ 'auth.register.emailLabel' | translate }}</mat-label>
     <input matInput type="email" [formField]="registerForm.email" autocomplete="email" />
     @if (registerForm.email().touched() && registerForm.email().invalid()) {
@@ -37,7 +37,7 @@
     }
   </mat-form-field>
 
-  <mat-form-field appearance="outline" class="w-full">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
     <mat-label>{{ 'auth.register.dobLabel' | translate }}</mat-label>
     <input
       matInput
@@ -62,7 +62,7 @@
     }
   </div>
 
-  <mat-form-field appearance="outline" class="w-full">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
     <mat-label>{{ 'auth.register.passwordLabel' | translate }}</mat-label>
     <input matInput type="password" [formField]="registerForm.password" autocomplete="new-password" />
     <mat-hint>{{ 'auth.register.passwordHint' | translate }}</mat-hint>
@@ -71,7 +71,7 @@
     }
   </mat-form-field>
 
-  <mat-form-field appearance="outline" class="w-full">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
     <mat-label>{{ 'auth.register.rePasswordLabel' | translate }}</mat-label>
     <input matInput type="password" [formField]="registerForm.rePassword" autocomplete="new-password" />
     @if (registerForm.rePassword().touched() && registerForm.rePassword().invalid()) {

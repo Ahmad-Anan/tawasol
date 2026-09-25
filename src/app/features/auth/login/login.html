@@ -5,7 +5,7 @@
     </div>
   }
 
-  <mat-form-field appearance="outline" class="w-full">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
     <mat-label>{{ 'auth.login.loginLabel' | translate }}</mat-label>
     <input matInput [formField]="loginForm.login" autocomplete="username" />
     @if (loginForm.login().touched() && loginForm.login().invalid()) {
@@ -13,7 +13,7 @@
     }
   </mat-form-field>
 
-  <mat-form-field appearance="outline" class="w-full">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
     <mat-label>{{ 'auth.login.passwordLabel' | translate }}</mat-label>
     <input matInput type="password" [formField]="loginForm.password" autocomplete="current-password" />
     @if (loginForm.password().touched() && loginForm.password().invalid()) {

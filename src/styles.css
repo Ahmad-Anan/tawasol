@@ -34,6 +34,15 @@
   }
 }
 
+/* Form fields that can show a hint or error use subscriptSizing="dynamic", so a message that
+   wraps to a second line (common at phone widths, and in Arabic) pushes the next field down
+   instead of overlapping it — in the default "fixed" mode the message is absolutely positioned
+   inside a one-line box. This min-height keeps that same one-line reserve under every field, so
+   the form's spacing doesn't jump when a one-line message appears or disappears. */
+.mat-mdc-form-field-subscript-dynamic-size {
+  min-height: 20px;
+}
+
 /* ImageLightbox overlay (shared/image-lightbox) — global because these classes land on CDK
    overlay elements outside the component's view encapsulation. The backdrop is Night Harbor
    (--color-harbor-950, fixed in both themes) at high opacity, and the dialog surface itself is
