@@ -35,4 +35,9 @@ export const routes: Routes = [
     path: 'posts',
     loadChildren: () => import('./features/post-detail/post-detail.routes').then((m) => m.POST_DETAIL_ROUTES),
   },
+  // Must stay last — anything unmatched above (including '/profile' or '/posts' with no id).
+  {
+    path: '**',
+    loadComponent: () => import('./features/not-found/not-found-page/not-found-page').then((m) => m.NotFoundPage),
+  },
 ];

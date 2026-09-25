@@ -37,6 +37,7 @@ export const appConfig: ApplicationConfig = {
           { prefix: '/i18n/suggestions/', suffix: '.json' },
           { prefix: '/i18n/change-password/', suffix: '.json' },
           { prefix: '/i18n/post-detail/', suffix: '.json' },
+          { prefix: '/i18n/not-found/', suffix: '.json' },
         ],
       }),
     }),
