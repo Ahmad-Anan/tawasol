@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormField, form, required, submit } from '@angular/forms/signals';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
+import { environment } from '../../../../environments/environment';
 import type { ApiErrorResponse, SigninRequest } from '../auth.interface';
 
 interface LoginFormModel {
@@ -49,28 +50,52 @@ export class Login {
   });
 
   protected readonly serverError = signal<string | null>(null);
+  protected readonly isSigningInToDemo = signal(false);
+  /** Either button's sign-in is in flight — both are disabled so the two can't race. */
+  protected readonly isBusy = computed(() => this.loginForm().submitting() || this.isSigningInToDemo());
 
   protected async onSubmit(): Promise<void> {
+    if (this.isSigningInToDemo()) {
+      return;
+    }
     this.serverError.set(null);
     await submit(this.loginForm, async (field) => {
       const { login, password } = field().value();
-      // Verified against the live API: `login` alone accepts an email- or username-shaped
-      // value with no format restriction. Sending the same value under `username` too (as
-      // an earlier version of this code did) gets rejected when the value isn't
-      // `^[a-z0-9_]{3,30}$` shaped (e.g. an email address) — the API validates every key
-      // present in the body, so extra keys aren't harmless. `login` is the one key with no
-      // such constraint, so it's the only key sent.
-      const payload: SigninRequest = { login, password };
-      try {
-        await this.authService.signin(payload);
-        // Not '/' — that route unconditionally redirects back to /auth/login (see
-        // app.routes.ts), which would bounce a just-signed-in user right back here.
-        this.router.navigateByUrl('/feed');
-      } catch (err) {
-        this.serverError.set(this.extractErrorMessage(err));
-      }
+      await this.signIn({ login, password });
       return undefined;
     });
+  }
+
+  /** "Try the demo": the same sign-in flow as the form, with the public demo credentials. */
+  protected async tryDemo(): Promise<void> {
+    if (this.isBusy()) {
+      return;
+    }
+    this.serverError.set(null);
+    this.isSigningInToDemo.set(true);
+    try {
+      await this.signIn({ login: environment.demoLogin, password: environment.demoPassword });
+    } finally {
+      this.isSigningInToDemo.set(false);
+    }
+  }
+
+  private async signIn(credentials: { login: string; password: string }): Promise<void> {
+    // Verified against the live API: `login` alone accepts an email- or username-shaped
+    // value with no format restriction. Sending the same value under `username` too (as
+    // an earlier version of this code did) gets rejected when the value isn't
+    // `^[a-z0-9_]{3,30}$` shaped (e.g. an email address) — the API validates every key
+    // present in the body, so extra keys aren't harmless. `login` is the one key with no
+    // such constraint, so it's the only key sent.
+    const payload: SigninRequest = { login: credentials.login, password: credentials.password };
+    try {
+      await this.authService.signin(payload);
+      // Not '/' — that route unconditionally redirects back to /auth/login (see
+      // app.routes.ts), which would bounce a just-signed-in user right back here.
+      this.router.navigateByUrl('/feed');
+    } catch (err) {
+      this.serverError.set(this.extractErrorMessage(err));
+    }
   }
 
   private extractErrorMessage(err: unknown): string {

@@ -20,7 +20,8 @@
         "passwordRequired": "Enter your password",
         "unexpected": "Something went wrong. Please try again."
       },
-      "loginHint": "Email or username"
+      "loginHint": "Email or username",
+      "tryDemo": "Try the demo"
     },
     "register": {
       "nameLabel": "Full name",
