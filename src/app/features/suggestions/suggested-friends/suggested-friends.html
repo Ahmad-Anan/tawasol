@@ -26,22 +26,16 @@
               <bdi dir="ltr">&#64;{{ user.username }}</bdi>
             </p>
           </a>
-          <button
-            mat-stroked-button
-            type="button"
-            class="!min-w-0 shrink-0"
-            [disabled]="suggestionsService.isFollowing(user._id)"
-            (click)="suggestionsService.follow(user._id)"
-          >
-            @if (suggestionsService.isFollowing(user._id)) {
-              <mat-spinner diameter="16" class="mx-auto" />
-            } @else {
-              {{ 'suggestions.follow' | translate }}
-            }
-          </button>
+          <app-follow-button class="shrink-0" size="compact" [userId]="user._id" [name]="user.name" />
         </li>
-        @if (suggestionsService.hasFollowError(user._id)) {
-          <p class="-mt-2 text-xs text-(--color-error-text)">{{ 'suggestions.errors.followFailed' | translate }}</p>
+        <!-- A rolled-back follow/unfollow (see FollowService): which action, and for whom. -->
+        @if (followService.failure(user._id); as failure) {
+          <p class="-mt-2 text-xs text-(--color-error-text)" role="alert">
+            {{
+              (failure === 'follow' ? 'shared.follow.errors.followFailed' : 'shared.follow.errors.unfollowFailed')
+                | translate: { name: user.name }
+            }}
+          </p>
         }
       }
 

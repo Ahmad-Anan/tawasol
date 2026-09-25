@@ -2,7 +2,6 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Service, computed, effect, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { API_BASE_URL } from '../../../core/constants/api';
-import { FollowService } from '../../../core/services/follow';
 import type { SuggestedUser, SuggestionsApiResponse } from '../suggestions.interface';
 
 const SUGGESTIONS_PAGE_SIZE = 10;
@@ -23,14 +22,11 @@ const SUGGESTIONS_PAGE_SIZE = 10;
 @Service()
 export class SuggestionsService {
   private readonly http = inject(HttpClient);
-  private readonly followService = inject(FollowService);
 
   private readonly _requested = signal(false);
   private readonly _page = signal(1);
   private readonly _suggestions = signal<SuggestedUser[]>([]);
   private readonly _hasMore = signal(true);
-  /** Ids the widget has already followed this session — filtered out of `suggestions` immediately, no need to wait for a refetch. */
-  private readonly _followedIds = signal<ReadonlySet<string>>(new Set());
 
   private readonly suggestionsResource = rxResource({
     params: () => (this._requested() ? { page: this._page() } : undefined),
@@ -58,10 +54,12 @@ export class SuggestionsService {
   );
   readonly hasMore = this._hasMore.asReadonly();
 
-  readonly suggestions = computed(() => {
-    const followed = this._followedIds();
-    return this._suggestions().filter((user) => !followed.has(user._id));
-  });
+  /**
+   * Everyone suggested so far. Someone followed from here deliberately *stays* in the list, showing
+   * "Following" (see FollowButton/FollowService), so the follow can be undone right away; the
+   * next refresh drops them, since the API already excludes people you follow (see start()).
+   */
+  readonly suggestions = this._suggestions.asReadonly();
 
   constructor() {
     // Appends a page onto the accumulated list instead of the resource's default "replace the
@@ -83,13 +81,10 @@ export class SuggestionsService {
    * Called by the widget on every mount, not just the first — unlike PostsService/
    * BookmarksService's `start()`, this one deliberately refetches from page 1 each time
    * (verified live: `GET /users/suggestions` already excludes anyone already followed, so a
-   * fresh fetch is enough to reflect it). Without this, following someone through their profile
-   * page (or any other surface) while this widget's component was unmounted — e.g. you left the
-   * feed, followed someone from their profile, then came back — would leave them stuck showing
-   * "Follow" here until the app was reloaded: `SuggestionsService` has no shared store with
-   * ProfileService the way PostsService.mergePosts gives posts one (there's no equivalent
-   * "shared user store" in this app), so the only way to stay honest is to re-ask the server
-   * every time this widget becomes visible again.
+   * fresh fetch is enough to reflect it). This is the "next refresh" that drops people you
+   * followed: while the widget stays mounted they remain listed as "Following" so the follow
+   * can be undone (follow state itself is shared app-wide through FollowService, so a follow
+   * made on a profile page already shows here as "Following" too).
    */
   start(): void {
     if (!this._requested()) {
@@ -111,21 +106,5 @@ export class SuggestionsService {
       return;
     }
     this._page.update((page) => page + 1);
-  }
-
-  /** A follow request for this suggestion is in flight (see FollowService). */
-  isFollowing(userId: string): boolean {
-    return this.followService.isPending(userId);
-  }
-
-  hasFollowError(userId: string): boolean {
-    return this.followService.failure(userId) !== null;
-  }
-
-  async follow(userId: string): Promise<void> {
-    await this.followService.follow(userId);
-    if (this.followService.isFollowing(userId)) {
-      this._followedIds.update((ids) => new Set(ids).add(userId));
-    }
   }
 }

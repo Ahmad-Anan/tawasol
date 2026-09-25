@@ -12,10 +12,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
+import { FollowService } from '../../../core/services/follow';
+import { FollowButton } from '../../../shared/follow-button/follow-button';
 import { SuggestionsService } from '../services/suggestions.service';
 
 /**
- * Sidebar widget for the feed page — people-you-may-know, each with a one-tap Follow. Not
+ * Sidebar widget for the feed page — people-you-may-know, each with the shared FollowButton. Not
  * routed; only ever embedded (see feed-page.html), hidden below the `lg` breakpoint like any
  * other sidebar (the navbar already covers navigation on mobile).
  *
@@ -27,13 +29,21 @@ import { SuggestionsService } from '../services/suggestions.service';
  */
 @Component({
   selector: 'app-suggested-friends',
-  imports: [NgOptimizedImage, MatButtonModule, MatProgressSpinnerModule, RouterLink, TranslatePipe],
+  imports: [
+    FollowButton,
+    NgOptimizedImage,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    RouterLink,
+    TranslatePipe,
+  ],
   templateUrl: './suggested-friends.html',
   styleUrl: './suggested-friends.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SuggestedFriends {
   protected readonly suggestionsService = inject(SuggestionsService);
+  protected readonly followService = inject(FollowService);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   private readonly scrollContainer = viewChild<ElementRef<HTMLElement>>('scrollContainer');

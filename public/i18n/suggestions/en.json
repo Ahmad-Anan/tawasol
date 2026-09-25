@@ -1,13 +1,11 @@
 {
   "suggestions": {
     "title": "People you may know",
-    "follow": "Follow",
     "empty": "No suggestions right now.",
     "loadingMore": "Loading more…",
     "retry": "Retry",
     "errors": {
       "loadFailed": "Couldn't load suggestions.",
-      "followFailed": "Couldn't follow. Please try again.",
       "loadMoreFailed": "Couldn't load more suggestions."
     },
     "dialog": {
