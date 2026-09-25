@@ -1,9 +1,8 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-  // '/' always redirects to the login screen regardless of auth state — there's no route
-  // guard yet to send an already-signed-in visitor straight to '/feed' instead (see the
-  // feed feature summary; this is a pending decision, not an oversight).
+  // '/' redirects to the login screen, whose guestGuard (auth.routes.ts) then sends an
+  // already-signed-in visitor on to '/feed' — signed-out visitors stay on the login screen.
   { path: '', redirectTo: 'auth/login', pathMatch: 'full' },
   {
     path: 'auth',
