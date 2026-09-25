@@ -116,6 +116,56 @@ describe('Register', () => {
     expect(authService.signup).toHaveBeenCalledWith(expect.objectContaining({ username: 'ahmedanan' }));
   });
 
+  it('lowercases the username and turns spaces into underscores as the user types', async () => {
+    authService.signup.mockResolvedValue(undefined);
+    fillValidForm();
+    setInput('input[autocomplete="username"]', 'Ahmed Anan');
+
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('input[autocomplete="username"]');
+    expect(input.value).toBe('ahmed_anan');
+
+    submitForm();
+    await fixture.whenStable();
+
+    expect(authService.signup).toHaveBeenCalledWith(expect.objectContaining({ username: 'ahmed_anan' }));
+  });
+
+  it('keeps the caret in place when it rewrites the username', () => {
+    const input: HTMLInputElement = fixture.nativeElement.querySelector('input[autocomplete="username"]');
+    input.value = 'ab Cd';
+    input.setSelectionRange(3, 3);
+    input.dispatchEvent(new Event('input'));
+
+    expect(input.value).toBe('ab_cd');
+    expect(input.selectionStart).toBe(3);
+  });
+
+  it('explains the rule right away and blocks submission for characters the API rejects', async () => {
+    fillValidForm();
+    setInput('input[autocomplete="username"]', 'أحمد');
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('mat-error')?.textContent).toContain(
+      'auth.register.errors.usernameCharacters',
+    );
+
+    submitForm();
+    await fixture.whenStable();
+    expect(authService.signup).not.toHaveBeenCalled();
+  });
+
+  it('blocks submission for a username shorter than 3 characters', async () => {
+    fillValidForm();
+    setInput('input[autocomplete="username"]', 'ab');
+
+    submitForm();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(authService.signup).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.textContent).toContain('auth.register.errors.usernameLength');
+  });
+
   it('shows the API error message verbatim and does not navigate when signup fails', async () => {
     authService.signup.mockRejectedValue(
       new HttpErrorResponse({ status: 409, error: { success: false, message: 'user already exists' } }),

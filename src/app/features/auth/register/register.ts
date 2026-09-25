@@ -10,6 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import type { ApiErrorResponse, SignupRequest } from '../auth.interface';
+import { normalizeUsername, usernameError } from '../validators/username';
 
 interface RegisterFormModel {
   name: string;
@@ -62,6 +63,17 @@ export class Register {
     // signal, and calling it here registers the dependency inside the field's reactive graph.
     required(p.name, { message: () => this.translate.translate('auth.register.errors.nameRequired')() as string });
 
+    // Optional, but when filled in it must match the API's rule (see validators/username.ts).
+    // Capitals and spaces never reach this check — onUsernameInput() fixes them as they're typed.
+    validate(p.username, (ctx) => {
+      const error = usernameError(ctx.value());
+      if (!error) {
+        return undefined;
+      }
+      const key = error === 'characters' ? 'usernameCharacters' : 'usernameLength';
+      return { kind: `username-${error}`, message: this.translate.translate(`auth.register.errors.${key}`)() as string };
+    });
+
     required(p.email, { message: () => this.translate.translate('auth.register.errors.emailRequired')() as string });
     email(p.email, { message: () => this.translate.translate('auth.register.errors.emailInvalid')() as string });
 
@@ -97,6 +109,27 @@ export class Register {
   });
 
   protected readonly serverError = signal<string | null>(null);
+
+  /**
+   * Lowercases and turns spaces into underscores as the user types (see normalizeUsername),
+   * writing the fixed value straight back into the input with the caret left where it was — the
+   * normalization never changes the length, so the same selection offsets still line up.
+   * Characters it can't fix (Arabic letters, symbols) are kept, and the field is marked touched
+   * so the rule explaining them shows right away instead of only after the field loses focus.
+   */
+  protected onUsernameInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const normalized = normalizeUsername(input.value);
+    if (normalized !== input.value) {
+      const { selectionStart, selectionEnd } = input;
+      input.value = normalized;
+      input.setSelectionRange(selectionStart, selectionEnd);
+      this.registerForm.username().value.set(normalized);
+    }
+    if (usernameError(normalized) === 'characters') {
+      this.registerForm.username().markAsTouched();
+    }
+  }
 
   protected async onSubmit(): Promise<void> {
     this.serverError.set(null);

@@ -44,7 +44,9 @@
         "passwordPattern": "Must include an uppercase letter, a lowercase letter, a number, and a special character",
         "rePasswordRequired": "Re-enter your password",
         "passwordMismatch": "Passwords do not match",
-        "unexpected": "Something went wrong. Please try again."
+        "unexpected": "Something went wrong. Please try again.",
+        "usernameCharacters": "Use only lowercase English letters (a–z), numbers and underscores (_)",
+        "usernameLength": "Username must be 3 to 30 characters"
       }
     }
   }

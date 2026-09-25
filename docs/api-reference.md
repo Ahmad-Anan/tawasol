@@ -34,6 +34,12 @@ Creates a new account.
 }
 ```
 
+**Verified (live test, 2026-09-25)** with a deliberately invalid `email` so no account could be created — the validator reports every failing field at once:
+
+- `name` — at least 2 characters.
+- `username` — optional; must match `/^[a-z0-9_]{3,30}$/`. The server lowercases the value before checking it (`"Bad Name"` was reported as `"bad name"`) but does not convert spaces, so it still fails.
+- `password` — the same pattern as `PATCH /users/change-password`: `/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/`. Only `#?!@$%^&*-` count as the special character: `Abcdefg1_` is rejected, `Abcdefg1!` is accepted.
+
 **Success response**
 
 ```json

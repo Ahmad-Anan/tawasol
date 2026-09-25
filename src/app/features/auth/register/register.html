@@ -15,7 +15,18 @@
 
   <mat-form-field appearance="outline" class="w-full">
     <mat-label>{{ 'auth.register.usernameLabel' | translate }}</mat-label>
-    <input matInput [formField]="registerForm.username" autocomplete="username" />
+    <input
+      matInput
+      [formField]="registerForm.username"
+      autocomplete="username"
+      autocapitalize="none"
+      spellcheck="false"
+      dir="ltr"
+      (input)="onUsernameInput($event)"
+    />
+    @if (registerForm.username().touched() && registerForm.username().invalid()) {
+      <mat-error>{{ registerForm.username().errors()[0]?.message }}</mat-error>
+    }
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="w-full">
