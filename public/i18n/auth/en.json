@@ -48,8 +48,8 @@
         "dobTooYoung": "You must be at least {{min}} years old to sign up",
         "dobTooOld": "Enter a real date of birth (age {{max}} or younger)"
       },
-      "nameHint": "e.g. Ahmed Anan",
-      "usernameHint": "e.g. ahmed_anan. Lowercase English letters, numbers and underscores",
+      "nameHint": "e.g. Tawasol User",
+      "usernameHint": "e.g. tawasol_user. Lowercase English letters, numbers and underscores",
       "emailHint": "e.g. name@example.com",
       "dobHint": "Format:",
       "dobFormat": {

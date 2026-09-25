@@ -48,8 +48,8 @@
         "dobTooYoung": "يجب ألا يقل عمرك عن {{min}} عامًا للتسجيل",
         "dobTooOld": "أدخل تاريخ ميلاد صحيحًا (العمر {{max}} عامًا أو أقل)"
       },
-      "nameHint": "مثال: أحمد عنان",
-      "usernameHint": "مثال: ahmed_anan.‎ حروف إنجليزي صغيرة وأرقام وشرطة سفلية",
+      "nameHint": "مثال: مستخدم تواصل",
+      "usernameHint": "مثال: tawasol_user.‎ حروف إنجليزي صغيرة وأرقام وشرطة سفلية",
       "emailHint": "مثال: name@example.com",
       "dobHint": "الصيغة:",
       "dobFormat": {
