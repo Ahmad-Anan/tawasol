@@ -38,11 +38,20 @@
       "originalUnavailable": "This post is no longer available",
       "like": "Like",
       "unlike": "Unlike",
-      "likesAriaLabel": "{{count}} likes",
+      "likesAriaLabel": {
+        "one": "{{count}} like",
+        "other": "{{count}} likes"
+      },
       "viewLikes": "View who liked this post",
       "comment": "Comment",
-      "commentsAriaLabel": "{{count}} comments",
-      "viewAllComments": "View all comments ({{count}})",
+      "commentsAriaLabel": {
+        "one": "{{count}} comment",
+        "other": "{{count}} comments"
+      },
+      "viewAllComments": {
+        "one": "View 1 comment",
+        "other": "View all comments ({{count}})"
+      },
       "bookmark": "Save",
       "unbookmark": "Remove from saved",
       "share": "Share",

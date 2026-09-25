@@ -38,11 +38,32 @@
       "originalUnavailable": "هذا المنشور لم يعد متاحًا",
       "like": "إعجاب",
       "unlike": "إلغاء الإعجاب",
-      "likesAriaLabel": "{{count}} إعجاب",
+      "likesAriaLabel": {
+        "zero": "{{count}} إعجاب",
+        "one": "إعجاب واحد",
+        "two": "إعجابان",
+        "few": "{{count}} إعجابات",
+        "many": "{{count}} إعجابًا",
+        "other": "{{count}} إعجاب"
+      },
       "viewLikes": "عرض من أعجب بهذا المنشور",
       "comment": "تعليق",
-      "commentsAriaLabel": "{{count}} تعليق",
-      "viewAllComments": "عرض كل التعليقات ({{count}})",
+      "commentsAriaLabel": {
+        "zero": "{{count}} تعليق",
+        "one": "تعليق واحد",
+        "two": "تعليقان",
+        "few": "{{count}} تعليقات",
+        "many": "{{count}} تعليقًا",
+        "other": "{{count}} تعليق"
+      },
+      "viewAllComments": {
+        "zero": "عرض التعليقات",
+        "one": "عرض التعليق",
+        "two": "عرض التعليقين",
+        "few": "عرض كل التعليقات ({{count}})",
+        "many": "عرض كل التعليقات ({{count}})",
+        "other": "عرض كل التعليقات ({{count}})"
+      },
       "bookmark": "حفظ",
       "unbookmark": "إزالة من المحفوظات",
       "share": "مشاركة",

@@ -12,7 +12,14 @@
     "like": "إعجاب",
     "unlike": "إلغاء الإعجاب",
     "reply": "رد",
-    "viewReplies": "عرض {{count}} ردود",
+    "viewReplies": {
+      "zero": "عرض الردود",
+      "one": "عرض الرد",
+      "two": "عرض الردّين",
+      "few": "عرض {{count}} ردود",
+      "many": "عرض {{count}} ردًا",
+      "other": "عرض {{count}} رد"
+    },
     "hideReplies": "إخفاء الردود",
     "loadMoreReplies": "تحميل المزيد من الردود",
     "composer": {

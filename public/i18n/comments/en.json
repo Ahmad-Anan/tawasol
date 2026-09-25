@@ -12,7 +12,10 @@
     "like": "Like",
     "unlike": "Unlike",
     "reply": "Reply",
-    "viewReplies": "View {{count}} replies",
+    "viewReplies": {
+      "one": "View 1 reply",
+      "other": "View {{count}} replies"
+    },
     "hideReplies": "Hide replies",
     "loadMoreReplies": "Load more replies",
     "composer": {
