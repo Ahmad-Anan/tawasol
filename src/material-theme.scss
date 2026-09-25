@@ -32,14 +32,14 @@
   // doesn't happen again; anything sitting on --color-harbor-950 should pair with this, not
   // --color-bone-100.
   --color-on-harbor-950: #f5f3ec;
-  // Semantic error-text color — light mode: the literal Ember Clay brand value. Dark mode
-  // redefines this (see html.tawasol-dark below) to a lighter tone from the *same* generated
-  // tertiary palette (theme-colors.scss), since --color-ember-600 itself measured under WCAG
-  // AA's 4.5:1 for normal text against dark-mode --color-surface/--color-bone-100 (~3.2-4.2:1 —
-  // readable, but not compliant). Use this for error TEXT specifically; solid error-action
-  // BUTTON backgrounds (e.g. "Delete") use the fixed --color-ember-strong in both themes
-  // instead — white text on --color-ember-600 itself is only 4.43:1, just short of AA.
-  --color-error-text: var(--color-ember-600);
+  // Semantic error-text color. Light mode: a slightly deeper Ember Clay, #B3532B — the closest
+  // shade to --color-ember-600 (same hue/saturation, HSL lightness stepped down) that clears
+  // WCAG AA's 4.5:1 on both light surfaces error text sits on: 5.01:1 on --color-surface and
+  // 4.52:1 on --color-bone-100 (the login/register error banners). --color-ember-600 itself is
+  // only 4.43:1 and 3.99:1 there. Dark mode redefines this (see html.tawasol-dark below) to a
+  // lighter tone of the same generated tertiary palette. Use this for error TEXT specifically;
+  // solid error-action BUTTON backgrounds (e.g. "Delete") use --color-ember-strong instead.
+  --color-error-text: #b3532b;
   // Semantic hover/active tint for list rows and nav items. Light mode: --color-bone-100 (a
   // warm off-white lift off --color-surface). Dark mode redefines this (see html.tawasol-dark
   // below) to a lighter dark-neutral tone instead of reusing --color-bone-100 — in dark mode
