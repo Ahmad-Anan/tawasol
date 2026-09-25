@@ -33,17 +33,19 @@
         animationDuration="200ms"
       >
         <!--
-          pb-1: the submit button's 48px Material touch target overhangs its 44px (h-11) box by
-          2px on each side. At the bottom of the tab that overhang spilled out of
-          .mat-mdc-tab-body-content (overflow: auto) and gave the card its own scrollbar.
+          The wrapper padding keeps Material's button overhangs inside .mat-mdc-tab-body-content
+          (overflow: auto), which otherwise gives the card its own scrollbar:
+          - pb-1: a 48px touch target overhangs its 44px (h-11) button by 2px top and bottom.
+          - px-px: an outlined (stroked) button's state layer sits at inset -1px to cover its
+            border, so a full-width one (the "Try the demo" button) overhangs 1px left and right.
         -->
         <mat-tab [label]="'auth.tabs.login' | translate">
-          <div class="pt-6 pb-1">
+          <div class="px-px pt-6 pb-1">
             <app-login />
           </div>
         </mat-tab>
         <mat-tab [label]="'auth.tabs.register' | translate">
-          <div class="pt-6 pb-1">
+          <div class="px-px pt-6 pb-1">
             <app-register />
           </div>
         </mat-tab>
