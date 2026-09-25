@@ -1,4 +1,4 @@
-import { dateOfBirthBounds, dateOfBirthError } from './date-of-birth';
+import { dateFieldOrder, dateOfBirthBounds, dateOfBirthError } from './date-of-birth';
 
 describe('dateOfBirthError', () => {
   // Local-time constructor, so the tests don't depend on the machine's time zone.
@@ -49,5 +49,13 @@ describe('dateOfBirthBounds', () => {
   it('rolls over month ends correctly', () => {
     const { min } = dateOfBirthBounds(new Date(2026, 11, 31)); // 31 Dec 2026
     expect(min).toBe('1926-01-01');
+  });
+});
+
+describe('dateFieldOrder', () => {
+  it('follows the locale the native date field uses', () => {
+    expect(dateFieldOrder('en-US')).toEqual(['month', 'day', 'year']);
+    expect(dateFieldOrder('en-GB')).toEqual(['day', 'month', 'year']);
+    expect(dateFieldOrder('ja-JP')).toEqual(['year', 'month', 'day']);
   });
 });

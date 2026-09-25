@@ -19,7 +19,8 @@
         "loginRequired": "Enter your email or username",
         "passwordRequired": "Enter your password",
         "unexpected": "Something went wrong. Please try again."
-      }
+      },
+      "loginHint": "Email or username"
     },
     "register": {
       "nameLabel": "Full name",
@@ -30,7 +31,6 @@
       "genderMale": "Male",
       "genderFemale": "Female",
       "passwordLabel": "Password",
-      "passwordHint": "At least 8 characters, including an uppercase letter, a lowercase letter, a number, and a special character",
       "rePasswordLabel": "Confirm password",
       "submit": "Create account",
       "errors": {
@@ -40,8 +40,6 @@
         "dobRequired": "Enter your date of birth",
         "genderRequired": "Select a gender",
         "passwordRequired": "Enter your password",
-        "passwordMinLength": "Password must be at least 8 characters",
-        "passwordPattern": "Must include an uppercase letter, a lowercase letter, a number, and a special character",
         "rePasswordRequired": "Re-enter your password",
         "passwordMismatch": "Passwords do not match",
         "unexpected": "Something went wrong. Please try again.",
@@ -49,6 +47,15 @@
         "usernameLength": "Username must be 3 to 30 characters",
         "dobTooYoung": "You must be at least {{min}} years old to sign up",
         "dobTooOld": "Enter a real date of birth (age {{max}} or younger)"
+      },
+      "nameHint": "e.g. Ahmed Anan",
+      "usernameHint": "e.g. ahmed_anan. Lowercase English letters, numbers and underscores",
+      "emailHint": "e.g. name@example.com",
+      "dobHint": "Format:",
+      "dobFormat": {
+        "day": "DD",
+        "month": "MM",
+        "year": "YYYY"
       }
     }
   }

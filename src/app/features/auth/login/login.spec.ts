@@ -43,6 +43,11 @@ describe('Login', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
+  it('shows the "Email or username" hint but no password checklist', () => {
+    expect(fixture.nativeElement.querySelector('mat-hint')?.textContent).toContain('auth.login.loginHint');
+    expect(fixture.nativeElement.querySelector('app-password-checklist')).toBeNull();
+  });
+
   it('does not call AuthService.signin when required fields are left empty', async () => {
     submitForm();
     await fixture.whenStable();

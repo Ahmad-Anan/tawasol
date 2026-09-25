@@ -8,6 +8,7 @@
   <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
     <mat-label>{{ 'auth.login.loginLabel' | translate }}</mat-label>
     <input matInput [formField]="loginForm.login" autocomplete="username" />
+    <mat-hint>{{ 'auth.login.loginHint' | translate }}</mat-hint>
     @if (loginForm.login().touched() && loginForm.login().invalid()) {
       <mat-error>{{ loginForm.login().errors()[0]?.message }}</mat-error>
     }

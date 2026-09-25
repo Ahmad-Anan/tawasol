@@ -183,6 +183,24 @@ describe('Register', () => {
     });
   }
 
+  it('shows the live password checklist under the password field', () => {
+    expect(fixture.nativeElement.querySelectorAll('app-password-checklist li').length).toBe(5);
+  });
+
+  it('blocks a password whose only symbol is one the API rejects ("_")', async () => {
+    fillValidForm();
+    const [password, rePassword] = fixture.nativeElement.querySelectorAll('input[autocomplete="new-password"]');
+    for (const input of [password, rePassword] as HTMLInputElement[]) {
+      input.value = 'Passw0rd_';
+      input.dispatchEvent(new Event('input'));
+    }
+
+    submitForm();
+    await fixture.whenStable();
+
+    expect(authService.signup).not.toHaveBeenCalled();
+  });
+
   it('shows the API error message verbatim and does not navigate when signup fails', async () => {
     authService.signup.mockRejectedValue(
       new HttpErrorResponse({ status: 409, error: { success: false, message: 'user already exists' } }),

@@ -66,3 +66,22 @@ function parseIsoDate(value: string): CalendarDate | null {
 function formatIsoDate(year: number, month: number, day: number): string {
   return `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
+
+export type DatePart = 'day' | 'month' | 'year';
+
+/**
+ * The order an `<input type="date">` shows its day/month/year parts in. The native field follows
+ * the browser's own UI locale — not the app's language (Chrome shows mm/dd/yyyy for an en-US
+ * browser even while the app is in Arabic) — so the format hint derives its order from the same
+ * locale to describe what the user actually sees.
+ *
+ * Leave `locale` undefined to use that UI locale: it's the JS runtime's default locale. Not
+ * `navigator.language`, which is the first *content* language (Accept-Language) and can differ —
+ * verified in Chrome: navigator.language "ar", UI and date field "en-US" (mm/dd/yyyy).
+ */
+export function dateFieldOrder(locale?: string): DatePart[] {
+  return new Intl.DateTimeFormat(locale, { year: 'numeric', month: '2-digit', day: '2-digit' })
+    .formatToParts(new Date(2000, 0, 31))
+    .map((part) => part.type)
+    .filter((type): type is DatePart => type === 'day' || type === 'month' || type === 'year');
+}

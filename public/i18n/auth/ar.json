@@ -19,7 +19,8 @@
         "loginRequired": "أدخل البريد الإلكتروني أو اسم المستخدم",
         "passwordRequired": "أدخل كلمة المرور",
         "unexpected": "حدث خطأ غير متوقع، حاول مرة أخرى."
-      }
+      },
+      "loginHint": "البريد الإلكتروني أو اسم المستخدم"
     },
     "register": {
       "nameLabel": "الاسم الكامل",
@@ -30,7 +31,6 @@
       "genderMale": "ذكر",
       "genderFemale": "أنثى",
       "passwordLabel": "كلمة المرور",
-      "passwordHint": "8 أحرف على الأقل، تتضمن حرف كبير وحرف صغير ورقم ورمز خاص",
       "rePasswordLabel": "تأكيد كلمة المرور",
       "submit": "إنشاء حساب",
       "errors": {
@@ -40,8 +40,6 @@
         "dobRequired": "أدخل تاريخ الميلاد",
         "genderRequired": "اختر الجنس",
         "passwordRequired": "أدخل كلمة المرور",
-        "passwordMinLength": "يجب ألا تقل كلمة المرور عن 8 أحرف",
-        "passwordPattern": "يجب أن تحتوي على حرف كبير وحرف صغير ورقم ورمز خاص",
         "rePasswordRequired": "أعد إدخال كلمة المرور",
         "passwordMismatch": "كلمتا المرور غير متطابقتين",
         "unexpected": "حدث خطأ غير متوقع، حاول مرة أخرى.",
@@ -49,6 +47,15 @@
         "usernameLength": "يجب أن يتكون اسم المستخدم من 3 إلى 30 حرفًا",
         "dobTooYoung": "يجب ألا يقل عمرك عن {{min}} عامًا للتسجيل",
         "dobTooOld": "أدخل تاريخ ميلاد صحيحًا (العمر {{max}} عامًا أو أقل)"
+      },
+      "nameHint": "مثال: أحمد عنان",
+      "usernameHint": "مثال: ahmed_anan.‎ حروف إنجليزي صغيرة وأرقام وشرطة سفلية",
+      "emailHint": "مثال: name@example.com",
+      "dobHint": "الصيغة:",
+      "dobFormat": {
+        "day": "يوم",
+        "month": "شهر",
+        "year": "سنة"
       }
     }
   }

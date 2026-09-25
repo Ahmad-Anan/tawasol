@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormField, form, email, minLength, pattern, required, validate, submit } from '@angular/forms/signals';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { FormField, form, email, pattern, required, validate, submit } from '@angular/forms/signals';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,8 +9,10 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
+import { PasswordChecklist } from '../../../shared/password-checklist/password-checklist';
+import { PASSWORD_PATTERN } from '../../../shared/password-checklist/password-rules';
 import type { ApiErrorResponse, SignupRequest } from '../auth.interface';
-import { MAX_AGE, MIN_AGE, dateOfBirthBounds, dateOfBirthError } from '../validators/date-of-birth';
+import { MAX_AGE, MIN_AGE, dateFieldOrder, dateOfBirthBounds, dateOfBirthError } from '../validators/date-of-birth';
 import { normalizeUsername, usernameError } from '../validators/username';
 
 interface RegisterFormModel {
@@ -23,8 +25,6 @@ interface RegisterFormModel {
   rePassword: string;
 }
 
-const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
-
 @Component({
   selector: 'app-register',
   imports: [
@@ -34,6 +34,7 @@ const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}
     MatButtonModule,
     MatRadioModule,
     MatProgressSpinnerModule,
+    PasswordChecklist,
     TranslatePipe,
   ],
   templateUrl: './register.html',
@@ -102,12 +103,10 @@ export class Register {
     required(p.password, {
       message: () => this.translate.translate('auth.register.errors.passwordRequired')() as string,
     });
-    minLength(p.password, 8, {
-      message: () => this.translate.translate('auth.register.errors.passwordMinLength')() as string,
-    });
-    pattern(p.password, PASSWORD_PATTERN, {
-      message: () => this.translate.translate('auth.register.errors.passwordPattern')() as string,
-    });
+    // The server's exact rule (shared/password-checklist/password-rules.ts). No message: the
+    // PasswordChecklist under the field is what explains an unmet requirement, so the template
+    // only ever shows the "required" error as text.
+    pattern(p.password, PASSWORD_PATTERN);
 
     required(p.rePassword, {
       message: () => this.translate.translate('auth.register.errors.rePasswordRequired')() as string,
@@ -126,6 +125,24 @@ export class Register {
 
   /** Keeps the native date picker inside the range the validator accepts. */
   protected readonly dateOfBirthBounds = dateOfBirthBounds(new Date());
+
+  /**
+   * The date field's own day/month/year order (it follows the browser locale — see
+   * dateFieldOrder), with each part named in the active language, e.g. "MM/DD/YYYY" or
+   * "شهر/يوم/سنة".
+   */
+  private readonly dateFieldOrder = dateFieldOrder();
+  protected readonly dateFormatHint = computed(() =>
+    this.dateFieldOrder
+      .map((part) => this.translate.translate(`auth.register.dobFormat.${part}`)() as string)
+      .join('/'),
+  );
+
+  /** The password field shows only its "required" error as text; the checklist covers the rest. */
+  protected readonly passwordRequiredError = computed(() => {
+    const field = this.registerForm.password();
+    return field.touched() && field.errors().some((error) => error.kind === 'required');
+  });
 
   /**
    * Lowercases and turns spaces into underscores as the user types (see normalizeUsername),

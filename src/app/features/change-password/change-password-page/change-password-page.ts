@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { FormField, form, minLength, pattern, required, validate, submit } from '@angular/forms/signals';
+import { FormField, form, pattern, required, validate, submit } from '@angular/forms/signals';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -8,6 +8,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import type { ApiErrorResponse } from '../../../shared/interfaces/api-response.interface';
+import { PasswordChecklist } from '../../../shared/password-checklist/password-checklist';
+import { PASSWORD_PATTERN } from '../../../shared/password-checklist/password-rules';
 
 interface ChangePasswordFormModel {
   currentPassword: string;
@@ -15,15 +17,17 @@ interface ChangePasswordFormModel {
   confirmNewPassword: string;
 }
 
-// Verified against the live API (see docs/api-reference.md > PATCH /users/change-password):
-// min 8 chars, at least one uppercase, one lowercase, one digit, one of #?!@$%^&*- — matching
-// the server's own pattern exactly so the client rejects an invalid password before a round
-// trip, not some looser approximation of it.
-const NEW_PASSWORD_PATTERN = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[#?!@$%^&*-]).{8,}$/;
-
 @Component({
   selector: 'app-change-password-page',
-  imports: [FormField, MatButtonModule, MatFormFieldModule, MatInputModule, MatProgressSpinnerModule, TranslatePipe],
+  imports: [
+    FormField,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatProgressSpinnerModule,
+    PasswordChecklist,
+    TranslatePipe,
+  ],
   templateUrl: './change-password-page.html',
   styleUrl: './change-password-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -51,12 +55,10 @@ export class ChangePasswordPage {
     required(p.newPassword, {
       message: () => this.translate.translate('changePassword.errors.newPasswordRequired')() as string,
     });
-    minLength(p.newPassword, 8, {
-      message: () => this.translate.translate('changePassword.errors.newPasswordMinLength')() as string,
-    });
-    pattern(p.newPassword, NEW_PASSWORD_PATTERN, {
-      message: () => this.translate.translate('changePassword.errors.newPasswordPattern')() as string,
-    });
+    // The server's exact rule, verified live and shared with Register
+    // (shared/password-checklist/password-rules.ts). No message: the PasswordChecklist under the
+    // field explains an unmet requirement, so the template only shows "required" as text.
+    pattern(p.newPassword, PASSWORD_PATTERN);
 
     required(p.confirmNewPassword, {
       message: () => this.translate.translate('changePassword.errors.confirmRequired')() as string,
@@ -73,6 +75,12 @@ export class ChangePasswordPage {
 
   protected readonly serverError = signal<string | null>(null);
   protected readonly success = signal(false);
+
+  /** The new-password field shows only its "required" error as text; the checklist covers the rest. */
+  protected readonly newPasswordRequiredError = computed(() => {
+    const field = this.changePasswordForm.newPassword();
+    return field.touched() && field.errors().some((error) => error.kind === 'required');
+  });
 
   protected async onSubmit(): Promise<void> {
     this.serverError.set(null);

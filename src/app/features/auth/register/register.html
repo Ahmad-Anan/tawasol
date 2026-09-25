@@ -8,6 +8,7 @@
   <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
     <mat-label>{{ 'auth.register.nameLabel' | translate }}</mat-label>
     <input matInput [formField]="registerForm.name" autocomplete="name" />
+    <mat-hint>{{ 'auth.register.nameHint' | translate }}</mat-hint>
     @if (registerForm.name().touched() && registerForm.name().invalid()) {
       <mat-error>{{ registerForm.name().errors()[0]?.message }}</mat-error>
     }
@@ -24,6 +25,7 @@
       dir="ltr"
       (input)="onUsernameInput($event)"
     />
+    <mat-hint>{{ 'auth.register.usernameHint' | translate }}</mat-hint>
     @if (registerForm.username().touched() && registerForm.username().invalid()) {
       <mat-error>{{ registerForm.username().errors()[0]?.message }}</mat-error>
     }
@@ -32,6 +34,7 @@
   <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
     <mat-label>{{ 'auth.register.emailLabel' | translate }}</mat-label>
     <input matInput type="email" [formField]="registerForm.email" autocomplete="email" />
+    <mat-hint>{{ 'auth.register.emailHint' | translate }}</mat-hint>
     @if (registerForm.email().touched() && registerForm.email().invalid()) {
       <mat-error>{{ registerForm.email().errors()[0]?.message }}</mat-error>
     }
@@ -46,6 +49,9 @@
       [attr.min]="dateOfBirthBounds.min"
       [attr.max]="dateOfBirthBounds.max"
     />
+    <mat-hint>
+      {{ 'auth.register.dobHint' | translate }} <bdi dir="ltr">{{ dateFormatHint() }}</bdi>
+    </mat-hint>
     @if (registerForm.dateOfBirth().touched() && registerForm.dateOfBirth().invalid()) {
       <mat-error>{{ registerForm.dateOfBirth().errors()[0]?.message }}</mat-error>
     }
@@ -65,9 +71,19 @@
   <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
     <mat-label>{{ 'auth.register.passwordLabel' | translate }}</mat-label>
     <input matInput type="password" [formField]="registerForm.password" autocomplete="new-password" />
-    <mat-hint>{{ 'auth.register.passwordHint' | translate }}</mat-hint>
-    @if (registerForm.password().touched() && registerForm.password().invalid()) {
-      <mat-error>{{ registerForm.password().errors()[0]?.message }}</mat-error>
+    <!--
+      The checklist is the hint. Only "required" is shown as an error (which replaces the hint,
+      as Material does); an unmet requirement is explained by the checklist itself, whose unmet
+      items turn red once the field is invalid — so it stays visible while the user fixes it.
+    -->
+    <mat-hint>
+      <app-password-checklist
+        [password]="registerForm.password().value()"
+        [invalid]="registerForm.password().touched() && registerForm.password().invalid()"
+      />
+    </mat-hint>
+    @if (passwordRequiredError()) {
+      <mat-error>{{ 'auth.register.errors.passwordRequired' | translate }}</mat-error>
     }
   </mat-form-field>
 

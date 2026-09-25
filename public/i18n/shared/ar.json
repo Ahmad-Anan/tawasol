@@ -12,6 +12,18 @@
       "postImage": "صورة المنشور",
       "commentImage": "صورة التعليق",
       "profilePhoto": "صورة الملف الشخصي"
+    },
+    "passwordChecklist": {
+      "label": "متطلبات كلمة المرور",
+      "met": "، تم",
+      "notMet": "، لم يتحقق بعد",
+      "rules": {
+        "length": "8 أحرف على الأقل",
+        "uppercase": "حرف إنجليزي كبير (A–Z)",
+        "lowercase": "حرف إنجليزي صغير (a–z)",
+        "number": "رقم (0–9)",
+        "special": "رمز خاص: # ? ! @ $ % ^ & * -"
+      }
     }
   }
 }
