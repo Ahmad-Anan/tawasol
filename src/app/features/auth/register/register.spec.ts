@@ -166,6 +166,23 @@ describe('Register', () => {
     expect(fixture.nativeElement.textContent).toContain('auth.register.errors.usernameLength');
   });
 
+  for (const [label, date, key] of [
+    ['in the future (too young)', '2999-01-01', 'dobTooYoung'],
+    ['more than 100 years ago', '1900-01-01', 'dobTooOld'],
+  ]) {
+    it(`blocks submission and explains why for a date of birth ${label}`, async () => {
+      fillValidForm();
+      setInput('input[type="date"]', date);
+
+      submitForm();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(authService.signup).not.toHaveBeenCalled();
+      expect(fixture.nativeElement.textContent).toContain(`auth.register.errors.${key}`);
+    });
+  }
+
   it('shows the API error message verbatim and does not navigate when signup fails', async () => {
     authService.signup.mockRejectedValue(
       new HttpErrorResponse({ status: 409, error: { success: false, message: 'user already exists' } }),

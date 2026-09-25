@@ -10,6 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 import type { ApiErrorResponse, SignupRequest } from '../auth.interface';
+import { MAX_AGE, MIN_AGE, dateOfBirthBounds, dateOfBirthError } from '../validators/date-of-birth';
 import { normalizeUsername, usernameError } from '../validators/username';
 
 interface RegisterFormModel {
@@ -81,6 +82,19 @@ export class Register {
       message: () => this.translate.translate('auth.register.errors.dobRequired')() as string,
     });
 
+    // A realistic age (MIN_AGE to MAX_AGE), checked against today at validation time.
+    validate(p.dateOfBirth, (ctx) => {
+      const error = dateOfBirthError(ctx.value(), new Date());
+      if (!error) {
+        return undefined;
+      }
+      const key = error === 'tooYoung' ? 'dobTooYoung' : 'dobTooOld';
+      return {
+        kind: `date-of-birth-${error}`,
+        message: this.translate.translate(`auth.register.errors.${key}`, { min: MIN_AGE, max: MAX_AGE })() as string,
+      };
+    });
+
     required(p.gender, {
       message: () => this.translate.translate('auth.register.errors.genderRequired')() as string,
     });
@@ -109,6 +123,9 @@ export class Register {
   });
 
   protected readonly serverError = signal<string | null>(null);
+
+  /** Keeps the native date picker inside the range the validator accepts. */
+  protected readonly dateOfBirthBounds = dateOfBirthBounds(new Date());
 
   /**
    * Lowercases and turns spaces into underscores as the user types (see normalizeUsername),

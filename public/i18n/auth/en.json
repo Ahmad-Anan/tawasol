@@ -46,7 +46,9 @@
         "passwordMismatch": "Passwords do not match",
         "unexpected": "Something went wrong. Please try again.",
         "usernameCharacters": "Use only lowercase English letters (a–z), numbers and underscores (_)",
-        "usernameLength": "Username must be 3 to 30 characters"
+        "usernameLength": "Username must be 3 to 30 characters",
+        "dobTooYoung": "You must be at least {{min}} years old to sign up",
+        "dobTooOld": "Enter a real date of birth (age {{max}} or younger)"
       }
     }
   }
