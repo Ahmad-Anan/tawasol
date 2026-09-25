@@ -8,8 +8,8 @@ const SESSION_POSTS_STORAGE_KEY = 'tawasol-demo-session-posts';
 /**
  * Whether the signed-in user is the public "Try the demo" account (see
  * environments/environment.ts). Its credentials are public, so the UI protects the account
- * from visitors: no password change, no profile photo change, and no deleting the posts it
- * already had.
+ * from visitors: no password change, no profile photo change, and no editing or deleting the
+ * posts it already had.
  *
  * Identified by the signed-in user's `_id` from the auth state — never by username — so it
  * doesn't matter whether the visitor used the demo button or typed the credentials.
@@ -23,7 +23,7 @@ export class DemoAccountService {
 
   /**
    * Posts the demo account created (or shared) during this session — the only ones a visitor
-   * may delete, so the demo's own content stays intact for the next visitor. Kept in
+   * may edit or delete, so the demo's showcase content stays intact for the next visitor. Kept in
    * sessionStorage: it survives a reload of the same tab but not a new tab, and it's cleared on
    * sign-out, so each demo session starts clean.
    */
@@ -43,15 +43,15 @@ export class DemoAccountService {
     return user?._id === environment.demoUserId;
   }
 
-  /** Called when a post is created or shared, so the demo can delete it again this session. */
+  /** Called when a post is created or shared, so the demo can edit/delete it again this session. */
   recordCreatedPost(postId: string): void {
     if (this.isDemo()) {
       this.setSessionPostIds(new Set([...this.sessionPostIds(), postId]));
     }
   }
 
-  /** Any account may delete its own posts, except the demo account's pre-existing ones. */
-  canDeletePost(postId: string): boolean {
+  /** Any account may edit or delete its own posts, except the demo account's pre-existing ones. */
+  canModifyPost(postId: string): boolean {
     return !this.isDemo() || this.sessionPostIds().has(postId);
   }
 

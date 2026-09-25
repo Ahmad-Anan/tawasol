@@ -70,8 +70,8 @@ export class PostCard {
   protected readonly isOwnPost = computed(() => this.post().user._id === this.authService.user()?._id);
   /** Shares carry no editable body/image of their own (see PostsService.sharePost docs). */
   protected readonly canEdit = computed(() => this.isOwnPost() && !this.post().isShare);
-  /** False only for the demo account's pre-existing posts (see DemoAccountService). */
-  protected readonly canDelete = computed(() => this.demoAccount.canDeletePost(this.post().id));
+  /** Edit/Delete are off only for the demo account's pre-existing posts (see DemoAccountService). */
+  protected readonly canModify = computed(() => this.demoAccount.canModifyPost(this.post().id));
 
   protected readonly isLiking = signal(false);
   protected readonly isBookmarking = signal(false);
@@ -145,6 +145,10 @@ export class PostCard {
   }
 
   protected startEdit(): void {
+    // The menu item is dimmed with a note when this is false; this is the backstop.
+    if (!this.canModify()) {
+      return;
+    }
     this.editError.set(null);
     this.editBody.set(this.post().body ?? '');
     this.isEditing.set(true);
@@ -159,7 +163,7 @@ export class PostCard {
   }
 
   protected async saveEdit(): Promise<void> {
-    if (this.isSavingEdit()) {
+    if (this.isSavingEdit() || !this.canModify()) {
       return;
     }
     const body = this.editBody().trim();
@@ -181,7 +185,7 @@ export class PostCard {
 
   protected confirmDelete(): void {
     // The menu item is disabled (with a note) when this is false; this is the backstop.
-    if (!this.canDelete()) {
+    if (!this.canModify()) {
       return;
     }
     this.deleteError.set(null);
@@ -193,7 +197,7 @@ export class PostCard {
   }
 
   protected async deletePost(): Promise<void> {
-    if (this.isDeleting() || !this.canDelete()) {
+    if (this.isDeleting() || !this.canModify()) {
       return;
     }
     this.isDeleting.set(true);

@@ -241,6 +241,7 @@ export class PostsService {
 
   /** Not wired to any UI yet in this pass — see the feed feature summary for why. */
   async editPost(postId: string, payload: PostFormPayload): Promise<void> {
+    this.assertCanModify(postId);
     const response = await firstValueFrom(
       this.http.put<CreateOrEditPostApiResponse>(`${API_BASE_URL}/posts/${postId}`, this.buildFormData(payload)),
     );
@@ -250,6 +251,7 @@ export class PostsService {
 
   /** Not wired to any UI yet in this pass — see the feed feature summary for why. */
   async deletePost(postId: string): Promise<void> {
+    this.assertCanModify(postId);
     await firstValueFrom(this.http.delete(`${API_BASE_URL}/posts/${postId}`));
     this._posts.update((existing) => existing.filter((post) => post.id !== postId));
   }
@@ -331,6 +333,17 @@ export class PostsService {
    * (the signed-in user, whose shape matches `PostAuthor`) and default the rest, so the new
    * post can render as a normal feed card immediately instead of waiting on a full reload.
    */
+  /**
+   * Backstop for the demo account's showcase posts: the UI already dims Edit/Delete for them
+   * (see DemoAccountService), but no code path may send the request either. Rejects, rather
+   * than silently doing nothing, so callers show their normal failure state.
+   */
+  private assertCanModify(postId: string): void {
+    if (!this.demoAccount.canModifyPost(postId)) {
+      throw new Error("The demo account's pre-existing posts can't be edited or deleted.");
+    }
+  }
+
   private toDisplayPost(mutated: MutatedPost): Post {
     const me = this.authService.user();
     return {

@@ -80,22 +80,22 @@ describe('DemoAccountService', () => {
     });
   });
 
-  describe('canDeletePost', () => {
+  describe('canModifyPost (edit and delete)', () => {
     it('lets a regular account delete any of its posts', () => {
       signIn(makeUser({ _id: 'another-id' }));
-      expect(service().canDeletePost('old-post')).toBe(true);
+      expect(service().canModifyPost('old-post')).toBe(true);
     });
 
     it("blocks deleting the demo account's pre-existing posts", () => {
       signIn(demoUser());
-      expect(service().canDeletePost('old-post')).toBe(false);
+      expect(service().canModifyPost('old-post')).toBe(false);
     });
 
     it('allows deleting posts the demo account created this session', () => {
       signIn(demoUser());
       service().recordCreatedPost('new-post');
-      expect(service().canDeletePost('new-post')).toBe(true);
-      expect(service().canDeletePost('old-post')).toBe(false);
+      expect(service().canModifyPost('new-post')).toBe(true);
+      expect(service().canModifyPost('old-post')).toBe(false);
     });
 
     it('does not record posts created by a regular account', () => {
@@ -122,7 +122,7 @@ describe('DemoAccountService', () => {
           },
         ],
       });
-      expect(TestBed.inject(DemoAccountService).canDeletePost('new-post')).toBe(true);
+      expect(TestBed.inject(DemoAccountService).canModifyPost('new-post')).toBe(true);
     });
 
     it('starts a new demo session clean after signing out', () => {
@@ -135,7 +135,7 @@ describe('DemoAccountService', () => {
       TestBed.tick();
       signIn(demoUser());
 
-      expect(demo.canDeletePost('new-post')).toBe(false);
+      expect(demo.canModifyPost('new-post')).toBe(false);
     });
   });
 });

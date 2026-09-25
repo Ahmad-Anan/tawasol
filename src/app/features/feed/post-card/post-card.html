@@ -16,22 +16,18 @@
           <mat-icon>more_horiz</mat-icon>
         </button>
         <mat-menu #shareMenu="matMenu">
-          <!--
-          Disabled with a note for the demo account's pre-existing posts (see canDelete). Not [disabled]:
-          the menu's keyboard navigation skips disabled items, but keyboard and screen-reader users
-          should still reach it — the note inside is part of its accessible name, so they hear why.
-        -->
+          <!-- Dimmed with a note for the demo account's pre-existing posts — see the post menu below. -->
           <button
             mat-menu-item
             type="button"
             class="delete-menu-item"
-            [class.delete-menu-item--disabled]="!canDelete()"
+            [class.menu-item--demo-locked]="!canModify()"
             (click)="confirmDelete()"
           >
             <mat-icon>delete_outline</mat-icon>
             <span class="flex flex-col">
               <span>{{ 'feed.postCard.delete' | translate }}</span>
-              @if (!canDelete()) {
+              @if (!canModify()) {
                 <span class="text-xs text-(--color-text-secondary)">{{ 'shared.demo.disabled' | translate }}</span>
               }
             </span>
@@ -79,26 +75,38 @@
         <mat-icon>more_horiz</mat-icon>
       </button>
       <mat-menu #postMenu="matMenu">
-        <button mat-menu-item type="button" (click)="startEdit()">
-          <mat-icon>edit</mat-icon>
-          <span>{{ 'feed.postCard.edit' | translate }}</span>
-        </button>
         <!--
-          Disabled with a note for the demo account's pre-existing posts (see canDelete). Not [disabled]:
-          the menu's keyboard navigation skips disabled items, but keyboard and screen-reader users
-          should still reach it — the note inside is part of its accessible name, so they hear why.
+          Edit and Delete are dimmed with a note for the demo account's pre-existing posts (see
+          canModify). Not [disabled]: the menu's keyboard navigation skips disabled items, but
+          keyboard and screen-reader users should still reach them — the note inside is part of
+          each item's accessible name, so they hear why.
         -->
         <button
           mat-menu-item
           type="button"
+          class="edit-menu-item"
+          [class.menu-item--demo-locked]="!canModify()"
+          (click)="startEdit()"
+        >
+          <mat-icon>edit</mat-icon>
+          <span class="flex flex-col">
+            <span>{{ 'feed.postCard.edit' | translate }}</span>
+            @if (!canModify()) {
+              <span class="text-xs text-(--color-text-secondary)">{{ 'shared.demo.disabled' | translate }}</span>
+            }
+          </span>
+        </button>
+        <button
+          mat-menu-item
+          type="button"
           class="delete-menu-item"
-          [class.delete-menu-item--disabled]="!canDelete()"
+          [class.menu-item--demo-locked]="!canModify()"
           (click)="confirmDelete()"
         >
           <mat-icon>delete_outline</mat-icon>
           <span class="flex flex-col">
             <span>{{ 'feed.postCard.delete' | translate }}</span>
-            @if (!canDelete()) {
+            @if (!canModify()) {
               <span class="text-xs text-(--color-text-secondary)">{{ 'shared.demo.disabled' | translate }}</span>
             }
           </span>

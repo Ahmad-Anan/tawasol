@@ -293,7 +293,7 @@ describe('PostsService on the demo account', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: DemoAccountService, useValue: { recordCreatedPost, canDeletePost: () => true } },
+        { provide: DemoAccountService, useValue: { recordCreatedPost, canModifyPost: () => true } },
       ],
     });
     service = TestBed.inject(PostsService);
@@ -328,14 +328,67 @@ describe('PostsService on the demo account', () => {
 
   it('records a new share post too', async () => {
     const shared = service.sharePost('original');
-    httpMock
-      .expectOne(`${API_BASE_URL}/posts/original/share`)
-      .flush({
-        success: true,
-        message: 'ok',
-        data: { post: makePost({ id: 'share-1', isShare: true }) },
-      });
+    httpMock.expectOne(`${API_BASE_URL}/posts/original/share`).flush({
+      success: true,
+      message: 'ok',
+      data: { post: makePost({ id: 'share-1', isShare: true }) },
+    });
     await shared;
     expect(recordCreatedPost).toHaveBeenCalledWith('share-1');
+  });
+});
+
+describe("PostsService guards the demo account's pre-existing posts", () => {
+  let service: PostsService;
+  let httpMock: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        {
+          provide: DemoAccountService,
+          useValue: {
+            recordCreatedPost: vi.fn(),
+            canModifyPost: (id: string) => id === 'session-post',
+          },
+        },
+      ],
+    });
+    service = TestBed.inject(PostsService);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => httpMock.verify());
+
+  it('rejects editing one without sending a request', async () => {
+    await expect(service.editPost('showcase-post', { body: 'rewritten' })).rejects.toThrow();
+    httpMock.expectNone(`${API_BASE_URL}/posts/showcase-post`);
+  });
+
+  it('rejects deleting one without sending a request', async () => {
+    await expect(service.deletePost('showcase-post')).rejects.toThrow();
+    httpMock.expectNone(`${API_BASE_URL}/posts/showcase-post`);
+  });
+
+  it('still edits a post created during the session', async () => {
+    const edited = service.editPost('session-post', { body: 'updated' });
+    const req = httpMock.expectOne(`${API_BASE_URL}/posts/session-post`);
+    expect(req.request.method).toBe('PUT');
+    req.flush({
+      success: true,
+      message: 'ok',
+      data: {
+        post: {
+          _id: 'session-post',
+          id: 'session-post',
+          body: 'updated',
+          privacy: 'public',
+          user: 'me',
+        },
+      },
+    });
+    await edited;
   });
 });

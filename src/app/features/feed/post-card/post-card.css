@@ -6,13 +6,13 @@
   box-shadow: var(--mat-sys-level2);
 }
 
-/* A Delete menu item that's unavailable (the demo account's pre-existing posts). Mirrors
+/* An Edit/Delete menu item that's unavailable (the demo account's pre-existing posts). Mirrors
    Material's own disabled menu item look, but stays focusable — see the template comment. */
-.delete-menu-item--disabled {
+.menu-item--demo-locked {
   cursor: default;
   color: color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent);
 }
 
-.delete-menu-item--disabled .mat-icon {
+.menu-item--demo-locked .mat-icon {
   color: inherit;
 }
