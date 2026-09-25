@@ -32,13 +32,18 @@
         (selectedIndexChange)="onTabChange($event)"
         animationDuration="200ms"
       >
+        <!--
+          pb-1: the submit button's 48px Material touch target overhangs its 44px (h-11) box by
+          2px on each side. At the bottom of the tab that overhang spilled out of
+          .mat-mdc-tab-body-content (overflow: auto) and gave the card its own scrollbar.
+        -->
         <mat-tab [label]="'auth.tabs.login' | translate">
-          <div class="pt-6">
+          <div class="pt-6 pb-1">
             <app-login />
           </div>
         </mat-tab>
         <mat-tab [label]="'auth.tabs.register' | translate">
-          <div class="pt-6">
+          <div class="pt-6 pb-1">
             <app-register />
           </div>
         </mat-tab>
