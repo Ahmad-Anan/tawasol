@@ -13,7 +13,7 @@
 }
 
 :host.status-indicator--online svg {
-  fill: var(--color-harbor-600);
+  fill: var(--color-harbor-indicator);
 }
 
 :host.status-indicator--offline svg {

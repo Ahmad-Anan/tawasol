@@ -46,6 +46,11 @@
   // that token drops to near-black (darker than --color-surface itself), so a hover state built
   // on it read as a barely-visible *darkening* instead of the intended highlight.
   --color-hover-tint: var(--color-bone-100);
+  // Harbor Teal for non-text indicators — keyboard focus rings and the 8-point online star.
+  // Light mode: the literal --color-harbor-600. Dark mode redefines this (see html.tawasol-dark
+  // below) because --color-harbor-600 measures only 2.26:1 against dark --color-surface, under
+  // WCAG's 3:1 minimum for focus indicators and meaningful graphics.
+  --color-harbor-indicator: var(--color-harbor-600);
   // Aliases onto Material's auto-computed M3 tones — not hardcoded, so light mode is untouched.
   --color-text-primary: var(--mat-sys-on-surface);
   --color-text-secondary: var(--mat-sys-on-surface-variant);
@@ -125,6 +130,10 @@ html.tawasol-dark {
   // tone 17, i.e. a visible "lift" hover consistent with Material's own dark-elevation
   // convention, instead of --color-bone-100's tone 6 (darker than the surface it's hovering on).
   --color-hover-tint: #323635;
+  // The closest lighter shade of #146B63 (same hue/saturation, HSL lightness stepped up) that
+  // reaches 3:1 against dark --color-surface — measures 3.03:1 there and 3.93:1 against dark
+  // --color-bone-100.
+  --color-harbor-indicator: #188177;
 
   @include mat.theme(
     (
