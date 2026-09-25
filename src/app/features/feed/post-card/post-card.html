@@ -47,9 +47,9 @@
         </p>
       </a>
       <p class="truncate font-(--font-mono) text-xs text-(--color-text-secondary)">
-        <a [routerLink]="['/profile', displayedPost.user._id]">&#64;{{ displayedPost.user.username }}</a>
+        <a [routerLink]="['/profile', displayedPost.user._id]"><bdi dir="ltr">&#64;{{ displayedPost.user.username }}</bdi></a>
         ·
-        <a [routerLink]="['/posts', post().id]">{{ formattedDate() }}</a>
+        <a [routerLink]="['/posts', post().id]"><bdi>{{ formattedDate() }}</bdi></a>
       </p>
     </div>
 

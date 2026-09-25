@@ -23,7 +23,7 @@
           <a [routerLink]="['/profile', user._id]" class="min-w-0 flex-1">
             <p class="truncate text-sm font-semibold text-(--color-text-primary)">{{ user.name }}</p>
             <p class="truncate font-(--font-mono) text-xs text-(--color-text-secondary)">
-              &#64;{{ user.username }}
+              <bdi dir="ltr">&#64;{{ user.username }}</bdi>
             </p>
           </a>
           <button

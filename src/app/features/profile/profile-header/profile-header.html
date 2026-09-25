@@ -35,7 +35,7 @@
         <h1 class="text-xl font-bold text-(--color-text-primary)" style="font-family: var(--font-display)">
           {{ profile.name }}
         </h1>
-        <p class="font-(--font-mono) text-sm text-(--color-text-secondary)">&#64;{{ profile.username }}</p>
+        <p class="font-(--font-mono) text-sm text-(--color-text-secondary)"><bdi dir="ltr">&#64;{{ profile.username }}</bdi></p>
 
         @if (profile.bio) {
           <p class="mt-2 text-(--color-text-primary)">{{ profile.bio }}</p>
