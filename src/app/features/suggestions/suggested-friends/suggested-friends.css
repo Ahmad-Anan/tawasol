@@ -1,3 +1,20 @@
 :host {
   display: block;
 }
+
+/* "More below" cue: a fade pinned to the bottom edge of the scroll viewport, so a partly visible
+   last row reads as scrollable content rather than a clipped layout. It's the list's last flex
+   item, stuck with `bottom: 0` while there's more to scroll; at the very end it drops back to its
+   own slot after the last row (margin-top cancels the list's gap-3), so it never covers content
+   once you've reached the bottom. It fades into --color-surface, the card's own background, so
+   it's correct in both themes. */
+.suggestions-list::after {
+  content: '';
+  position: sticky;
+  bottom: 0;
+  flex-shrink: 0;
+  height: 2rem;
+  margin-top: -0.75rem;
+  background: linear-gradient(to bottom, transparent, var(--color-surface));
+  pointer-events: none;
+}

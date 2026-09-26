@@ -12,7 +12,7 @@
   } @else if (suggestionsService.suggestions().length === 0) {
     <p class="mt-3 text-sm text-(--color-text-secondary)">{{ 'suggestions.empty' | translate }}</p>
   } @else {
-    <ul #scrollContainer class="mt-3 flex max-h-96 flex-col gap-3 overflow-y-auto pe-1">
+    <ul #scrollContainer class="suggestions-list mt-3 flex max-h-96 flex-col gap-3 overflow-y-auto pe-1">
       @for (user of suggestionsService.suggestions(); track user._id) {
         <li
           class="flex items-center gap-2 rounded-xl p-1 transition-colors duration-150 hover:bg-(--color-hover-tint)"
