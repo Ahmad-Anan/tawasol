@@ -1,7 +1,7 @@
 {
   "profile": {
-    "followers": "متابِعون",
-    "following": "متابَعون",
+    "followers": "المتابعون",
+    "following": "يتابع",
     "posts": "منشورات",
     "bookmarks": "المحفوظات",
     "editProfile": "تعديل الملف الشخصي",

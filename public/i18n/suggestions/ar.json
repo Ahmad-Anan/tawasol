@@ -9,8 +9,8 @@
       "loadMoreFailed": "تعذّر تحميل المزيد من الاقتراحات."
     },
     "dialog": {
-      "titleFollowers": "المتابِعون",
-      "titleFollowing": "المتابَعون",
+      "titleFollowers": "المتابعون",
+      "titleFollowing": "يتابع",
       "disclaimer": "قايمة المتابعين التفصيلية مش متاحة حاليًا — إليك أشخاص مقترحين للمتابعة بدلاً من ذلك.",
       "close": "إغلاق"
     }
