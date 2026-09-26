@@ -72,7 +72,12 @@
       </div>
     </div>
 
-    <div class="mt-4 grid grid-cols-[repeat(auto-fit,minmax(90px,1fr))] gap-2">
+    <!-- Explicit columns so no card ever sits alone on a row: 4 cards (own profile, with Bookmarks) go
+         2x2 on mobile and 4 across from sm up; 3 cards (anyone else's) stay 3 across at every width. -->
+    <div
+      class="mt-4 grid gap-2"
+      [class]="profileService.bookmarksCount() !== null ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-3'"
+    >
       <button
         type="button"
         class="rounded-xl bg-(--color-bone-100) p-3 text-center transition-colors duration-150 hover:bg-(--color-surface)"
