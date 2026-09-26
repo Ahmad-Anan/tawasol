@@ -145,7 +145,7 @@ async function signInWithDemo(browser) {
     );
     const post = ownPosts.filter((p) => p.commentsCount > 0).sort((a, b) => b.commentsCount - a.commentsCount)[0];
     // Newest first, so this is the most recent post written in Arabic (e.g. the learning post).
-    const arabicPost = ownPosts.find((p) => /[؀-ۿ]/.test(p.body ?? ''));
+    const arabicPost = ownPosts.find((p) => /[\u0600-\u06FF]/.test(p.body ?? ''));
 
     return { storageState: await context.storageState(), discovered: { postWithComments: post?.id, arabicPost: arabicPost?.id } };
   } finally {
@@ -246,7 +246,10 @@ async function scrollBelowNavbar(page, selector, gap = 16) {
       const navHeight = navRect?.height ?? 0;
       const pinned = !!nav && ['sticky', 'fixed'].includes(getComputedStyle(nav).position);
       const targetTop = target.getBoundingClientRect().top + window.scrollY;
-      let y = targetTop - gap - (pinned ? navHeight : 0);
+      // The browser caps scrolling at the page's end, so plan with the capped value — on a short
+      // page the wanted position may be unreachable and the cap could land mid-navbar.
+      const maxY = document.scrollingElement.scrollHeight - window.innerHeight;
+      let y = Math.min(targetTop - gap - (pinned ? navHeight : 0), maxY);
       if (!pinned && navRect) {
         const navBottom = navRect.bottom + window.scrollY;
         if (y < navBottom) y = 0; // would cut the navbar: keep all of it (the target is right below it)
@@ -259,7 +262,8 @@ async function scrollBelowNavbar(page, selector, gap = 16) {
   if (!ok) console.warn(`    (nothing matched ${selector})`);
 }
 
-const VIEW_REPLIES = { en: /^View d+ repl/i, ar: /^عرض/ };
+// Unanchored: the button's textContent carries whitespace from the template around the label.
+const VIEW_REPLIES = { en: /View \d+ repl/i, ar: /عرض/ };
 
 async function preparePostDetail(page, shot) {
   // Comments load after the post itself; wait for them so they're in the frame below the header.
@@ -281,7 +285,8 @@ async function preparePostDetail(page, shot) {
     if (!shot.mobile) await page.mouse.move(-10, -10);
     await page.evaluate(() => document.activeElement?.blur?.());
   }
-  await scrollBelowNavbar(page, 'app-post-card header');
+  // The card, not just its header, so the card's rounded top edge stays in frame too.
+  await scrollBelowNavbar(page, 'app-post-card article', 12);
 }
 
 async function capture(browser, shot, auth) {
