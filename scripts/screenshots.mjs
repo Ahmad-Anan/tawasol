@@ -34,7 +34,8 @@ const SETTLE_MS = 1000;
 const DEMO_USER_ID = '6ab61f4f8ebe92c2c0ca67ff';
 const SIGNIN_PATH = '/users/signin';
 
-const DESKTOP = { viewport: { width: 1440, height: 900 }, dpr: 1 };
+// dpr 2 so desktop shots stay sharp on HiDPI displays and when scaled down in a portfolio.
+const DESKTOP = { viewport: { width: 1440, height: 900 }, dpr: 2 };
 const MOBILE = { viewport: { width: 390, height: 844 }, dpr: 3, mobile: true };
 const MOBILE_UA =
   'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1';
