@@ -13,6 +13,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FollowService } from '../../../core/services/follow';
+import { isolateBidi } from '../../../shared/bidi/isolate-bidi';
 import { FollowButton } from '../../../shared/follow-button/follow-button';
 import { SuggestionsService } from '../services/suggestions.service';
 
@@ -44,6 +45,7 @@ import { SuggestionsService } from '../services/suggestions.service';
 export class SuggestedFriends {
   protected readonly suggestionsService = inject(SuggestionsService);
   protected readonly followService = inject(FollowService);
+  protected readonly isolateBidi = isolateBidi;
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   private readonly scrollContainer = viewChild<ElementRef<HTMLElement>>('scrollContainer');

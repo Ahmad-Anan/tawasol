@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { TranslatePipe } from '@ngx-translate/core';
+import { isolateBidi } from '../bidi/isolate-bidi';
 
 export interface UnfollowConfirmData {
   name: string;
@@ -18,7 +19,7 @@ export interface UnfollowConfirmData {
   imports: [MatButtonModule, MatDialogModule, TranslatePipe],
   template: `
     <h2 mat-dialog-title id="unfollow-confirm-title" style="font-family: var(--font-display)">
-      {{ 'shared.follow.confirmTitle' | translate: { name: data.name } }}
+      {{ 'shared.follow.confirmTitle' | translate: { name: isolateBidi(data.name) } }}
     </h2>
     <mat-dialog-actions align="end">
       <button mat-button type="button" [mat-dialog-close]="false">
@@ -33,4 +34,5 @@ export interface UnfollowConfirmData {
 })
 export class UnfollowConfirmDialog {
   protected readonly data = inject<UnfollowConfirmData>(MAT_DIALOG_DATA);
+  protected readonly isolateBidi = isolateBidi;
 }

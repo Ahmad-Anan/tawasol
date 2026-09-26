@@ -19,7 +19,7 @@
   <div class="min-w-0 flex-1">
     <p class="text-sm text-(--color-text-primary)">
       <span class="font-semibold" style="font-family: var(--font-display)">
-        {{ notification().actor?.name ?? ('notifications.deletedUser' | translate) }}
+        <bdi>{{ notification().actor?.name ?? ('notifications.deletedUser' | translate) }}</bdi>
       </span>
       {{ messageKey() | translate }}
     </p>

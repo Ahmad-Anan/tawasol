@@ -15,7 +15,7 @@
       <div class="flex items-start justify-between gap-2">
         <div class="min-w-0">
           <p class="truncate text-sm font-semibold text-(--color-text-primary)" style="font-family: var(--font-display)">
-            {{ comment().commentCreator.name }}
+            <bdi>{{ comment().commentCreator.name }}</bdi>
           </p>
         </div>
 
@@ -45,7 +45,7 @@
       @if (isEditing()) {
         <div class="mt-1">
           <mat-form-field appearance="outline" class="w-full">
-            <textarea matInput rows="2" [value]="editContent()" (input)="onEditContentInput($event)"></textarea>
+            <textarea matInput dir="auto" rows="2" [value]="editContent()" (input)="onEditContentInput($event)"></textarea>
           </mat-form-field>
 
           @if (editError()) {
@@ -73,7 +73,7 @@
         </div>
       } @else {
         @if (comment().content) {
-          <p class="whitespace-pre-line text-sm text-(--color-text-primary)">{{ comment().content }}</p>
+          <p dir="auto" class="whitespace-pre-line text-sm text-(--color-text-primary)">{{ comment().content }}</p>
         }
 
         @if (comment().image) {

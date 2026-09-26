@@ -21,7 +21,7 @@
             <img [ngSrc]="user.photo" width="40" height="40" alt="" class="h-10 w-10 rounded-full object-cover" />
           </a>
           <a [routerLink]="['/profile', user._id]" class="min-w-0 flex-1">
-            <p class="truncate text-sm font-semibold text-(--color-text-primary)">{{ user.name }}</p>
+            <p class="truncate text-sm font-semibold text-(--color-text-primary)"><bdi>{{ user.name }}</bdi></p>
             <p class="truncate font-(--font-mono) text-xs text-(--color-text-secondary)">
               <bdi dir="ltr">&#64;{{ user.username }}</bdi>
             </p>
@@ -33,7 +33,7 @@
           <p class="-mt-2 text-xs text-(--color-error-text)" role="alert">
             {{
               (failure === 'follow' ? 'shared.follow.errors.followFailed' : 'shared.follow.errors.unfollowFailed')
-                | translate: { name: user.name }
+                | translate: { name: isolateBidi(user.name) }
             }}
           </p>
         }

@@ -146,3 +146,44 @@ describe('PostCard Edit/Delete on the demo account', () => {
     });
   });
 });
+
+describe('PostCard user-generated text direction', () => {
+  it('lets the body, author name and top comment take their own direction, whatever the UI language', async () => {
+    await TestBed.configureTestingModule({
+      imports: [PostCard],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        provideTranslateService({ lang: 'en', fallbackLang: 'en' }),
+        { provide: AuthService, useValue: { user: signal(me), isAuthenticated: () => true, token: () => null } },
+      ],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(PostCard);
+    fixture.componentRef.setInput(
+      'post',
+      makePost({
+        body: 'الـ Signals في Angular غيرت طريقتي',
+        user: { ...me, name: 'أحمد' },
+        commentsCount: 1,
+        topComment: {
+          _id: 'c1',
+          content: 'وكمان كتابة tests',
+          commentCreator: { _id: 'u2', name: 'Anan', username: 'anan', photo: 'https://example.com/a.png' },
+          post: 'p1',
+          parentComment: null,
+          likes: [],
+          createdAt: '2026-09-01T10:00:00.000Z',
+        },
+      }),
+    );
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+
+    const body = [...el.querySelectorAll('p')].find((p) => p.textContent?.trim() === 'الـ Signals في Angular غيرت طريقتي');
+    expect(body?.getAttribute('dir')).toBe('auto');
+    const isolated = [...el.querySelectorAll('bdi')].map((b) => b.textContent?.trim());
+    expect(isolated).toContain('أحمد');
+    expect(isolated).toContain('وكمان كتابة tests');
+  });
+});

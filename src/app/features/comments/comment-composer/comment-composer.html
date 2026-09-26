@@ -8,7 +8,7 @@
       <mat-label>
         {{ (parentCommentId() ? 'comments.composer.replyPlaceholder' : 'comments.composer.placeholder') | translate }}
       </mat-label>
-      <textarea matInput rows="1" [value]="content()" (input)="onContentInput($event)"></textarea>
+      <textarea matInput dir="auto" rows="1" [value]="content()" (input)="onContentInput($event)"></textarea>
     </mat-form-field>
 
     @if (imagePreviewUrl(); as previewUrl) {

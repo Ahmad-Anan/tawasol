@@ -40,12 +40,12 @@
 
       <div class="min-w-0 flex-1">
         <h1 class="text-xl font-bold text-(--color-text-primary)" style="font-family: var(--font-display)">
-          {{ profile.name }}
+          <bdi>{{ profile.name }}</bdi>
         </h1>
         <p class="font-(--font-mono) text-sm text-(--color-text-secondary)"><bdi dir="ltr">&#64;{{ profile.username }}</bdi></p>
 
         @if (profile.bio) {
-          <p class="mt-2 text-(--color-text-primary)">{{ profile.bio }}</p>
+          <p dir="auto" class="mt-2 text-(--color-text-primary)">{{ profile.bio }}</p>
         }
       </div>
 
@@ -142,7 +142,7 @@
       <p class="mt-2 text-sm text-(--color-error-text)" role="alert">
         {{
           (failure === 'follow' ? 'shared.follow.errors.followFailed' : 'shared.follow.errors.unfollowFailed')
-            | translate: { name: profile.name }
+            | translate: { name: isolateBidi(profile.name) }
         }}
       </p>
     }

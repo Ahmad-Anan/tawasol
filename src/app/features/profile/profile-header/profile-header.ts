@@ -6,6 +6,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { DemoAccountService } from '../../../core/services/demo-account';
+import { isolateBidi } from '../../../shared/bidi/isolate-bidi';
 import { FollowButton } from '../../../shared/follow-button/follow-button';
 import { openImageLightbox } from '../../../shared/image-lightbox/image-lightbox';
 import { ProfileService } from '../services/profile.service';
@@ -39,6 +40,7 @@ export class ProfileHeader {
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialog = inject(MatDialog);
   private readonly translate = inject(TranslateService);
+  protected readonly isolateBidi = isolateBidi;
 
   protected readonly previewUrl = signal<string | null>(null);
   private readonly selectedFile = signal<File | null>(null);
