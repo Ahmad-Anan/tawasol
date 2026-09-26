@@ -49,7 +49,9 @@ const MOBILE_UA =
 const SHOTS = [
   { file: 'desktop-feed-me-en-light.png', ...DESKTOP, path: '/feed', meFilter: true, theme: 'light', lang: 'en', auth: true },
   { file: 'desktop-profile-ar-dark.png', ...DESKTOP, path: `/profile/${DEMO_USER_ID}`, theme: 'dark', lang: 'ar', auth: true },
-  { file: 'desktop-post-detail-en-dark.png', ...DESKTOP, path: (d) => `/posts/${d.postWithComments}`, scrollToPost: true, theme: 'dark', lang: 'en', auth: true },
+  // Taller viewport for this one shot, so the post, both comments and the demo's reply (with its
+  // timestamp) all fit, with room below.
+  { file: 'desktop-post-detail-en-dark.png', ...DESKTOP, viewport: { width: 1440, height: 1100 }, path: (d) => `/posts/${d.postWithComments}`, scrollToPost: true, theme: 'dark', lang: 'en', auth: true },
   { file: 'mobile-feed-me-ar-light.png', ...MOBILE, path: '/feed', meFilter: true, scrollToArabicPost: true, theme: 'light', lang: 'ar', auth: true },
   { file: 'mobile-login-ar-dark.png', ...MOBILE, path: '/auth/login', theme: 'dark', lang: 'ar', auth: false },
   { file: 'mobile-profile-en-light.png', ...MOBILE, path: `/profile/${DEMO_USER_ID}`, theme: 'light', lang: 'en', auth: true },
@@ -236,30 +238,57 @@ async function clearTransientUi(page, shot) {
 // (sticky/fixed) navbar covers the top of the viewport, so the target goes below its height. A
 // navbar that scrolls with the page is never left half visible either: it's either scrolled fully
 // out of view or kept fully in view.
-async function scrollBelowNavbar(page, selector, gap = 16) {
-  const ok = await page.evaluate(
-    ({ selector, gap }) => {
+//
+// `clearPrevious`: instead of a fixed gap, measure where the previous sibling card visually ends (its
+// box plus how far its box-shadow reaches) and start the viewport exactly there, so no strip of it
+// shows above the target, and the space above the target is whatever the real layout gap leaves.
+async function scrollBelowNavbar(page, selector, { gap = 16, clearPrevious = false } = {}) {
+  const result = await page.evaluate(
+    ({ selector, gap, clearPrevious }) => {
       const target = document.querySelector(selector);
       const nav = document.querySelector('app-navbar nav');
-      if (!target) return false;
+      if (!target) return null;
       const navRect = nav?.getBoundingClientRect();
       const navHeight = navRect?.height ?? 0;
       const pinned = !!nav && ['sticky', 'fixed'].includes(getComputedStyle(nav).position);
+      const covered = pinned ? navHeight : 0;
       const targetTop = target.getBoundingClientRect().top + window.scrollY;
+      let y = targetTop - gap - covered;
+      let measured;
+
+      if (clearPrevious && target.previousElementSibling) {
+        const prev = target.previousElementSibling;
+        const box = prev.firstElementChild ?? prev; // the card's own element carries the shadow
+        // Downward reach of each box-shadow: offset-y + blur + spread (inset shadows stay inside).
+        const shadowReach = getComputedStyle(box)
+          .boxShadow.split(/,(?![^(]*\))/)
+          .filter((sh) => sh.trim() !== 'none' && !sh.includes('inset'))
+          .map((sh) => {
+            const [, oy = 0, blur = 0, spread = 0] = sh.replace(/[a-z-]+\([^)]*\)|#[0-9a-f]+|[a-z]+(?=\s|$)/gi, '').trim().split(/\s+/).map(parseFloat);
+            return oy + blur + spread;
+          })
+          .reduce((a, b) => Math.max(a, b), 0);
+        const prevBottom = Math.max(prev.getBoundingClientRect().bottom, box.getBoundingClientRect().bottom) + window.scrollY;
+        const visualBottom = Math.ceil(prevBottom + shadowReach);
+        measured = { layoutGap: Math.round(targetTop - prevBottom), shadowReach };
+        if (visualBottom + covered <= targetTop) y = visualBottom - covered;
+      }
+
       // The browser caps scrolling at the page's end, so plan with the capped value — on a short
       // page the wanted position may be unreachable and the cap could land mid-navbar.
       const maxY = document.scrollingElement.scrollHeight - window.innerHeight;
-      let y = Math.min(targetTop - gap - (pinned ? navHeight : 0), maxY);
+      y = Math.min(y, maxY);
       if (!pinned && navRect) {
         const navBottom = navRect.bottom + window.scrollY;
         if (y < navBottom) y = 0; // would cut the navbar: keep all of it (the target is right below it)
       }
       window.scrollTo(0, Math.max(0, y));
-      return true;
+      return { measured };
     },
-    { selector, gap },
+    { selector, gap, clearPrevious },
   );
-  if (!ok) console.warn(`    (nothing matched ${selector})`);
+  if (!result) console.warn(`    (nothing matched ${selector})`);
+  else if (result.measured) console.log(`    (gap to previous card: ${result.measured.layoutGap}px, its shadow reaches ${result.measured.shadowReach}px)`);
 }
 
 // Unanchored: the button's textContent carries whitespace from the template around the label.
@@ -286,7 +315,7 @@ async function preparePostDetail(page, shot) {
     await page.evaluate(() => document.activeElement?.blur?.());
   }
   // The card, not just its header, so the card's rounded top edge stays in frame too.
-  await scrollBelowNavbar(page, 'app-post-card article', 12);
+  await scrollBelowNavbar(page, 'app-post-card article', { gap: 12 });
 }
 
 async function capture(browser, shot, auth) {
@@ -327,7 +356,7 @@ async function capture(browser, shot, auth) {
     if (shot.scrollToArabicPost) {
       const id = auth.discovered.arabicPost;
       if (!id) console.warn('    (the demo account has no Arabic post)');
-      else await scrollBelowNavbar(page, `app-post-card:has(a[href="/posts/${id}"])`);
+      else await scrollBelowNavbar(page, `app-post-card:has(a[href="/posts/${id}"])`, { clearPrevious: true });
     }
     if (shot.scrollToPost || shot.scrollToArabicPost) await waitForVisibleImages(page);
     await page.addStyleTag({ content: FREEZE_CSS });
