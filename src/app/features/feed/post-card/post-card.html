@@ -58,10 +58,15 @@
           {{ displayedPost.user.name }}
         </p>
       </a>
-      <p class="truncate font-(--font-mono) text-xs text-(--color-text-secondary)">
-        <a [routerLink]="['/profile', displayedPost.user._id]"><bdi dir="ltr">&#64;{{ displayedPost.user.username }}</bdi></a>
-        ·
-        <a [routerLink]="['/posts', post().id]"><bdi>{{ formattedDate() }}</bdi></a>
+      <!-- Only the username truncates; the timestamp is short enough to always show in full. -->
+      <p class="flex min-w-0 items-baseline gap-1 font-(--font-mono) text-xs text-(--color-text-secondary)">
+        <a [routerLink]="['/profile', displayedPost.user._id]" class="min-w-0 truncate"
+          ><bdi dir="ltr">&#64;{{ displayedPost.user.username }}</bdi></a
+        >
+        <span aria-hidden="true">·</span>
+        <a [routerLink]="['/posts', post().id]" class="shrink-0 whitespace-nowrap">
+          <time [attr.datetime]="post().createdAt" [title]="fullDate()">{{ shortDate() }}</time>
+        </a>
       </p>
     </div>
 

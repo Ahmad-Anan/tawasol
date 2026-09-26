@@ -27,6 +27,7 @@ import { CommentsList } from '../../comments/comments-list/comments-list';
 import type { Post } from '../feed.interface';
 import { PostLikesDialog } from '../post-likes-dialog/post-likes-dialog';
 import { PostsService } from '../services/posts.service';
+import { formatFullTimestamp, formatShortTimestamp } from './post-timestamp';
 
 @Component({
   selector: 'app-post-card',
@@ -60,7 +61,16 @@ export class PostCard {
   readonly expandCommentsByDefault = input(false);
 
   protected readonly isLiked = computed(() => this.postsService.isLikedBy(this.post(), this.authService.user()?._id));
-  protected readonly formattedDate = computed(() => this.formatDate(this.post().createdAt));
+  /**
+   * Read once per card, only to decide whether a timestamp needs its year. Timestamps are
+   * formatted, not "live now"-relative, so nothing else here depends on the current time.
+   */
+  private readonly currentYear = new Date().getFullYear();
+  private readonly dateLocale = computed(() => (this.languageService.lang() === 'ar' ? 'ar' : 'en'));
+  protected readonly shortDate = computed(() =>
+    formatShortTimestamp(this.post().createdAt, this.dateLocale(), this.currentYear),
+  );
+  protected readonly fullDate = computed(() => formatFullTimestamp(this.post().createdAt, this.dateLocale()));
 
   /**
    * Ownership (and so edit/delete) is about `post()` itself, not `displayedPost` — for a
@@ -209,15 +219,5 @@ export class PostCard {
     } finally {
       this.isDeleting.set(false);
     }
-  }
-
-  /**
-   * Timestamps are formatted, not "live now"-relative, so this only ever parses the post's
-   * fixed `createdAt` string — never `new Date()` with no argument — and stays SSR-safe (see
-   * AGENTS.md > Templates on not assuming a current-time global is available).
-   */
-  private formatDate(createdAt: string): string {
-    const locale = this.languageService.lang() === 'ar' ? 'ar' : 'en';
-    return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(createdAt));
   }
 }
