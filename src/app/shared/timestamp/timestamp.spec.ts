@@ -1,6 +1,6 @@
-import { formatFullTimestamp, formatShortTimestamp } from './post-timestamp';
+import { formatFullTimestamp, formatShortTimestamp } from './timestamp';
 
-describe('post timestamps', () => {
+describe('timestamps', () => {
   // Midday UTC, so the calendar day and year are the same in any test-runner time zone.
   const thisYear = '2026-09-25T12:30:00.000Z';
   const olderYear = '2024-03-05T12:30:00.000Z';

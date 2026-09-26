@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input } from '@an
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LanguageService } from '../../../core/services/language';
+import { formatFullTimestamp, formatShortTimestamp } from '../../../shared/timestamp/timestamp';
 import type { AppNotification, NotificationCommentEntity } from '../notifications.interface';
 import { NotificationsService } from '../services/notifications.service';
 
@@ -55,7 +56,14 @@ export class NotificationItem {
     }
   });
 
-  protected readonly formattedDate = computed(() => this.formatDate(this.notification().createdAt));
+  /**
+   * Read once, only to decide whether a timestamp needs its year. Same short/full pair as the post
+   * card (see shared/timestamp) so every date in the app reads the same way.
+   */
+  private readonly currentYear = new Date().getFullYear();
+  private readonly dateLocale = computed(() => (this.languageService.lang() === 'ar' ? 'ar' : 'en'));
+  protected readonly shortDate = computed(() => formatShortTimestamp(this.notification().createdAt, this.dateLocale(), this.currentYear));
+  protected readonly fullDate = computed(() => formatFullTimestamp(this.notification().createdAt, this.dateLocale()));
 
   /**
    * Falls back to the actor's own profile for any `entityType` outside the three documented
@@ -85,10 +93,5 @@ export class NotificationItem {
     if (!this.notification().isRead) {
       void this.notificationsService.markAsRead(this.notification()._id);
     }
-  }
-
-  private formatDate(createdAt: string): string {
-    const locale = this.languageService.lang() === 'ar' ? 'ar' : 'en';
-    return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(createdAt));
   }
 }

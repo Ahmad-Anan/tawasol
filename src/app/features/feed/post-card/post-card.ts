@@ -22,12 +22,12 @@ import { AuthService } from '../../../core/services/auth.service';
 import { DemoAccountService } from '../../../core/services/demo-account';
 import { LanguageService } from '../../../core/services/language';
 import { openImageLightbox } from '../../../shared/image-lightbox/image-lightbox';
+import { formatFullTimestamp, formatShortTimestamp } from '../../../shared/timestamp/timestamp';
 import { StatusIndicator } from '../../../shared/status-indicator/status-indicator';
 import { CommentsList } from '../../comments/comments-list/comments-list';
 import type { Post } from '../feed.interface';
 import { PostLikesDialog } from '../post-likes-dialog/post-likes-dialog';
 import { PostsService } from '../services/posts.service';
-import { formatFullTimestamp, formatShortTimestamp } from './post-timestamp';
 
 @Component({
   selector: 'app-post-card',

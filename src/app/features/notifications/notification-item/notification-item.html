@@ -23,7 +23,9 @@
       </span>
       {{ messageKey() | translate }}
     </p>
-    <p class="mt-0.5 font-(--font-mono) text-xs text-(--color-text-secondary)">{{ formattedDate() }}</p>
+    <p class="mt-0.5 font-(--font-mono) text-xs text-(--color-text-secondary)">
+      <time [attr.datetime]="notification().createdAt" [title]="fullDate()">{{ shortDate() }}</time>
+    </p>
   </div>
 
   @if (!notification().isRead) {

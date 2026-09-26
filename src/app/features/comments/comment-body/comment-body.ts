@@ -20,6 +20,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { LanguageService } from '../../../core/services/language';
 import { openImageLightbox } from '../../../shared/image-lightbox/image-lightbox';
 import { StatusIndicator } from '../../../shared/status-indicator/status-indicator';
+import { formatFullTimestamp, formatShortTimestamp } from '../../../shared/timestamp/timestamp';
 import type { Comment } from '../comments.interface';
 import { CommentsService } from '../services/comments.service';
 
@@ -77,7 +78,14 @@ export class CommentBody {
   protected readonly isLiked = computed(() =>
     this.commentsService.isLikedBy(this.comment(), this.authService.user()?._id),
   );
-  protected readonly formattedDate = computed(() => this.formatDate(this.comment().createdAt));
+  /**
+   * Read once, only to decide whether a timestamp needs its year. Same short/full pair as the post
+   * card (see shared/timestamp) so every date in the app reads the same way.
+   */
+  private readonly currentYear = new Date().getFullYear();
+  private readonly dateLocale = computed(() => (this.languageService.lang() === 'ar' ? 'ar' : 'en'));
+  protected readonly shortDate = computed(() => formatShortTimestamp(this.comment().createdAt, this.dateLocale(), this.currentYear));
+  protected readonly fullDate = computed(() => formatFullTimestamp(this.comment().createdAt, this.dateLocale()));
 
   protected readonly isLiking = signal(false);
   protected readonly actionError = signal<string | null>(null);
@@ -167,10 +175,5 @@ export class CommentBody {
     } finally {
       this.isDeleting.set(false);
     }
-  }
-
-  private formatDate(createdAt: string): string {
-    const locale = this.languageService.lang() === 'ar' ? 'ar' : 'en';
-    return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(createdAt));
   }
 }

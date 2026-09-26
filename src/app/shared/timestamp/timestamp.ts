@@ -1,7 +1,8 @@
 export type TimestampLocale = 'en' | 'ar';
 
 /**
- * Compact post timestamp that fits the post header on a 390px screen without truncating:
+ * Compact timestamp for posts, comments, replies and notifications, short enough to fit a 390px
+ * screen without truncating:
  * day + month + time ("Sep 25, 8:30 PM" / "25 سبتمبر، 8:30 م") for posts from `currentYear`, with
  * the year added only for older ones ("Mar 5, 2024, 8:30 PM").
  */
