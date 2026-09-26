@@ -43,10 +43,8 @@ describe('Login', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('shows the "Email or username" hint but no password checklist', () => {
-    expect(fixture.nativeElement.querySelector('mat-hint')?.textContent).toContain(
-      'auth.login.loginHint',
-    );
+  it('shows no hint under the login field (its label already says it) and no password checklist', () => {
+    expect(fixture.nativeElement.querySelector('mat-hint')).toBeNull();
     expect(fixture.nativeElement.querySelector('app-password-checklist')).toBeNull();
   });
 
