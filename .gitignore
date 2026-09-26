@@ -48,3 +48,6 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Generated portfolio screenshots (npm run screenshots)
+/screenshots/
