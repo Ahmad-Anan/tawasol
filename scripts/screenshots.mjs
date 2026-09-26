@@ -33,6 +33,8 @@ const SETTLE_MS = 1000;
 // Mirrors src/environments/environment.ts (demoUserId) — the public demo account's profile.
 const DEMO_USER_ID = '6ab61f4f8ebe92c2c0ca67ff';
 const SIGNIN_PATH = '/users/signin';
+// Mirrors src/app/core/constants/api.ts.
+const API_BASE_URL = 'https://route-posts.routemisr.com';
 
 // dpr 2 so desktop shots stay sharp on HiDPI displays and when scaled down in a portfolio.
 const DESKTOP = { viewport: { width: 1440, height: 900 }, dpr: 2 };
@@ -40,11 +42,12 @@ const MOBILE = { viewport: { width: 390, height: 844 }, dpr: 3, mobile: true };
 const MOBILE_UA =
   'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1';
 
-// `path` may be a function of the values discovered after sign-in (e.g. a post with comments).
+// `path` may be a function of the values discovered after sign-in (e.g. the demo's most-commented post).
+// `scrollToPost` scrolls the post header to the top of the viewport so its comments show below.
 const SHOTS = [
   { file: 'desktop-feed-me-en-light.png', ...DESKTOP, path: '/feed', meFilter: true, theme: 'light', lang: 'en', auth: true },
   { file: 'desktop-profile-ar-dark.png', ...DESKTOP, path: `/profile/${DEMO_USER_ID}`, theme: 'dark', lang: 'ar', auth: true },
-  { file: 'desktop-post-detail-en-dark.png', ...DESKTOP, path: (d) => `/posts/${d.postWithComments}`, theme: 'dark', lang: 'en', auth: true },
+  { file: 'desktop-post-detail-en-dark.png', ...DESKTOP, path: (d) => `/posts/${d.postWithComments}`, scrollToPost: true, theme: 'dark', lang: 'en', auth: true },
   { file: 'mobile-feed-me-ar-light.png', ...MOBILE, path: '/feed', meFilter: true, theme: 'light', lang: 'ar', auth: true },
   { file: 'mobile-login-ar-dark.png', ...MOBILE, path: '/auth/login', theme: 'dark', lang: 'ar', auth: false },
   { file: 'mobile-profile-en-light.png', ...MOBILE, path: `/profile/${DEMO_USER_ID}`, theme: 'light', lang: 'en', auth: true },
@@ -116,27 +119,29 @@ async function newContext(browser, shot, storageState) {
 
 async function signInWithDemo(browser) {
   // Sign in through the real "Try the demo" button; the app stores the token in localStorage.
-  // While here, pick a post with comments from the feed for the post-detail shot.
+  // While here, pick the demo account's own post with the most comments for the post-detail shot.
   const context = await newContext(browser, { ...DESKTOP, theme: 'light', lang: 'en' });
   const page = await context.newPage();
   try {
     await page.goto(`${BASE_URL}/auth/login`, { waitUntil: 'networkidle', timeout: 60_000 });
-    // The redirect to /feed is client-side, so 'networkidle' has already fired by then — wait for
-    // the feed request itself instead.
-    const [, feedResponse] = await Promise.all([
+    await Promise.all([
       page.waitForResponse((r) => r.url().endsWith(SIGNIN_PATH), { timeout: 30_000 }),
-      page.waitForResponse((r) => r.request().method() === 'GET' && new URL(r.url()).pathname.endsWith('/posts/feed'), {
-        timeout: 30_000,
-      }),
       page.getByTestId('try-demo').click(),
     ]);
     await page.waitForFunction(() => !!localStorage.getItem('tawasol-token'), null, { timeout: 15_000 });
     await page.waitForURL((url) => url.pathname.startsWith('/feed'), { timeout: 15_000 });
-    const feedPosts = (await feedResponse.json())?.data?.posts ?? [];
 
-    const post = feedPosts
-      .filter((p) => p.commentsCount > 0)
-      .sort((a, b) => Math.min(b.commentsCount, 5) - Math.min(a.commentsCount, 5) || !!a.image - !!b.image)[0];
+    // A plain GET (allowed by the read-only guard), with the token the app just stored.
+    const ownPosts = await page.evaluate(
+      async ({ api, userId }) => {
+        const res = await fetch(`${api}/users/${userId}/posts`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('tawasol-token')}` },
+        });
+        return (await res.json())?.data?.posts ?? [];
+      },
+      { api: API_BASE_URL, userId: DEMO_USER_ID },
+    );
+    const post = ownPosts.filter((p) => p.commentsCount > 0).sort((a, b) => b.commentsCount - a.commentsCount)[0];
 
     return { storageState: await context.storageState(), discovered: { postWithComments: post?.id } };
   } finally {
@@ -223,12 +228,27 @@ async function clearTransientUi(page, shot) {
   }
 }
 
+async function scrollPostHeaderToTop(page) {
+  // Comments load after the post itself; wait for them so they're in the frame below the header.
+  try {
+    await page.locator('app-comment-item').first().waitFor({ state: 'visible', timeout: 20_000 });
+  } catch {
+    console.warn('    (no comments rendered)');
+  }
+  // The navbar isn't sticky, so the header can go right to the top — with a small gap so the
+  // card's rounded top edge and padding stay in the frame.
+  await page.evaluate(() => {
+    const header = document.querySelector('app-post-card header');
+    if (header) window.scrollTo(0, header.getBoundingClientRect().top + window.scrollY - 32);
+  });
+}
+
 async function capture(browser, shot, auth) {
   const context = await newContext(browser, shot, shot.auth ? auth.storageState : undefined);
   const page = await context.newPage();
   try {
     const target = typeof shot.path === 'function' ? shot.path(auth.discovered) : shot.path;
-    if (target.includes('undefined')) throw new Error('no post with comments found in the feed');
+    if (target.includes('undefined')) throw new Error('the demo account has no post with comments');
 
     await page.goto(`${BASE_URL}${target}`, { waitUntil: 'domcontentloaded', timeout: 60_000 });
     await waitForNetworkIdle(page);
@@ -257,6 +277,10 @@ async function capture(browser, shot, auth) {
 
     await page.waitForTimeout(SETTLE_MS);
     await clearTransientUi(page, shot);
+    if (shot.scrollToPost) {
+      await scrollPostHeaderToTop(page);
+      await waitForVisibleImages(page);
+    }
     await page.addStyleTag({ content: FREEZE_CSS });
     await page.waitForTimeout(150);
 
