@@ -1,38 +1,22 @@
+<!-- Brand at the inline start, actions at the inline end (LinkedIn-style). This is DOM order plus
+     flex justify-between, not physical left/right, so the brand sits left in LTR and right in RTL. -->
 <nav class="flex items-center justify-between gap-4 bg-(--color-harbor-950) px-4 py-3">
-  <div class="flex items-center gap-1">
-    @if (authService.user(); as user) {
-      <button
-        mat-icon-button
-        type="button"
-        [matMenuTriggerFor]="userMenu"
-        class="!h-8 !w-8 !min-w-0 shrink-0 overflow-hidden !p-0"
-        [attr.aria-label]="'navbar.userMenu' | translate"
-      >
-        <img [ngSrc]="user.photo" width="32" height="32" alt="" class="h-8 w-8 rounded-full object-cover" />
-      </button>
-      <mat-menu #userMenu="matMenu">
-        <a mat-menu-item [routerLink]="['/profile', user._id]">
-          <mat-icon>person</mat-icon>
-          <span>{{ 'navbar.myProfile' | translate }}</span>
-        </a>
-        <a mat-menu-item routerLink="/bookmarks">
-          <mat-icon>bookmark</mat-icon>
-          <span>{{ 'navbar.bookmarks' | translate }}</span>
-        </a>
-        <!-- Hidden for the public demo account (its route is guarded too — see notDemoGuard). -->
-        @if (!demoAccount.isDemo()) {
-          <a mat-menu-item routerLink="/change-password">
-            <mat-icon>lock</mat-icon>
-            <span>{{ 'navbar.changePassword' | translate }}</span>
-          </a>
-        }
-        <button mat-menu-item type="button" (click)="logout()">
-          <mat-icon>logout</mat-icon>
-          <span>{{ 'navbar.logout' | translate }}</span>
-        </button>
-      </mat-menu>
-    }
+  @if (authService.isAuthenticated()) {
+    <a
+      routerLink="/feed"
+      class="text-lg font-bold text-(--color-on-harbor-950)"
+      style="font-family: var(--font-display)"
+      [attr.aria-label]="'navbar.goHome' | translate"
+    >
+      {{ 'navbar.brand' | translate }}
+    </a>
+  } @else {
+    <span class="text-lg font-bold text-(--color-on-harbor-950)" style="font-family: var(--font-display)">
+      {{ 'navbar.brand' | translate }}
+    </span>
+  }
 
+  <div class="flex items-center gap-1">
     @if (authService.isAuthenticated()) {
       <button
         mat-icon-button
@@ -75,20 +59,39 @@
         {{ languageService.lang() === 'ar' ? 'EN' : 'AR' }}
       </span>
     </button>
-  </div>
 
-  @if (authService.isAuthenticated()) {
-    <a
-      routerLink="/feed"
-      class="text-lg font-bold text-(--color-on-harbor-950)"
-      style="font-family: var(--font-display)"
-      [attr.aria-label]="'navbar.goHome' | translate"
-    >
-      {{ 'navbar.brand' | translate }}
-    </a>
-  } @else {
-    <span class="text-lg font-bold text-(--color-on-harbor-950)" style="font-family: var(--font-display)">
-      {{ 'navbar.brand' | translate }}
-    </span>
-  }
+    <!-- The account menu sits last, like LinkedIn's "Me". -->
+    @if (authService.user(); as user) {
+      <button
+        mat-icon-button
+        type="button"
+        [matMenuTriggerFor]="userMenu"
+        class="!h-8 !w-8 !min-w-0 shrink-0 overflow-hidden !p-0"
+        [attr.aria-label]="'navbar.userMenu' | translate"
+      >
+        <img [ngSrc]="user.photo" width="32" height="32" alt="" class="h-8 w-8 rounded-full object-cover" />
+      </button>
+      <mat-menu #userMenu="matMenu">
+        <a mat-menu-item [routerLink]="['/profile', user._id]">
+          <mat-icon>person</mat-icon>
+          <span>{{ 'navbar.myProfile' | translate }}</span>
+        </a>
+        <a mat-menu-item routerLink="/bookmarks">
+          <mat-icon>bookmark</mat-icon>
+          <span>{{ 'navbar.bookmarks' | translate }}</span>
+        </a>
+        <!-- Hidden for the public demo account (its route is guarded too — see notDemoGuard). -->
+        @if (!demoAccount.isDemo()) {
+          <a mat-menu-item routerLink="/change-password">
+            <mat-icon>lock</mat-icon>
+            <span>{{ 'navbar.changePassword' | translate }}</span>
+          </a>
+        }
+        <button mat-menu-item type="button" (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          <span>{{ 'navbar.logout' | translate }}</span>
+        </button>
+      </mat-menu>
+    }
+  </div>
 </nav>

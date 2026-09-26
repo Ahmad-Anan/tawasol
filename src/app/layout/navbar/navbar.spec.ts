@@ -75,3 +75,19 @@ describe('Navbar account menu', () => {
     expect(menu.querySelector('a[href="/bookmarks"]')).not.toBeNull(); // the rest of the menu is intact
   });
 });
+
+describe('Navbar layout', () => {
+  it('puts the brand first and the actions last in DOM order, so RTL mirrors it', async () => {
+    TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      imports: [Navbar],
+      providers: [provideRouter([]), provideTranslateService({ lang: 'en', fallbackLang: 'en' })],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(Navbar);
+    await fixture.whenStable();
+    const nav = fixture.nativeElement.querySelector('nav') as HTMLElement;
+    const [first, last] = [nav.firstElementChild, nav.lastElementChild];
+    expect(first?.textContent).toContain('navbar.brand');
+    expect(last?.querySelector('button[mat-icon-button]')).not.toBeNull();
+  });
+});
