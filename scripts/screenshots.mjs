@@ -43,12 +43,14 @@ const MOBILE_UA =
   'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1';
 
 // `path` may be a function of the values discovered after sign-in (e.g. the demo's most-commented post).
-// `scrollToPost` scrolls the post header to the top of the viewport so its comments show below.
+// `scrollToPost` scrolls the post header to just below the navbar and expands its replies, so the
+// comments and the demo's reply show below it. `scrollToArabicPost` puts the demo's newest Arabic
+// post first in view.
 const SHOTS = [
   { file: 'desktop-feed-me-en-light.png', ...DESKTOP, path: '/feed', meFilter: true, theme: 'light', lang: 'en', auth: true },
   { file: 'desktop-profile-ar-dark.png', ...DESKTOP, path: `/profile/${DEMO_USER_ID}`, theme: 'dark', lang: 'ar', auth: true },
   { file: 'desktop-post-detail-en-dark.png', ...DESKTOP, path: (d) => `/posts/${d.postWithComments}`, scrollToPost: true, theme: 'dark', lang: 'en', auth: true },
-  { file: 'mobile-feed-me-ar-light.png', ...MOBILE, path: '/feed', meFilter: true, theme: 'light', lang: 'ar', auth: true },
+  { file: 'mobile-feed-me-ar-light.png', ...MOBILE, path: '/feed', meFilter: true, scrollToArabicPost: true, theme: 'light', lang: 'ar', auth: true },
   { file: 'mobile-login-ar-dark.png', ...MOBILE, path: '/auth/login', theme: 'dark', lang: 'ar', auth: false },
   { file: 'mobile-profile-en-light.png', ...MOBILE, path: `/profile/${DEMO_USER_ID}`, theme: 'light', lang: 'en', auth: true },
 ];
@@ -142,8 +144,10 @@ async function signInWithDemo(browser) {
       { api: API_BASE_URL, userId: DEMO_USER_ID },
     );
     const post = ownPosts.filter((p) => p.commentsCount > 0).sort((a, b) => b.commentsCount - a.commentsCount)[0];
+    // Newest first, so this is the most recent post written in Arabic (e.g. the learning post).
+    const arabicPost = ownPosts.find((p) => /[؀-ۿ]/.test(p.body ?? ''));
 
-    return { storageState: await context.storageState(), discovered: { postWithComments: post?.id } };
+    return { storageState: await context.storageState(), discovered: { postWithComments: post?.id, arabicPost: arabicPost?.id } };
   } finally {
     await context.close();
   }
@@ -228,19 +232,56 @@ async function clearTransientUi(page, shot) {
   }
 }
 
-async function scrollPostHeaderToTop(page) {
+// Scrolls `selector` to the top of the viewport, just below the navbar and never under it. A pinned
+// (sticky/fixed) navbar covers the top of the viewport, so the target goes below its height. A
+// navbar that scrolls with the page is never left half visible either: it's either scrolled fully
+// out of view or kept fully in view.
+async function scrollBelowNavbar(page, selector, gap = 16) {
+  const ok = await page.evaluate(
+    ({ selector, gap }) => {
+      const target = document.querySelector(selector);
+      const nav = document.querySelector('app-navbar nav');
+      if (!target) return false;
+      const navRect = nav?.getBoundingClientRect();
+      const navHeight = navRect?.height ?? 0;
+      const pinned = !!nav && ['sticky', 'fixed'].includes(getComputedStyle(nav).position);
+      const targetTop = target.getBoundingClientRect().top + window.scrollY;
+      let y = targetTop - gap - (pinned ? navHeight : 0);
+      if (!pinned && navRect) {
+        const navBottom = navRect.bottom + window.scrollY;
+        if (y < navBottom) y = 0; // would cut the navbar: keep all of it (the target is right below it)
+      }
+      window.scrollTo(0, Math.max(0, y));
+      return true;
+    },
+    { selector, gap },
+  );
+  if (!ok) console.warn(`    (nothing matched ${selector})`);
+}
+
+const VIEW_REPLIES = { en: /^View d+ repl/i, ar: /^عرض/ };
+
+async function preparePostDetail(page, shot) {
   // Comments load after the post itself; wait for them so they're in the frame below the header.
   try {
     await page.locator('app-comment-item').first().waitFor({ state: 'visible', timeout: 20_000 });
   } catch {
     console.warn('    (no comments rendered)');
   }
-  // The navbar isn't sticky, so the header can go right to the top — with a small gap so the
-  // card's rounded top edge and padding stay in the frame.
-  await page.evaluate(() => {
-    const header = document.querySelector('app-post-card header');
-    if (header) window.scrollTo(0, header.getBoundingClientRect().top + window.scrollY - 32);
-  });
+  // Expand the first collapsed reply thread (a GET) so the demo's reply is visible too.
+  const viewReplies = page.locator('app-comment-item button', { hasText: VIEW_REPLIES[shot.lang] }).first();
+  if (await viewReplies.count()) {
+    await viewReplies.click();
+    try {
+      await page.locator('app-replies-list app-comment-body').first().waitFor({ state: 'visible', timeout: 15_000 });
+    } catch {
+      console.warn('    (replies did not load)');
+    }
+    // The click leaves the button hovered and focused; neither may show in the frame.
+    if (!shot.mobile) await page.mouse.move(-10, -10);
+    await page.evaluate(() => document.activeElement?.blur?.());
+  }
+  await scrollBelowNavbar(page, 'app-post-card header');
 }
 
 async function capture(browser, shot, auth) {
@@ -277,10 +318,13 @@ async function capture(browser, shot, auth) {
 
     await page.waitForTimeout(SETTLE_MS);
     await clearTransientUi(page, shot);
-    if (shot.scrollToPost) {
-      await scrollPostHeaderToTop(page);
-      await waitForVisibleImages(page);
+    if (shot.scrollToPost) await preparePostDetail(page, shot);
+    if (shot.scrollToArabicPost) {
+      const id = auth.discovered.arabicPost;
+      if (!id) console.warn('    (the demo account has no Arabic post)');
+      else await scrollBelowNavbar(page, `app-post-card:has(a[href="/posts/${id}"])`);
     }
+    if (shot.scrollToPost || shot.scrollToArabicPost) await waitForVisibleImages(page);
     await page.addStyleTag({ content: FREEZE_CSS });
     await page.waitForTimeout(150);
 
