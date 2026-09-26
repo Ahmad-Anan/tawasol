@@ -1,0 +1,12 @@
+/* The navbar sits on --color-harbor-950 in both themes, so its icon buttons can't use Material's
+   theme-driven icon color (--mat-sys-on-surface-variant: #3F4947 in light mode, ~1.4:1 here).
+   A Tailwind text-* class on <mat-icon> doesn't help either: Tailwind's utilities live in a
+   cascade layer and lose to Material's unlayered icon-button color rule. Setting Material's own
+   tokens reaches the icon, the text label, and the hover/focus state layer together.
+   --color-on-harbor-950 on --color-harbor-950 measures 12.8:1, well above WCAG's 3:1 for
+   non-text contrast. */
+nav {
+  --mat-icon-button-icon-color: var(--color-on-harbor-950);
+  --mat-icon-button-state-layer-color: var(--color-on-harbor-950);
+  --mat-icon-button-ripple-color: color-mix(in srgb, var(--color-on-harbor-950) 20%, transparent);
+}

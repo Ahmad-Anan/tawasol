@@ -28,7 +28,7 @@
         matBadgeSize="small"
         [attr.aria-label]="'navbar.notifications' | translate"
       >
-        <mat-icon class="text-(--color-on-harbor-950)">notifications</mat-icon>
+        <mat-icon>notifications</mat-icon>
       </button>
     }
 
@@ -41,7 +41,7 @@
       "
       (click)="themeService.toggle()"
     >
-      <mat-icon class="text-(--color-on-harbor-950)">
+      <mat-icon>
         {{ themeService.mode() === 'dark' ? 'light_mode' : 'dark_mode' }}
       </mat-icon>
     </button>
@@ -55,7 +55,7 @@
       "
       (click)="languageService.toggle()"
     >
-      <span class="text-sm font-bold text-(--color-on-harbor-950)">
+      <span class="text-sm font-bold">
         {{ languageService.lang() === 'ar' ? 'EN' : 'AR' }}
       </span>
     </button>
