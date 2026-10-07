@@ -51,8 +51,10 @@ export class PostsService {
   // /posts/feed, already includes the signed-in user's own posts but no one else's) — an
   // account that isn't following anyone would otherwise only ever see their own posts, so the
   // client always sends an explicit value rather than relying on that default. 'all' matches
-  // the feed's original pre-filter-UI behaviour, so it stays the starting value here.
-  private readonly _onlyFilter = signal<FeedOnlyFilter>('all');
+  // the feed's original pre-filter-UI behaviour, so it stays the starting value here — except for
+  // the demo account, which starts on 'me' (see the per-account default in the constructor).
+  // Seeded from whoever is already signed in, so the first request already uses the right one.
+  private readonly _onlyFilter = signal<FeedOnlyFilter>(this.defaultOnlyFilter());
   // `null` = no hasImage filter applied (send nothing). `true`/`false` are real, server-verified
   // filter values — see docs/api-reference.md > GET /posts/feed.
   private readonly _hasImageFilter = signal<boolean | null>(null);
@@ -161,7 +163,8 @@ export class PostsService {
     // sign-out — the demo's "Me" mustn't carry over to the next account in the same tab.
     // While the user is still hydrating after a hard reload (token but no user yet) nothing is
     // decided; the feed request already in flight is simply superseded if this switches to "Me".
-    let defaultAppliedFor: string | null = null;
+    // Starts from the account `_onlyFilter` was already seeded for, so it isn't re-applied.
+    let defaultAppliedFor = this.authService.user()?._id ?? null;
     effect(() => {
       const userId = this.authService.user()?._id ?? null;
       if (userId === null) {
@@ -174,8 +177,12 @@ export class PostsService {
         return;
       }
       defaultAppliedFor = userId;
-      untracked(() => this.setOnlyFilter(this.demoAccount.isDemo() ? 'me' : 'all'));
+      untracked(() => this.setOnlyFilter(this.defaultOnlyFilter()));
     });
+  }
+
+  private defaultOnlyFilter(): FeedOnlyFilter {
+    return this.demoAccount.isDemo() ? 'me' : 'all';
   }
 
   /** Called once by FeedPage on mount — see `_feedRequested`. A no-op on every call after the first. */

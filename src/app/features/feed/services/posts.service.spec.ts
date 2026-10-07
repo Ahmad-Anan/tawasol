@@ -296,7 +296,7 @@ describe('PostsService on the demo account', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: DemoAccountService, useValue: { recordCreatedPost, canModifyPost: () => true } },
+        { provide: DemoAccountService, useValue: { isDemo: () => true, recordCreatedPost, canModifyPost: () => true } },
       ],
     });
     service = TestBed.inject(PostsService);
@@ -353,6 +353,7 @@ describe("PostsService guards the demo account's pre-existing posts", () => {
         {
           provide: DemoAccountService,
           useValue: {
+            isDemo: () => true,
             recordCreatedPost: vi.fn(),
             canModifyPost: (id: string) => id === 'session-post',
           },
@@ -397,10 +398,12 @@ describe("PostsService guards the demo account's pre-existing posts", () => {
 });
 
 describe('PostsService default feed filter per account', () => {
-  let service: PostsService;
   let httpMock: HttpTestingController;
   const token = signal<string | null>(null);
   const user = signal<{ _id: string } | null>(null);
+  // Injected lazily, so a test can sign in before PostsService exists (as when the feed opens
+  // right after "Try the demo").
+  const service = (): PostsService => TestBed.inject(PostsService);
 
   beforeEach(() => {
     token.set(null);
@@ -415,7 +418,6 @@ describe('PostsService default feed filter per account', () => {
         },
       ],
     });
-    service = TestBed.inject(PostsService);
     httpMock = TestBed.inject(HttpTestingController);
   });
 
@@ -433,46 +435,52 @@ describe('PostsService default feed filter per account', () => {
     TestBed.tick();
   }
 
-  it('lands the demo account on "Me", and requests the feed with it', () => {
-    signIn(environment.demoUserId);
-    expect(service.onlyFilter()).toBe('me');
-
-    service.start();
+  function feedRequests(): string[] {
     TestBed.tick();
-    const req = httpMock.expectOne((r) => r.url === `${API_BASE_URL}/posts/feed`);
-    expect(req.request.params.get('only')).toBe('me');
+    return httpMock
+      .match((r) => r.url === `${API_BASE_URL}/posts/feed`)
+      .map((req) => req.request.params.get('only') ?? '');
+  }
+
+  it('opens the feed on "Me" for the demo account, with no "all" request first', () => {
+    signIn(environment.demoUserId);
+    service().start();
+    expect(service().onlyFilter()).toBe('me');
+    expect(feedRequests()).toEqual(['me']);
   });
 
   it('keeps "all" for any other account', () => {
     signIn('someone-else');
-    expect(service.onlyFilter()).toBe('all');
+    service().start();
+    expect(feedRequests()).toEqual(['all']);
   });
 
-  it('decides only once the user has loaded after a hard reload', () => {
+  it('switches to "Me" once the demo user loads after a hard reload', () => {
     token.set('token');
-    TestBed.tick();
-    expect(service.onlyFilter()).toBe('all');
+    service().start();
+    expect(feedRequests()).toEqual(['all']);
 
     user.set({ _id: environment.demoUserId });
-    TestBed.tick();
-    expect(service.onlyFilter()).toBe('me');
+    expect(feedRequests()).toEqual(['me']);
   });
 
   it('keeps the other filters available: a filter the demo visitor picks sticks', () => {
+    service();
     signIn(environment.demoUserId);
-    service.setOnlyFilter('all');
+    service().setOnlyFilter('following');
     TestBed.tick();
-    expect(service.onlyFilter()).toBe('all');
+    expect(service().onlyFilter()).toBe('following');
   });
 
   it("does not carry the demo's \"Me\" over to the next account in the same tab", () => {
+    service();
     signIn(environment.demoUserId);
     signOut();
     signIn('someone-else');
-    expect(service.onlyFilter()).toBe('all');
+    expect(service().onlyFilter()).toBe('all');
 
     signOut();
     signIn(environment.demoUserId);
-    expect(service.onlyFilter()).toBe('me');
+    expect(service().onlyFilter()).toBe('me');
   });
 });
