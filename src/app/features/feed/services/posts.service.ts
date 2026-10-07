@@ -1,5 +1,5 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Service, computed, effect, inject, signal } from '@angular/core';
+import { Service, computed, effect, inject, signal, untracked } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
 import { API_BASE_URL } from '../../../core/constants/api';
@@ -151,6 +151,30 @@ export class PostsService {
           ? response.meta.cursor.hasMore
           : response.meta.pagination.nextPage !== undefined,
       );
+    });
+
+    // Per-account default for the "only" filter, applied once each time a different account
+    // signs in (never on later re-runs, so a filter the visitor picks themselves sticks). The
+    // public demo account lands on "Me": its showcase posts are what visitors came to see, and
+    // "all" would put strangers' posts above them. Every other account keeps "all". Keyed on
+    // the user id rather than run once, because PostsService is a singleton that outlives a
+    // sign-out — the demo's "Me" mustn't carry over to the next account in the same tab.
+    // While the user is still hydrating after a hard reload (token but no user yet) nothing is
+    // decided; the feed request already in flight is simply superseded if this switches to "Me".
+    let defaultAppliedFor: string | null = null;
+    effect(() => {
+      const userId = this.authService.user()?._id ?? null;
+      if (userId === null) {
+        if (!this.authService.isAuthenticated()) {
+          defaultAppliedFor = null;
+        }
+        return;
+      }
+      if (userId === defaultAppliedFor) {
+        return;
+      }
+      defaultAppliedFor = userId;
+      untracked(() => this.setOnlyFilter(this.demoAccount.isDemo() ? 'me' : 'all'));
     });
   }
 

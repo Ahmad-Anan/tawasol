@@ -1,9 +1,12 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { computed, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { API_BASE_URL } from '../../../core/constants/api';
+import { AuthService } from '../../../core/services/auth.service';
 import { DemoAccountService } from '../../../core/services/demo-account';
 import type { FeedApiResponse, LikeToggleApiResponse, Post } from '../feed.interface';
+import { environment } from '../../../../environments/environment';
 import { PostsService } from './posts.service';
 
 function makePost(overrides: Partial<Post> = {}): Post {
@@ -390,5 +393,86 @@ describe("PostsService guards the demo account's pre-existing posts", () => {
       },
     });
     await edited;
+  });
+});
+
+describe('PostsService default feed filter per account', () => {
+  let service: PostsService;
+  let httpMock: HttpTestingController;
+  const token = signal<string | null>(null);
+  const user = signal<{ _id: string } | null>(null);
+
+  beforeEach(() => {
+    token.set(null);
+    user.set(null);
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        {
+          provide: AuthService,
+          useValue: { user, token, isAuthenticated: computed(() => token() !== null) },
+        },
+      ],
+    });
+    service = TestBed.inject(PostsService);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => httpMock.match(() => true));
+
+  function signIn(id: string): void {
+    token.set('token');
+    user.set({ _id: id });
+    TestBed.tick();
+  }
+
+  function signOut(): void {
+    token.set(null);
+    user.set(null);
+    TestBed.tick();
+  }
+
+  it('lands the demo account on "Me", and requests the feed with it', () => {
+    signIn(environment.demoUserId);
+    expect(service.onlyFilter()).toBe('me');
+
+    service.start();
+    TestBed.tick();
+    const req = httpMock.expectOne((r) => r.url === `${API_BASE_URL}/posts/feed`);
+    expect(req.request.params.get('only')).toBe('me');
+  });
+
+  it('keeps "all" for any other account', () => {
+    signIn('someone-else');
+    expect(service.onlyFilter()).toBe('all');
+  });
+
+  it('decides only once the user has loaded after a hard reload', () => {
+    token.set('token');
+    TestBed.tick();
+    expect(service.onlyFilter()).toBe('all');
+
+    user.set({ _id: environment.demoUserId });
+    TestBed.tick();
+    expect(service.onlyFilter()).toBe('me');
+  });
+
+  it('keeps the other filters available: a filter the demo visitor picks sticks', () => {
+    signIn(environment.demoUserId);
+    service.setOnlyFilter('all');
+    TestBed.tick();
+    expect(service.onlyFilter()).toBe('all');
+  });
+
+  it("does not carry the demo's \"Me\" over to the next account in the same tab", () => {
+    signIn(environment.demoUserId);
+    signOut();
+    signIn('someone-else');
+    expect(service.onlyFilter()).toBe('all');
+
+    signOut();
+    signIn(environment.demoUserId);
+    expect(service.onlyFilter()).toBe('me');
   });
 });
