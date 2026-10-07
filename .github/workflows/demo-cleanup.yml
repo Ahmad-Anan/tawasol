@@ -1,0 +1,45 @@
+name: Demo cleanup
+
+# Deletes visitor content from the public demo account once a day, keeping the showcase posts
+# and their original comments (allowlist: scripts/demo-showcase.json). Credentials come from the
+# DEMO_LOGIN / DEMO_PASSWORD repository secrets. A manual run is a dry run unless unticked.
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run: only log what would be deleted'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: demo-cleanup
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      - name: Test the allowlist logic
+        run: node --test scripts/demo-cleanup.test.mjs
+
+      - name: Clean up the demo account
+        run: node scripts/demo-cleanup.mjs
+        env:
+          DEMO_LOGIN: ${{ secrets.DEMO_LOGIN }}
+          DEMO_PASSWORD: ${{ secrets.DEMO_PASSWORD }}
+          # A scheduled run has no inputs, so it really deletes.
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && 'true' || 'false' }}

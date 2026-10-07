@@ -1,0 +1,21 @@
+{
+  "$comment": "Allowlist for scripts/demo-cleanup.mjs. Everything on the demo account that isn't listed here (or written by an allowed author) is deleted daily. IDs only, no credentials: those live in the DEMO_LOGIN/DEMO_PASSWORD GitHub Actions secrets.",
+  "demoUserId": "6ab61f4f8ebe92c2c0ca67ff",
+  "allowedCommentAuthors": {
+    "6ab61f4f8ebe92c2c0ca67ff": "tawasol_demo",
+    "6a49faf58ebe92c2c0b3278b": "anan"
+  },
+  "showcasePosts": {
+    "6ab755e08ebe92c2c0cc0f9e": "Arabic question: the most useful skill learned this year",
+    "6ab755e58ebe92c2c0cc0fa1": "Golden hour from the office window",
+    "6ab755ea8ebe92c2c0cc0fa4": "Arabic: the best thing about learning",
+    "6ab755ef8ebe92c2c0cc0fa7": "Started the week with a clear plan"
+  },
+  "originalComments": {
+    "6ab755f38ebe92c2c0cc0fae": "anan, on the Arabic question",
+    "6ab755f68ebe92c2c0cc0fbb": "anan, on the Arabic question",
+    "6ab755fd8ebe92c2c0cc0fd5": "tawasol_demo, reply to anan on the Arabic question",
+    "6ab755f98ebe92c2c0cc0fc6": "anan, on Started the week",
+    "6ab790688ebe92c2c0cc277a": "ahmedsalama7872, on Started the week (kept by request)"
+  }
+}
