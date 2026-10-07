@@ -286,10 +286,17 @@
           />
         </a>
         <div class="min-w-0 flex-1">
-          <p class="text-sm text-(--color-text-primary)">
-            <a [routerLink]="['/profile', topComment.commentCreator._id]" class="font-semibold">
-              <bdi>{{ topComment.commentCreator.name }}</bdi>
-            </a>
+          <!-- Name and text on separate lines, like the full comment view (comment-body): side by
+               side they ran together ("ahmedahmed"), since Angular strips the whitespace-only
+               text node between the link and the text. -->
+          <a
+            [routerLink]="['/profile', topComment.commentCreator._id]"
+            class="block truncate text-sm font-semibold text-(--color-text-primary)"
+            data-testid="top-comment-author"
+          >
+            <bdi>{{ topComment.commentCreator.name }}</bdi>
+          </a>
+          <p class="text-sm break-words text-(--color-text-primary)" data-testid="top-comment-content">
             <bdi>{{ topComment.content }}</bdi>
           </p>
           <button

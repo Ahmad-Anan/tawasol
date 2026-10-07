@@ -187,3 +187,44 @@ describe('PostCard user-generated text direction', () => {
     expect(isolated).toContain('وكمان كتابة tests');
   });
 });
+
+describe('PostCard top comment preview', () => {
+  it("keeps the author's name apart from the comment text instead of running them together", async () => {
+    await TestBed.configureTestingModule({
+      imports: [PostCard],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        provideTranslateService({ lang: 'en', fallbackLang: 'en' }),
+        { provide: AuthService, useValue: { user: signal(me), isAuthenticated: () => true, token: () => null } },
+      ],
+    }).compileComponents();
+    const fixture = TestBed.createComponent(PostCard);
+    fixture.componentRef.setInput(
+      'post',
+      makePost({
+        commentsCount: 1,
+        topComment: {
+          _id: 'c1',
+          content: 'ahmed',
+          commentCreator: { _id: 'u2', name: 'ahmed', username: 'ahmed57', photo: 'https://example.com/a.png' },
+          post: 'p1',
+          parentComment: null,
+          likes: [],
+          createdAt: '2026-09-01T10:00:00.000Z',
+        },
+      }),
+    );
+    fixture.detectChanges();
+    const el: HTMLElement = fixture.nativeElement;
+
+    const author = el.querySelector('[data-testid="top-comment-author"]');
+    const content = el.querySelector('[data-testid="top-comment-content"]');
+    expect(author?.textContent?.trim()).toBe('ahmed');
+    expect(author?.classList).toContain('block');
+    expect(content?.textContent?.trim()).toBe('ahmed');
+    expect(author?.contains(content ?? null)).toBe(false);
+    expect(content?.contains(author)).toBe(false);
+  });
+});
