@@ -25,13 +25,42 @@
   }
 }
 
-/* Respect the user's OS-level "reduce motion" preference — a static bone-colored block instead
-   of an animated shimmer. */
+/* Respect the user's OS-level "reduce motion" preference, in one place for the whole app:
+   - Every CSS animation/transition (Tailwind `transition-colors`, the post-card shadow and
+     notification-row hover transitions, the mat-tab-group slide, CDK/Material overlay
+     enter/exit) finishes near-instantly. 0.01ms rather than `none` so `transitionend` and
+     `animationend` still fire: Material/CDK wait on them before removing overlays and panels.
+   - The theme toggle's view-transition crossfade (ThemeService.setMode) is dropped; the
+     theme change itself still happens.
+   - The skeleton shimmer becomes a static bone-colored block.
+   Material also shortens its own JS-driven animations (ripples, spinners) by itself under this
+   preference. */
 @media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+
   .skeleton-shimmer {
     animation: none;
     background: var(--color-bone-100);
   }
+}
+
+/* A page's <h1> takes focus programmatically after a route change (RouteFocus, core/a11y). It
+   isn't a control, so no focus ring, same as <main> itself (app.css). */
+#main h1[tabindex='-1']:focus {
+  outline: none;
 }
 
 /* Form fields that can show a hint or error use subscriptSizing="dynamic", so a message that

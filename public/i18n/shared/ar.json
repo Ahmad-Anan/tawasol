@@ -1,6 +1,18 @@
 {
   "shared": {
     "loading": "جارٍ التحميل…",
+    "skipToMain": "تخطَّ إلى المحتوى الرئيسي",
+    "pageTitles": {
+      "login": "تسجيل الدخول",
+      "register": "إنشاء حساب",
+      "feed": "الفيد",
+      "profile": "الملف الشخصي",
+      "post": "المنشور",
+      "bookmarks": "المحفوظات",
+      "notifications": "الإشعارات",
+      "changePassword": "تغيير كلمة المرور",
+      "notFound": "الصفحة غير موجودة"
+    },
     "statusIndicator": {
       "online": "متصل الآن",
       "offline": "غير متصل"

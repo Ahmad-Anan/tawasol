@@ -1,0 +1,37 @@
+/* Visually hidden until focused, then pinned over the navbar's inline-start corner (logical
+   properties, so it sits top-left in LTR and top-right in RTL). Harbor Teal with white text
+   measures ~6.3:1. The outline uses --color-on-harbor-950 because the link sits on the
+   navbar's fixed --color-harbor-950 background in both themes. */
+.skip-link {
+  position: absolute;
+  inset-block-start: 0.5rem;
+  inset-inline-start: 0.5rem;
+  /* Above CDK overlays (z-index 1000). */
+  z-index: 1100;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  background: var(--color-harbor-600);
+  color: #fff;
+  font-weight: 500;
+  text-decoration: underline;
+}
+
+.skip-link:not(:focus) {
+  clip-path: inset(50%);
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.skip-link:focus {
+  outline: 2px solid var(--color-on-harbor-950);
+  outline-offset: 2px;
+}
+
+/* <main> only takes focus programmatically (skip link, RouteFocus); it isn't a control, so no
+   focus ring around the whole page. */
+main:focus {
+  outline: none;
+}
