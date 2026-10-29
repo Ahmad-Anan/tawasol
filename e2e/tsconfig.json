@@ -1,0 +1,10 @@
+/* Type-checking for the Playwright suite only (editor + `npx tsc -p e2e`). Deliberately not
+   referenced from the root tsconfig.json, so the Angular app/spec builds never see e2e/. */
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["node"]
+  },
+  "include": ["**/*.ts", "../playwright.config.ts"]
+}
