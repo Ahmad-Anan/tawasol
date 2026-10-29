@@ -1,5 +1,11 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import {
+  ApplicationConfig,
+  inject,
+  provideAppInitializer,
+  provideBrowserGlobalErrorListeners,
+  provideZonelessChangeDetection,
+} from '@angular/core';
+import { TitleStrategy, provideRouter } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideTranslateCompiler, provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -9,12 +15,20 @@ import { provideClientHydration } from '@angular/platform-browser';
 import { resolveInitialLanguage } from './core/services/language';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { PluralCompiler } from './core/i18n/plural-compiler';
+import { PageTitleStrategy } from './core/a11y/page-title-strategy';
+import { RouteFocus } from './core/a11y/route-focus';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes),
+    { provide: TitleStrategy, useExisting: PageTitleStrategy },
+    // Created before the initial navigation starts, so RouteFocus can tell that first
+    // NavigationEnd (the page load: leave focus alone) apart from later in-app navigations.
+    provideAppInitializer(() => {
+      inject(RouteFocus);
+    }),
     provideClientHydration(),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
     provideTranslateService({

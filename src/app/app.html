@@ -1,2 +1,12 @@
-<app-navbar />
-<router-outlet />
+<!-- First focusable element on every page. The click handler focuses <main> itself: with
+     <base href="/">, following the bare "#main" href would navigate to "/#main" instead. -->
+<a class="skip-link" href="#main" (click)="skipToMain($event)">
+  {{ 'shared.skipToMain' | translate }}
+</a>
+<header>
+  <app-navbar />
+</header>
+<!-- tabindex="-1": focusable from the skip link and RouteFocus (core/a11y), not in the Tab order. -->
+<main #main id="main" tabindex="-1">
+  <router-outlet />
+</main>

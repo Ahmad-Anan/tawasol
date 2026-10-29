@@ -1,6 +1,18 @@
 {
   "shared": {
     "loading": "Loading…",
+    "skipToMain": "Skip to main content",
+    "pageTitles": {
+      "login": "Log in",
+      "register": "Create account",
+      "feed": "Feed",
+      "profile": "Profile",
+      "post": "Post",
+      "bookmarks": "Bookmarks",
+      "notifications": "Notifications",
+      "changePassword": "Change password",
+      "notFound": "Page not found"
+    },
     "statusIndicator": {
       "online": "Online",
       "offline": "Offline"

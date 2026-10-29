@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 
+// Every route `title` (here and in the feature *.routes.ts files) is a translation key under
+// `shared.pageTitles`, which PageTitleStrategy (core/a11y) turns into "<Page> · Tawasol".
 export const routes: Routes = [
   // '/' redirects to the login screen, whose guestGuard (auth.routes.ts) then sends an
   // already-signed-in visitor on to '/feed' — signed-out visitors stay on the login screen.
@@ -37,6 +39,7 @@ export const routes: Routes = [
   // Must stay last — anything unmatched above (including '/profile' or '/posts' with no id).
   {
     path: '**',
+    title: 'shared.pageTitles.notFound',
     loadComponent: () => import('./features/not-found/not-found-page/not-found-page').then((m) => m.NotFoundPage),
   },
 ];
