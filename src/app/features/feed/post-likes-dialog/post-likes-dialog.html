@@ -17,7 +17,8 @@
     <ul class="flex flex-col gap-3">
       @for (user of likes(); track user.id) {
         <li class="flex items-center gap-2">
-          <a [routerLink]="['/profile', user._id]" class="h-10 w-10 shrink-0">
+          <!-- Mouse shortcut only, hidden from AT: the name link next to it goes to the same profile. -->
+          <a [routerLink]="['/profile', user._id]" class="h-10 w-10 shrink-0" tabindex="-1" aria-hidden="true">
             <img [ngSrc]="user.photo" width="40" height="40" alt="" class="h-10 w-10 rounded-full object-cover" />
           </a>
           <a [routerLink]="['/profile', user._id]" class="min-w-0 flex-1">

@@ -64,7 +64,8 @@
           ><bdi dir="ltr">&#64;{{ displayedPost.user.username }}</bdi></a
         >
         <span aria-hidden="true">·</span>
-        <a [routerLink]="['/posts', post().id]" class="shrink-0 whitespace-nowrap">
+        <!-- py-1/-my-1: a 24px-tall hit area (WCAG 2.5.8 Target Size) without moving the line. -->
+        <a [routerLink]="['/posts', post().id]" class="-my-1 inline-block shrink-0 py-1 whitespace-nowrap">
           <time [attr.datetime]="post().createdAt" [title]="fullDate()">{{ shortDate() }}</time>
         </a>
       </p>
@@ -222,13 +223,9 @@
         >
           <mat-icon>{{ isLiked() ? 'favorite' : 'favorite_border' }}</mat-icon>
         </button>
-        <button
-          mat-button
-          type="button"
-          class="!min-w-0 !px-2"
-          [attr.aria-label]="'feed.postCard.viewLikes' | translate"
-          (click)="openLikesDialog()"
-        >
+        <!-- Named by its visible text ("2 likes"), which an aria-label must not replace (WCAG 2.5.3
+             Label in Name); aria-haspopup says it opens the likers dialog. -->
+        <button mat-button type="button" class="!min-w-0 !px-2" aria-haspopup="dialog" (click)="openLikesDialog()">
           {{ 'feed.postCard.likesAriaLabel' | translate: { count: post().likesCount } }}
         </button>
       </div>
@@ -237,7 +234,7 @@
         mat-button
         type="button"
         [style.color]="showComments() ? 'var(--mat-sys-primary)' : null"
-        [attr.aria-label]="'feed.postCard.comment' | translate"
+        [attr.aria-expanded]="showComments()"
         (click)="toggleComments()"
       >
         <mat-icon>chat_bubble_outline</mat-icon>
@@ -276,7 +273,13 @@
 
     @if (!showComments() && post().topComment; as topComment) {
       <div class="mt-3 flex items-start gap-2 border-t border-black/5 pt-3 dark:border-white/10">
-        <a [routerLink]="['/profile', topComment.commentCreator._id]" class="h-8 w-8 shrink-0">
+        <!-- Mouse shortcut only, hidden from AT: the name link next to it goes to the same profile. -->
+        <a
+          [routerLink]="['/profile', topComment.commentCreator._id]"
+          class="h-8 w-8 shrink-0"
+          tabindex="-1"
+          aria-hidden="true"
+        >
           <img
             [ngSrc]="topComment.commentCreator.photo"
             width="32"

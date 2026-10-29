@@ -45,8 +45,6 @@
         "many": "{{count}} إعجابًا",
         "other": "{{count}} إعجاب"
       },
-      "viewLikes": "عرض من أعجب بهذا المنشور",
-      "comment": "تعليق",
       "commentsAriaLabel": {
         "zero": "{{count}} تعليق",
         "one": "تعليق واحد",

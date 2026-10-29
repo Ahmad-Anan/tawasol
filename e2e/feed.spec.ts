@@ -66,9 +66,7 @@ test.describe('feed', () => {
 
     await post.getByRole('button', { name: 'Like', exact: true }).click();
     await expect(post.getByRole('button', { name: 'Unlike' })).toBeVisible();
-    await expect(post.getByRole('button', { name: 'View who liked this post' })).toHaveText(
-      '2 likes',
-    );
+    await expect(post.getByRole('button', { name: '2 likes', exact: true })).toBeVisible();
 
     await post.getByRole('button', { name: 'Save', exact: true }).click();
     await expect(post.getByRole('button', { name: 'Remove from saved' })).toBeVisible();
@@ -81,7 +79,11 @@ test.describe('feed', () => {
   test('adds a comment and a reply', async ({ page, api }) => {
     await page.goto('/feed');
     const post = page.getByRole('article').filter({ hasText: OMARS_POST }).first();
-    await post.getByRole('button', { name: 'Comment', exact: true }).click();
+    await post.getByRole('button', { name: '1 comment', exact: true }).click();
+    await expect(post.getByRole('button', { name: '1 comment', exact: true })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
 
     await post.getByLabel('Write a comment…').fill('Great work!');
     await post.getByRole('button', { name: 'Post', exact: true }).click();
@@ -106,7 +108,7 @@ test.describe('feed', () => {
   test('opens the likes dialog', async ({ page }) => {
     await page.goto('/feed');
     const post = page.getByRole('article').filter({ hasText: OMARS_POST });
-    await post.getByRole('button', { name: 'View who liked this post' }).click();
+    await post.getByRole('button', { name: '1 like', exact: true }).click();
 
     const dialog = page.getByRole('dialog', { name: 'Liked by' });
     await expect(dialog).toBeVisible();

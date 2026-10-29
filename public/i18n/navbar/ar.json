@@ -1,13 +1,13 @@
 {
   "navbar": {
     "brand": "تواصل",
-    "goHome": "الذهاب إلى الرئيسية",
     "userMenu": "قائمة الحساب",
     "myProfile": "ملفي الشخصي",
     "changePassword": "تغيير كلمة المرور",
     "logout": "تسجيل الخروج",
     "bookmarks": "المحفوظات",
     "notifications": "الإشعارات",
+    "notificationsUnread": "الإشعارات، غير المقروءة: {{count}}",
     "themeToggle": {
       "toLight": "التبديل إلى الوضع الفاتح",
       "toDark": "التبديل إلى الوضع الداكن"

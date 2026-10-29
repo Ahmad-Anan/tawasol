@@ -5,7 +5,7 @@
 import type { Page } from '@playwright/test';
 import { LAYLA } from './fixtures/users';
 import { expectNoAxeViolations } from './support/axe';
-import { t } from './support/i18n';
+import { t, tCount } from './support/i18n';
 import { expect, test, type Language, type Theme } from './support/test';
 
 const OMARS_POST = '6b2000000000000000000001';
@@ -118,7 +118,8 @@ const OVERLAYS: Scenario[] = [
     name: 'post likes dialog',
     open: async (page, lang) => {
       await omarsPost(page)
-        .getByRole('button', { name: t(lang, 'feed.postCard.viewLikes') })
+        // Named by its visible like count; Omar's post has 1 like.
+        .getByRole('button', { name: tCount(lang, 'feed.postCard.likesAriaLabel', 1), exact: true })
         .click();
       const dialog = page.getByRole('dialog', { name: t(lang, 'feed.postCard.likesDialog.title') });
       await expect(dialog.getByRole('link').first()).toBeVisible();
