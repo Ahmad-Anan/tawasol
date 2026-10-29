@@ -8,6 +8,7 @@ import {
   type FixtureNotification,
   type FixturePost,
 } from '../fixtures/content';
+import { MATERIAL_ICONS_PATH, MATERIAL_ICONS_WOFF2 } from '../fixtures/fonts';
 import { IMAGE_HOST, PIXEL_PNG } from '../fixtures/images';
 import {
   ALL_USERS,
@@ -70,7 +71,8 @@ const pagination = (total: number, limit: number, more = false) => ({
  * follow docs/api-reference.md. Every call is recorded in `calls`; any API call no handler covers
  * answers `404 route not found` (like the real API) and is listed in `unhandled`, which the shared
  * test fixture asserts is empty. Every other off-origin request (Google Fonts, …) is aborted, and
- * fixture image URLs (IMAGE_HOST) get a 1×1 PNG, so a run never touches the network.
+ * fixture image URLs (IMAGE_HOST) get a 1×1 PNG and the Material Icons font is served from
+ * e2e/fixtures/fonts, so a run never touches the network.
  */
 export class MockApi {
   readonly calls: ApiCall[] = [];
@@ -130,6 +132,9 @@ export class MockApi {
     }
     if (url.startsWith(IMAGE_HOST)) {
       return route.fulfill({ status: 200, contentType: 'image/png', body: PIXEL_PNG });
+    }
+    if (url.startsWith(`https://fonts.gstatic.com${MATERIAL_ICONS_PATH}`)) {
+      return route.fulfill({ status: 200, contentType: 'font/woff2', body: MATERIAL_ICONS_WOFF2 });
     }
     if (!url.startsWith(API_BASE_URL)) {
       return route.abort('blockedbyclient');
