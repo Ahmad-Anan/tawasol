@@ -442,45 +442,47 @@ describe('PostsService default feed filter per account', () => {
       .map((req) => req.request.params.get('only') ?? '');
   }
 
-  it('opens the feed on "Me" for the demo account, with no "all" request first', () => {
+  it('opens the feed on "All" for the demo account, and a filter the visitor picks afterwards sticks', () => {
     signIn(environment.demoUserId);
     service().start();
-    expect(service().onlyFilter()).toBe('me');
-    expect(feedRequests()).toEqual(['me']);
+    expect(service().onlyFilter()).toBe('all');
+    expect(feedRequests()).toEqual(['all']);
+
+    service().setOnlyFilter('following');
+    expect(feedRequests()).toEqual(['following']);
+    // Later effect runs (same signed-in account) must not reset the visitor's choice.
+    TestBed.tick();
+    expect(service().onlyFilter()).toBe('following');
+    expect(feedRequests()).toEqual([]);
   });
 
-  it('keeps "all" for any other account', () => {
+  it('opens the feed on "All" for any other account', () => {
     signIn('someone-else');
     service().start();
     expect(feedRequests()).toEqual(['all']);
   });
 
-  it('switches to "Me" once the demo user loads after a hard reload', () => {
+  it('sends no second feed request when the demo user loads after a hard reload', () => {
     token.set('token');
     service().start();
     expect(feedRequests()).toEqual(['all']);
 
     user.set({ _id: environment.demoUserId });
-    expect(feedRequests()).toEqual(['me']);
+    expect(feedRequests()).toEqual([]);
+    expect(service().onlyFilter()).toBe('all');
   });
 
-  it('keeps the other filters available: a filter the demo visitor picks sticks', () => {
+  it('does not carry a filter over to the next account in the same tab', () => {
     service();
     signIn(environment.demoUserId);
-    service().setOnlyFilter('following');
-    TestBed.tick();
-    expect(service().onlyFilter()).toBe('following');
-  });
-
-  it("does not carry the demo's \"Me\" over to the next account in the same tab", () => {
-    service();
-    signIn(environment.demoUserId);
+    service().setOnlyFilter('me');
     signOut();
     signIn('someone-else');
     expect(service().onlyFilter()).toBe('all');
 
+    service().setOnlyFilter('following');
     signOut();
     signIn(environment.demoUserId);
-    expect(service().onlyFilter()).toBe('me');
+    expect(service().onlyFilter()).toBe('all');
   });
 });

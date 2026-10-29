@@ -18,6 +18,7 @@ import type {
 } from '../feed.interface';
 
 const FEED_PAGE_SIZE = 10;
+const DEFAULT_ONLY_FILTER: FeedOnlyFilter = 'all';
 
 export interface PostFormPayload {
   body?: string;
@@ -51,10 +52,9 @@ export class PostsService {
   // /posts/feed, already includes the signed-in user's own posts but no one else's) — an
   // account that isn't following anyone would otherwise only ever see their own posts, so the
   // client always sends an explicit value rather than relying on that default. 'all' matches
-  // the feed's original pre-filter-UI behaviour, so it stays the starting value here — except for
-  // the demo account, which starts on 'me' (see the per-account default in the constructor).
-  // Seeded from whoever is already signed in, so the first request already uses the right one.
-  private readonly _onlyFilter = signal<FeedOnlyFilter>(this.defaultOnlyFilter());
+  // the feed's original pre-filter-UI behaviour, so it's the starting value for every account,
+  // the public demo account included (see the per-account reset in the constructor).
+  private readonly _onlyFilter = signal<FeedOnlyFilter>(DEFAULT_ONLY_FILTER);
   // `null` = no hasImage filter applied (send nothing). `true`/`false` are real, server-verified
   // filter values — see docs/api-reference.md > GET /posts/feed.
   private readonly _hasImageFilter = signal<boolean | null>(null);
@@ -155,15 +155,14 @@ export class PostsService {
       );
     });
 
-    // Per-account default for the "only" filter, applied once each time a different account
-    // signs in (never on later re-runs, so a filter the visitor picks themselves sticks). The
-    // public demo account lands on "Me": its showcase posts are what visitors came to see, and
-    // "all" would put strangers' posts above them. Every other account keeps "all". Keyed on
-    // the user id rather than run once, because PostsService is a singleton that outlives a
-    // sign-out — the demo's "Me" mustn't carry over to the next account in the same tab.
-    // While the user is still hydrating after a hard reload (token but no user yet) nothing is
-    // decided; the feed request already in flight is simply superseded if this switches to "Me".
-    // Starts from the account `_onlyFilter` was already seeded for, so it isn't re-applied.
+    // Resets the "only" filter to DEFAULT_ONLY_FILTER once each time a different account signs
+    // in (never on later re-runs, so a filter the visitor picks themselves sticks). Keyed on the
+    // user id rather than run once, because PostsService is a singleton that outlives a
+    // sign-out — a filter the previous account picked mustn't carry over to the next account in
+    // the same tab. While the user is still hydrating after a hard reload (token but no user yet)
+    // nothing is decided; the filter is already on the default then, so the reset is a no-op and
+    // no second feed request goes out. Starts from whoever is already signed in, so that account
+    // isn't reset again.
     let defaultAppliedFor = this.authService.user()?._id ?? null;
     effect(() => {
       const userId = this.authService.user()?._id ?? null;
@@ -177,12 +176,8 @@ export class PostsService {
         return;
       }
       defaultAppliedFor = userId;
-      untracked(() => this.setOnlyFilter(this.defaultOnlyFilter()));
+      untracked(() => this.setOnlyFilter(DEFAULT_ONLY_FILTER));
     });
-  }
-
-  private defaultOnlyFilter(): FeedOnlyFilter {
-    return this.demoAccount.isDemo() ? 'me' : 'all';
   }
 
   /** Called once by FeedPage on mount — see `_feedRequested`. A no-op on every call after the first. */
