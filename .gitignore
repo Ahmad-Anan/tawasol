@@ -55,5 +55,8 @@ Thumbs.db
 /blob-report/
 /playwright/.cache/
 
+# Lighthouse CI (npx @lhci/cli autorun)
+/.lighthouseci/
+
 # Generated portfolio screenshots (npm run screenshots)
 /screenshots/

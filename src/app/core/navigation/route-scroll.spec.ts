@@ -2,7 +2,15 @@ import { Location, ViewportScroller } from '@angular/common';
 import { provideLocationMocks } from '@angular/common/testing';
 import { ApplicationRef, ChangeDetectionStrategy, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { Router, RouterOutlet, Routes, provideRouter, withInMemoryScrolling } from '@angular/router';
+import {
+  Router,
+  RouterOutlet,
+  Routes,
+  Scroll,
+  provideRouter,
+  withInMemoryScrolling,
+} from '@angular/router';
+import { filter, firstValueFrom } from 'rxjs';
 import type { MockInstance } from 'vitest';
 import { RouteScroll } from './route-scroll';
 
@@ -55,16 +63,20 @@ describe('RouteScroll', () => {
 
   afterEach(() => document.querySelector('app-shell')?.remove());
 
-  /** The router emits Scroll a macrotask after NavigationEnd; RouteScroll then waits a render. */
-  async function settle(): Promise<void> {
-    await new Promise((resolve) => setTimeout(resolve, 20));
+  /**
+   * Runs a navigation and waits until RouteScroll has acted on it: the router emits its Scroll
+   * event a timer or frame after NavigationEnd (whichever comes first), and RouteScroll then
+   * scrolls after the next render. Waiting for the event itself, not a fixed delay, keeps this
+   * reliable on a busy machine.
+   */
+  async function settled(navigation: () => unknown): Promise<void> {
+    const scroll = firstValueFrom(router.events.pipe(filter((event) => event instanceof Scroll)));
+    await navigation();
+    await scroll;
     await appRef.whenStable();
   }
 
-  async function navigate(url: string): Promise<void> {
-    await router.navigateByUrl(url);
-    await settle();
-  }
+  const navigate = (url: string) => settled(() => router.navigateByUrl(url));
 
   it('scrolls a new page to the top', async () => {
     await navigate('/feed');
@@ -100,8 +112,7 @@ describe('RouteScroll', () => {
     await navigate('/bookmarks');
     scrollToPosition.mockClear();
 
-    TestBed.inject(Location).back();
-    await settle();
+    await settled(() => TestBed.inject(Location).back());
 
     expect(router.url).toBe('/feed');
     expect(scrollToPosition).toHaveBeenCalledExactlyOnceWith([0, 1234], { behavior: 'instant' });
@@ -111,8 +122,7 @@ describe('RouteScroll', () => {
     await navigate('/feed');
     scrollToPosition.mockClear();
 
-    await router.navigateByUrl('/bookmarks', { scroll: 'manual' });
-    await settle();
+    await settled(() => router.navigateByUrl('/bookmarks', { scroll: 'manual' }));
 
     expect(scrollToPosition).not.toHaveBeenCalled();
   });
