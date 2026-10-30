@@ -19,7 +19,7 @@ const MAIN_CONTENT_ID = 'main';
  * treatment: the router recreates AuthShell for it (two route configs), so the focused tab is
  * destroyed and focus would otherwise drop to <body>.
  *
- * Focus uses `preventScroll` so the router's existing scroll behavior is unchanged.
+ * Focus uses `preventScroll`, so where the page scrolls stays RouteScroll's call (core/navigation).
  * Instantiated from an app initializer (app.config.ts) so it sees the very first NavigationEnd.
  */
 @Service()

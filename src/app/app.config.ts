@@ -5,7 +5,7 @@ import {
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection,
 } from '@angular/core';
-import { TitleStrategy, provideRouter } from '@angular/router';
+import { TitleStrategy, provideRouter, withInMemoryScrolling } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideTranslateCompiler, provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -17,17 +17,21 @@ import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { PluralCompiler } from './core/i18n/plural-compiler';
 import { PageTitleStrategy } from './core/a11y/page-title-strategy';
 import { RouteFocus } from './core/a11y/route-focus';
+import { RouteScroll } from './core/navigation/route-scroll';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
-    provideRouter(routes),
+    // Records each page's scroll position and emits the router's Scroll events; its own scrolling
+    // stays off ('disabled', the default) and RouteScroll (core/navigation) acts on the events.
+    provideRouter(routes, withInMemoryScrolling()),
     { provide: TitleStrategy, useExisting: PageTitleStrategy },
     // Created before the initial navigation starts, so RouteFocus can tell that first
     // NavigationEnd (the page load: leave focus alone) apart from later in-app navigations.
     provideAppInitializer(() => {
       inject(RouteFocus);
+      inject(RouteScroll);
     }),
     provideClientHydration(),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
