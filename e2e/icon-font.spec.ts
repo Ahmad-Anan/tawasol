@@ -26,7 +26,10 @@ test.describe('signed out', () => {
 
     await page.goto('/auth/login');
     await expect(page.getByRole('button', { name: 'Switch to dark mode' })).toBeVisible();
-    await page.getByRole('tab', { name: 'Create account' }).click();
+    // Loaded directly (same page, so the watcher keeps listening) rather than through the tab: the
+    // tab swaps the whole auth shell, and while it does, "Password" can still match the login form.
+    await page.goto('/auth/register');
+    await expect(page.getByLabel('Full name')).toBeVisible();
     await page.getByLabel('Password', { exact: true }).fill('Abc1ب');
     await expect(page.getByTestId('keyboard-notice')).toBeVisible();
     await page.evaluate(() => document.fonts.ready);
