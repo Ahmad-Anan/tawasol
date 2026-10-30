@@ -7,8 +7,9 @@ import {
 } from '@angular/core';
 import { TitleStrategy, provideRouter, withInMemoryScrolling } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import { provideTranslateCompiler, provideTranslateService } from '@ngx-translate/core';
+import { TranslateService, provideTranslateCompiler, provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { firstValueFrom } from 'rxjs';
 
 import { routes } from './app.routes';
 import { resolveInitialLanguage } from './core/services/language';
@@ -31,6 +32,14 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(() => {
       inject(RouteFocus);
       inject(RouteScroll);
+      // Hold the first render until the starting language's translations are in. Otherwise the
+      // page paints once with empty labels, then jumps when the text arrives: the vertically
+      // centered auth card grew from ~49px to ~845px, a layout shift of ~0.38 on /auth/register.
+      // A failed load must not keep the app from starting, so it's only awaited, never fatal.
+      return firstValueFrom(inject(TranslateService).use(resolveInitialLanguage())).then(
+        () => undefined,
+        () => undefined,
+      );
     }),
     // No provideClientHydration(): every route is RenderMode.Client (app.routes.server.ts), so the
     // server only ever sends the CSR shell and there is nothing to hydrate. Leaving it out keeps
