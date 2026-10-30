@@ -1,0 +1,27 @@
+{
+  "ci": {
+    "collect": {
+      "startServerCommand": "node dist/tawasol/server/server.mjs",
+      "startServerReadyPattern": "listening on",
+      "url": ["http://localhost:4000/auth/login", "http://localhost:4000/auth/register"],
+      "numberOfRuns": 5,
+      "settings": {
+        "formFactor": "mobile",
+        "chromeFlags": "--headless=new --no-sandbox",
+        "blockedUrlPatterns": ["*route-posts.routemisr.com*"]
+      }
+    },
+    "assert": {
+      "assertions": {
+        "categories:performance": ["error", { "minScore": 0.9, "aggregationMethod": "median" }],
+        "categories:accessibility": ["error", { "minScore": 1, "aggregationMethod": "median" }],
+        "categories:best-practices": ["error", { "minScore": 0.9, "aggregationMethod": "median" }],
+        "categories:seo": ["error", { "minScore": 0.9, "aggregationMethod": "median" }]
+      }
+    },
+    "upload": {
+      "target": "filesystem",
+      "outputDir": ".lighthouseci/reports"
+    }
+  }
+}
