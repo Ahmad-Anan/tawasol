@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { MatIcon } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
 import { hasNonEnglishCharacters, passwordRuleStatus } from './password-rules';
 
@@ -15,7 +14,7 @@ import { hasNonEnglishCharacters, passwordRuleStatus } from './password-rules';
  */
 @Component({
   selector: 'app-password-checklist',
-  imports: [MatIcon, TranslatePipe],
+  imports: [TranslatePipe],
   templateUrl: './password-checklist.html',
   styleUrl: './password-checklist.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
