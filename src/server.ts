@@ -85,7 +85,10 @@ if (COMPRESS) {
     }
     res.type(extname(file));
     res.set({
-      'Cache-Control': 'public, max-age=31536000',
+      // Same caching as express.static below (which this answers instead of, for text files).
+      'Cache-Control': HASHED_ASSET.test(file)
+        ? 'public, max-age=31536000, immutable'
+        : 'public, max-age=31536000',
       'Content-Encoding': encoding,
       Vary: 'Accept-Encoding',
     });
