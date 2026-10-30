@@ -2,6 +2,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Service, Signal, WritableSignal, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { API_BASE_URL } from '../../../core/constants/api';
+import { AuthService } from '../../../core/services/auth.service';
+import { reconciledLike, toggledLike } from '../../../shared/reactions/like-state';
 import type {
   Comment,
   CommentAuthor,
@@ -69,6 +71,7 @@ function initialThreadState(): CommentThreadState {
 @Service()
 export class CommentsService {
   private readonly http = inject(HttpClient);
+  private readonly authService = inject(AuthService);
 
   private readonly _threads = new Map<string, WritableSignal<CommentThreadState>>();
   private readonly _replyThreads = new Map<string, WritableSignal<CommentThreadState>>();
@@ -209,15 +212,29 @@ export class CommentsService {
     }
   }
 
+  /** Optimistic, with rollback on failure — same flow as PostsService.toggleLike. */
   async toggleLike(postId: string, commentId: string, parentCommentId: string | null): Promise<void> {
-    const response = await firstValueFrom(
-      this.http.put<CommentLikeToggleApiResponse>(`${API_BASE_URL}/posts/${postId}/comments/${commentId}/like`, {}),
-    );
-    // Only `liked`/`likesCount` are trustworthy here — same reasoning as PostsService.toggleLike.
-    this.patchComment(parentCommentId, postId, commentId, {
-      likes: response.data.comment.likes,
-      likesCount: response.data.likesCount,
-    });
+    const userId = this.authService.user()?._id;
+    const thread = (parentCommentId ? this._replyThreads : this._threads).get(parentCommentId ?? postId);
+    const before = thread?.().comments.find((c) => c._id === commentId);
+    if (before && userId) {
+      this.patchComment(parentCommentId, postId, commentId, toggledLike(before, userId));
+    }
+    try {
+      const response = await firstValueFrom(
+        this.http.put<CommentLikeToggleApiResponse>(`${API_BASE_URL}/posts/${postId}/comments/${commentId}/like`, {}),
+      );
+      // Only `liked`/`likesCount` are trustworthy here — same reasoning as PostsService.toggleLike.
+      const { liked, likesCount } = response.data;
+      this.updateComment(parentCommentId, postId, commentId, (comment) =>
+        userId ? reconciledLike(comment, userId, liked, likesCount) : { likesCount },
+      );
+    } catch (err) {
+      if (before) {
+        this.patchComment(parentCommentId, postId, commentId, { likes: before.likes, likesCount: before.likesCount });
+      }
+      throw err;
+    }
   }
 
   isLikedBy(comment: Comment, userId: string | undefined): boolean {
@@ -265,6 +282,16 @@ export class CommentsService {
     commentId: string,
     patch: Partial<Comment>,
   ): void {
+    this.updateComment(parentCommentId, postId, commentId, () => patch);
+  }
+
+  /** Like `patchComment`, with the patch computed from the comment as it is in its thread now. */
+  private updateComment(
+    parentCommentId: string | null,
+    postId: string,
+    commentId: string,
+    patchFor: (comment: Comment) => Partial<Comment>,
+  ): void {
     const map = parentCommentId ? this._replyThreads : this._threads;
     const key = parentCommentId ?? postId;
     const state = map.get(key);
@@ -273,7 +300,7 @@ export class CommentsService {
     }
     state.update((s) => ({
       ...s,
-      comments: s.comments.map((c) => (c._id === commentId ? { ...c, ...patch } : c)),
+      comments: s.comments.map((c) => (c._id === commentId ? { ...c, ...patchFor(c) } : c)),
     }));
   }
 

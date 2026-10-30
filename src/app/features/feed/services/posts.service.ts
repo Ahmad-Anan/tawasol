@@ -5,6 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { API_BASE_URL } from '../../../core/constants/api';
 import { AuthService } from '../../../core/services/auth.service';
 import { DemoAccountService } from '../../../core/services/demo-account';
+import { reconciledLike, toggledLike } from '../../../shared/reactions/like-state';
 import type {
   BookmarkToggleApiResponse,
   CreateOrEditPostApiResponse,
@@ -282,25 +283,58 @@ export class PostsService {
     this._posts.update((existing) => existing.filter((post) => post.id !== postId));
   }
 
+  /**
+   * Optimistic: the like flips in the store right away, then the server's answer is reconciled
+   * in. On failure the post's like fields go back to exactly what they were and the error is
+   * rethrown for the caller's error feedback. PostCard's in-flight guard keeps a second click
+   * from sending a conflicting request meanwhile.
+   */
   async toggleLike(postId: string): Promise<void> {
-    const response = await firstValueFrom(
-      this.http.put<LikeToggleApiResponse>(`${API_BASE_URL}/posts/${postId}/like`, {}),
-    );
-    // Only `liked`/`likesCount` are trustworthy here — the nested `post` is missing
-    // commentsCount/topComment/bookmarked and its `user` carries extra profile stats that
-    // don't belong on the locally-held post. See docs/api-reference.md > PUT
-    // /posts/:id/like.
-    this.patchPost(postId, { likes: response.data.post.likes, likesCount: response.data.likesCount });
+    const userId = this.authService.user()?._id;
+    const before = this._posts().find((post) => post.id === postId);
+    if (before && userId) {
+      this.patchPost(postId, toggledLike(before, userId));
+    }
+    try {
+      const response = await firstValueFrom(
+        this.http.put<LikeToggleApiResponse>(`${API_BASE_URL}/posts/${postId}/like`, {}),
+      );
+      // Only `liked`/`likesCount` are trustworthy here — the nested `post` is missing
+      // commentsCount/topComment/bookmarked and its `user` carries extra profile stats that
+      // don't belong on the locally-held post. See docs/api-reference.md > PUT
+      // /posts/:id/like.
+      const { liked, likesCount } = response.data;
+      this.updatePost(postId, (post) =>
+        userId ? reconciledLike(post, userId, liked, likesCount) : { likesCount },
+      );
+    } catch (err) {
+      if (before) {
+        this.patchPost(postId, { likes: before.likes, likesCount: before.likesCount });
+      }
+      throw err;
+    }
   }
 
+  /** Optimistic, the same way as `toggleLike`. */
   async toggleBookmark(postId: string): Promise<void> {
-    const response = await firstValueFrom(
-      this.http.put<BookmarkToggleApiResponse>(`${API_BASE_URL}/posts/${postId}/bookmark`, {}),
-    );
-    // `bookmarksCount` in this response is the signed-in user's total bookmark count across
-    // the app, not a per-post stat — only `bookmarked` describes this post. See
-    // docs/api-reference.md > PUT /posts/:id/bookmark.
-    this.patchPost(postId, { bookmarked: response.data.bookmarked });
+    const before = this._posts().find((post) => post.id === postId);
+    if (before) {
+      this.patchPost(postId, { bookmarked: !before.bookmarked });
+    }
+    try {
+      const response = await firstValueFrom(
+        this.http.put<BookmarkToggleApiResponse>(`${API_BASE_URL}/posts/${postId}/bookmark`, {}),
+      );
+      // `bookmarksCount` in this response is the signed-in user's total bookmark count across
+      // the app, not a per-post stat — only `bookmarked` describes this post. See
+      // docs/api-reference.md > PUT /posts/:id/bookmark.
+      this.patchPost(postId, { bookmarked: response.data.bookmarked });
+    } catch (err) {
+      if (before) {
+        this.patchPost(postId, { bookmarked: before.bookmarked });
+      }
+      throw err;
+    }
   }
 
   async sharePost(postId: string): Promise<void> {
@@ -339,7 +373,14 @@ export class PostsService {
   }
 
   private patchPost(postId: string, patch: Partial<Post>): void {
-    this._posts.update((existing) => existing.map((post) => (post.id === postId ? { ...post, ...patch } : post)));
+    this.updatePost(postId, () => patch);
+  }
+
+  /** Like `patchPost`, with the patch computed from the post as it is in the store right now. */
+  private updatePost(postId: string, patchFor: (post: Post) => Partial<Post>): void {
+    this._posts.update((existing) =>
+      existing.map((post) => (post.id === postId ? { ...post, ...patchFor(post) } : post)),
+    );
   }
 
   private buildFormData(payload: PostFormPayload): FormData {

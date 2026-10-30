@@ -108,6 +108,14 @@ export class MockApi {
     this.routes.unshift({ method, pattern: toPattern(path), handler });
   }
 
+  /**
+   * Makes one endpoint fail with the API's error envelope (`{ success: false, message, errors }`)
+   * while still recording the call, e.g. `api.fail('PUT', '/posts/:id/like')`.
+   */
+  fail(method: string, path: string, status = 500, message = 'internal server error'): void {
+    this.on(method, path, () => fail(status, message));
+  }
+
   callsTo(method: string, path: string): ApiCall[] {
     const pattern = toPattern(path);
     return this.calls.filter((call) => call.method === method && pattern.test(call.path));
@@ -426,6 +434,29 @@ export class MockApi {
         status: 201,
         body: { success: true, message: 'comment created successfully', data: { comment } },
       };
+    });
+    // docs/api-reference.md > PUT /posts/:postId/comments/:commentId/like: `{ liked, likesCount,
+    // comment }`, the nested comment in the mutation shape. Works the same for a reply's id.
+    add('PUT', '/posts/:id/comments/:commentId/like', (_call, [postId, commentId]) => {
+      const found =
+        this.comments.get(postId)?.find((c) => c._id === commentId) ??
+        [...this.replies.values()].flat().find((c) => c._id === commentId);
+      if (!found) return fail(404, 'Comment Not Found');
+      const meId = this.me()._id;
+      const liked = !found.likes.includes(meId);
+      found.likes = liked ? [...found.likes, meId] : found.likes.filter((l) => l !== meId);
+      const { repliesCount: _r, ...rest } = found;
+      return ok({
+        liked,
+        likesCount: found.likes.length,
+        comment: {
+          ...rest,
+          commentCreator: authorWithStats(this.user(found.commentCreator._id) ?? this.me()),
+          likesCount: found.likes.length,
+          isReply: found.parentComment !== null,
+          id: found._id,
+        },
+      });
     });
     add('GET', '/posts/:id/comments/:commentId/replies', (_call, [, commentId]) => {
       const replies = this.replies.get(commentId) ?? [];

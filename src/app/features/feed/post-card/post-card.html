@@ -213,10 +213,11 @@
   } @else if (!isEditing()) {
     <div class="mt-4 flex items-center justify-between border-t border-black/5 pt-2 dark:border-white/10">
       <div class="flex items-center">
+        <!-- Like and bookmark update optimistically and stay enabled while their request is out
+             (disabling them would drop keyboard focus); PostCard.runAction ignores repeat clicks. -->
         <button
           mat-icon-button
           type="button"
-          [disabled]="isLiking()"
           [style.color]="isLiked() ? 'var(--mat-sys-primary)' : null"
           [attr.aria-label]="(isLiked() ? 'feed.postCard.unlike' : 'feed.postCard.like') | translate"
           (click)="onToggleLike()"
@@ -244,7 +245,6 @@
       <button
         mat-icon-button
         type="button"
-        [disabled]="isBookmarking()"
         [style.color]="post().bookmarked ? 'var(--mat-sys-primary)' : null"
         [attr.aria-label]="(post().bookmarked ? 'feed.postCard.unbookmark' : 'feed.postCard.bookmark') | translate"
         (click)="onToggleBookmark()"

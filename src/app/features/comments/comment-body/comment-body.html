@@ -124,11 +124,12 @@
     <div class="ms-10 mt-1 flex items-center gap-3 font-(--font-mono) text-xs text-(--color-text-secondary)">
       <time [attr.datetime]="comment().createdAt" [title]="fullDate()">{{ shortDate() }}</time>
 
+      <!-- Optimistic and left enabled while the request is out, like PostCard's like button;
+           onToggleLike() ignores repeat clicks. -->
       <button
         type="button"
         class="font-semibold"
         [style.color]="isLiked() ? 'var(--mat-sys-primary)' : null"
-        [disabled]="isLiking()"
         (click)="onToggleLike()"
       >
         {{ (isLiked() ? 'comments.unlike' : 'comments.like') | translate }}
