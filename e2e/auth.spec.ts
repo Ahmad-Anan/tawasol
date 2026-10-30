@@ -29,10 +29,9 @@ test.describe('signed out', () => {
     await expect(page).toHaveURL('/auth/login');
   });
 
-  // A field's error shows once that field has been touched. An empty submit doesn't reveal them
-  // on its own yet (Signal Forms' submit() only marks the form root as touched in this Angular
-  // version; reported separately), so this covers what a user sees today: leaving required fields
-  // empty, then submitting.
+  // A field's error shows once that field has been touched: here by leaving required fields empty,
+  // then submitting. An empty submit on its own reveals every error too (it marks all fields
+  // touched); that, with focus, aria-invalid and the announcement, is in form-errors.spec.ts.
   test('shows required-field errors on the register form and never calls signup', async ({
     page,
     api,

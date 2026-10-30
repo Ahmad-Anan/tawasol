@@ -1,7 +1,8 @@
 // Automated WCAG A/AA scans (axe-core, see support/axe.ts) of every page and overlay, in English and
 // Arabic, light and dark. Any violation fails the test; no axe rule is disabled.
 //
-// Every new page or dialog must be added to PAGES or OVERLAYS below (see README.md > Testing).
+// Every new page or dialog must be added to PAGES or OVERLAYS below (see README.md > Testing);
+// FORM_ERRORS scans the auth forms in their empty-submit error state.
 import type { Page } from '@playwright/test';
 import { LAYLA } from './fixtures/users';
 import { expectNoAxeViolations } from './support/axe';
@@ -16,7 +17,7 @@ interface Scenario {
   signedIn: boolean;
   /** Waits until the page (or overlay) shows its real content, not a loading state. */
   ready: (page: Page, lang: Language) => Promise<void>;
-  /** Overlays only: opens the dialog/menu after `ready`. */
+  /** Overlays and error states only: opens the dialog/menu (or submits the form) after `ready`. */
   open?: (page: Page, lang: Language) => Promise<void>;
 }
 
@@ -166,12 +167,28 @@ const OVERLAYS: Scenario[] = [
   },
 ];
 
+/** A page in its error state: the form submitted empty, so every field error is showing. */
+const submittedEmpty = (pageName: string, submitKey: string, firstFieldKey: string): Scenario => ({
+  ...PAGES.find((p) => p.name === pageName)!,
+  name: `${pageName} (empty submit errors)`,
+  open: async (page, lang) => {
+    await page.getByRole('button', { name: t(lang, submitKey), exact: true }).click();
+    await expect(page.getByLabel(t(lang, firstFieldKey))).toBeFocused();
+    await expect(page.locator('mat-error').first()).toBeVisible();
+  },
+});
+
+const FORM_ERRORS: Scenario[] = [
+  submittedEmpty('login', 'auth.login.submit', 'auth.login.loginLabel'),
+  submittedEmpty('register', 'auth.register.submit', 'auth.register.nameLabel'),
+];
+
 for (const lang of ['en', 'ar'] as const satisfies Language[]) {
   for (const theme of ['light', 'dark'] as const satisfies Theme[]) {
     test.describe(`axe ${lang} ${theme}`, () => {
       test.use({ lang, theme });
 
-      for (const scenario of [...PAGES, ...OVERLAYS]) {
+      for (const scenario of [...PAGES, ...OVERLAYS, ...FORM_ERRORS]) {
         test.describe(() => {
           test.use({ signedInAs: scenario.signedIn ? LAYLA : null });
 
