@@ -2,11 +2,12 @@
      flex justify-between, not physical left/right, so the brand sits left in LTR and right in RTL. -->
 <nav class="flex items-center justify-between gap-4 bg-(--color-harbor-950) px-4 py-3">
   @if (authService.isAuthenticated()) {
+    <!-- Named by its visible text (the brand), like any logo/home link: an aria-label without the
+         visible "Tawasol" in it fails WCAG 2.5.3 Label in Name. -->
     <a
       routerLink="/feed"
       class="text-lg font-bold text-(--color-on-harbor-950)"
       style="font-family: var(--font-display)"
-      [attr.aria-label]="'navbar.goHome' | translate"
     >
       {{ 'navbar.brand' | translate }}
     </a>
@@ -26,7 +27,11 @@
         [matBadgeHidden]="!notificationsService.hasUnread()"
         matBadgeColor="warn"
         matBadgeSize="small"
-        [attr.aria-label]="'navbar.notifications' | translate"
+        [attr.aria-label]="
+          notificationsService.hasUnread()
+            ? ('navbar.notificationsUnread' | translate: { count: notificationsService.unreadCount() })
+            : ('navbar.notifications' | translate)
+        "
       >
         <mat-icon>notifications</mat-icon>
       </button>
@@ -46,17 +51,17 @@
       </mat-icon>
     </button>
 
-    <button
-      mat-icon-button
-      type="button"
-      [attr.aria-label]="
-        (languageService.lang() === 'ar' ? 'navbar.languageToggle.toEnglish' : 'navbar.languageToggle.toArabic')
-          | translate
-      "
-      (click)="languageService.toggle()"
-    >
+    <!-- Named by its content rather than an aria-label, so the visible "AR"/"EN" is part of the
+         name ("AR Switch to Arabic") — WCAG 2.5.3 Label in Name. -->
+    <button mat-icon-button type="button" (click)="languageService.toggle()">
       <span class="text-sm font-bold">
         {{ languageService.lang() === 'ar' ? 'EN' : 'AR' }}
+      </span>
+      <span class="sr-only">
+        {{
+          (languageService.lang() === 'ar' ? 'navbar.languageToggle.toEnglish' : 'navbar.languageToggle.toArabic')
+            | translate
+        }}
       </span>
     </button>
 

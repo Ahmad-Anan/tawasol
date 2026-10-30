@@ -41,8 +41,6 @@
         "one": "{{count}} like",
         "other": "{{count}} likes"
       },
-      "viewLikes": "View who liked this post",
-      "comment": "Comment",
       "commentsAriaLabel": {
         "one": "{{count}} comment",
         "other": "{{count}} comments"

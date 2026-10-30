@@ -1,13 +1,13 @@
 {
   "navbar": {
     "brand": "Tawasol",
-    "goHome": "Go to feed",
     "userMenu": "Account menu",
     "myProfile": "My profile",
     "changePassword": "Change password",
     "logout": "Log out",
     "bookmarks": "Bookmarks",
     "notifications": "Notifications",
+    "notificationsUnread": "Notifications, {{count}} unread",
     "themeToggle": {
       "toLight": "Switch to light mode",
       "toDark": "Switch to dark mode"

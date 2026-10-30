@@ -14,24 +14,27 @@ on:
         type: boolean
         default: true
 
+# Read-only token: the job only checks out the repo and reads the DEMO_* secrets.
 permissions:
   contents: read
 
+# Queues overlapping runs instead of cancelling one mid-cleanup (no cancel-in-progress here).
 concurrency:
   group: demo-cleanup
 
+# Actions pinned to full commit SHAs, same as ci.yml.
 jobs:
   cleanup:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: '24'
+          node-version: '24.22.2'
 
       - name: Test the allowlist logic
         run: node --test scripts/demo-cleanup.test.mjs

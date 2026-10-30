@@ -49,7 +49,7 @@ The app is built as a showcase of modern Angular practice: standalone components
 - **Styling:** Tailwind CSS v4 + Angular Material (custom-themed)
 - **i18n:** `@ngx-translate/core` v18 + `@ngx-translate/http-loader` v18
 - **Rendering:** Angular SSR (`@angular/ssr`), Express server, deployed on Vercel
-- **Testing:** Vitest
+- **Testing:** Vitest (unit), Playwright + axe-core (end-to-end and accessibility)
 - **Backend:** [Route Posts API](https://route-posts.routemisr.com) (external REST API)
 
 ## Getting started
@@ -87,11 +87,18 @@ Build artifacts are written to `dist/tawasol/`.
 npm run serve:ssr:tawasol
 ```
 
-### Tests
+### Testing
 
 ```bash
-npm test
+npm test            # unit tests (Vitest, src/**/*.spec.ts)
+npm run e2e         # end-to-end + axe accessibility scans (Playwright, e2e/)
+npm run e2e:ui      # the same suite in Playwright's UI mode
+npm run e2e:report  # open the HTML report of the last run
 ```
+
+- `npm run e2e` builds the app and runs the specs in `e2e/` against the production build (Chromium; run `npx playwright install chromium` once first). The Route Posts API is never contacted: every call is answered by an in-memory mock (`e2e/support/mock-api.ts`, shapes from `docs/api-reference.md`), and every other off-origin request is blocked.
+- `e2e/axe.spec.ts` scans every page and overlay with axe-core (WCAG 2.0/2.1/2.2 A and AA) in English and Arabic, light and dark. Any violation fails the run. **Every new page or dialog must be added to its `PAGES` or `OVERLAYS` list.**
+- Debugging a failure: `npm run e2e:report` shows each failure with its screenshot and the axe results attached. In CI the `e2e` job retries once with a trace and uploads the report as the `playwright-report` artifact; open a trace with `npx playwright show-trace <trace.zip>`, or run a spec locally with `npx playwright test e2e/feed.spec.ts --debug`.
 
 ## Project structure
 
@@ -177,7 +184,7 @@ Each feature owns its own routes file (`*.routes.ts`) and is lazy-loaded from `a
 - **التنسيق:** Tailwind CSS v4 + Angular Material (بثيم مخصص)
 - **تعدد اللغات:** `@ngx-translate/core` الإصدار 18 + `@ngx-translate/http-loader` الإصدار 18
 - **العرض:** Angular SSR (`@angular/ssr`)، خادم Express، منشور على Vercel
-- **الاختبارات:** Vitest
+- **الاختبارات:** Vitest (الوحدات)، Playwright + axe-core (الاختبارات الشاملة وإمكانية الوصول)
 - **الخلفية (Backend):** [Route Posts API](https://route-posts.routemisr.com) (REST API خارجي)
 
 ## البدء السريع
@@ -218,8 +225,15 @@ npm run serve:ssr:tawasol
 ### الاختبارات
 
 ```bash
-npm test
+npm test            # اختبارات الوحدات (Vitest، src/**/*.spec.ts)
+npm run e2e         # اختبارات شاملة + فحص إمكانية الوصول بـ axe (Playwright، e2e/)
+npm run e2e:ui      # نفس الاختبارات في واجهة Playwright التفاعلية
+npm run e2e:report  # فتح تقرير HTML لآخر تشغيل
 ```
+
+- يبني `npm run e2e` التطبيق ويشغّل اختبارات `e2e/` على نسخة الإنتاج (Chromium؛ نفّذ `npx playwright install chromium` مرة واحدة أولًا). لا يتصل أبدًا بـ Route Posts API: كل طلب تجيب عنه نسخة وهمية في الذاكرة (`e2e/support/mock-api.ts`، بأشكال الاستجابة من `docs/api-reference.md`)، وكل طلب آخر لخارج الموقع محجوب.
+- يفحص `e2e/axe.spec.ts` كل صفحة ونافذة منبثقة بـ axe-core (WCAG 2.0/2.1/2.2 بمستويي A وAA) بالعربية والإنجليزية وبالوضعين الفاتح والداكن، وأي مخالفة تُفشل التشغيل. **كل صفحة أو نافذة جديدة يجب إضافتها إلى قائمة `PAGES` أو `OVERLAYS` فيه.**
+- لتتبّع فشل: يعرض `npm run e2e:report` كل فشل مع لقطة الشاشة ونتائج axe. في CI تعيد مهمة `e2e` المحاولة مرة واحدة مع تسجيل trace وترفع التقرير باسم `playwright-report`؛ افتح الـ trace بـ `npx playwright show-trace <trace.zip>`، أو شغّل ملفًا محليًا بـ `npx playwright test e2e/feed.spec.ts --debug`.
 
 ## بنية المشروع
 

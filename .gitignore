@@ -49,5 +49,11 @@ __screenshots__/
 .DS_Store
 Thumbs.db
 
+# Playwright (npm run e2e)
+/playwright-report/
+/test-results/
+/blob-report/
+/playwright/.cache/
+
 # Generated portfolio screenshots (npm run screenshots)
 /screenshots/
