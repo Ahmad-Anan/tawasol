@@ -1,4 +1,4 @@
-<form class="flex flex-col gap-1" (submit)="$event.preventDefault(); onSubmit()">
+<form class="flex flex-col gap-1" novalidate (submit)="$event.preventDefault(); onSubmit()">
   @if (serverError()) {
     <div class="mb-3 rounded-lg bg-(--color-bone-100) px-4 py-3 text-sm text-(--color-error-text)" role="alert">
       {{ serverError() }}

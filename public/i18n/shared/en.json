@@ -61,6 +61,12 @@
         "followFailed": "Couldn't follow {{name}}. Please try again.",
         "unfollowFailed": "Couldn't unfollow {{name}}. Please try again."
       }
+    },
+    "forms": {
+      "invalidSubmit": {
+        "one": "1 field needs fixing. Its error is shown under it.",
+        "other": "{{count}} fields need fixing. Each error is shown under its field."
+      }
     }
   }
 }

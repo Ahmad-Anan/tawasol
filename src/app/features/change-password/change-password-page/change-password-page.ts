@@ -7,6 +7,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
+import { FieldAriaInvalid } from '../../../shared/forms/field-aria-invalid';
+import { InvalidSubmit } from '../../../shared/forms/invalid-submit';
 import type { ApiErrorResponse } from '../../../shared/interfaces/api-response.interface';
 import { PasswordChecklist } from '../../../shared/password-checklist/password-checklist';
 import { PASSWORD_PATTERN } from '../../../shared/password-checklist/password-rules';
@@ -21,6 +23,7 @@ interface ChangePasswordFormModel {
   selector: 'app-change-password-page',
   imports: [
     FormField,
+    FieldAriaInvalid,
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
@@ -38,6 +41,7 @@ export class ChangePasswordPage {
   // functions below, which run later outside any injection context — calling the
   // standalone `translate()` function there would throw NG0203.
   private readonly translate = inject(TranslateService);
+  private readonly invalidSubmit = inject(InvalidSubmit);
 
   protected readonly model = signal<ChangePasswordFormModel>({
     currentPassword: '',
@@ -85,16 +89,19 @@ export class ChangePasswordPage {
   protected async onSubmit(): Promise<void> {
     this.serverError.set(null);
     this.success.set(false);
-    await submit(this.changePasswordForm, async (field) => {
-      const { currentPassword, newPassword } = field().value();
-      try {
-        await this.authService.changePassword({ password: currentPassword, newPassword });
-        this.success.set(true);
-        this.model.set({ currentPassword: '', newPassword: '', confirmNewPassword: '' });
-      } catch (err) {
-        this.serverError.set(this.extractErrorMessage(err));
-      }
-      return undefined;
+    await submit(this.changePasswordForm, {
+      action: async (field) => {
+        const { currentPassword, newPassword } = field().value();
+        try {
+          await this.authService.changePassword({ password: currentPassword, newPassword });
+          this.success.set(true);
+          this.model.set({ currentPassword: '', newPassword: '', confirmNewPassword: '' });
+        } catch (err) {
+          this.serverError.set(this.extractErrorMessage(err));
+        }
+        return undefined;
+      },
+      onInvalid: this.invalidSubmit.onInvalid,
     });
   }
 
