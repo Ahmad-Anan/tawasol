@@ -31,6 +31,7 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Use `linkedSignal()` for state derived from multiple reactive sources that must stay synchronized
 - Prefer inline templates for small components
 - Prefer Signal Forms (`@angular/forms/signals`) for new forms. They are stable in Angular v22+ and provide signal-based state, type-safe field access, and schema-based validation
+  - A validated Signal Form's `<form>` must carry `novalidate` (`[formField]` copies validators onto the native input as `required` etc., and the browser's own validation would otherwise cancel the submit before `submit()` runs), pass `InvalidSubmit.onInvalid` (`shared/forms/invalid-submit.ts`) as `submit()`'s `onInvalid`, and import `FieldAriaInvalid` (`shared/forms/field-aria-invalid.ts`)
 - When not using Signal Forms, prefer Reactive forms instead of Template-driven ones
 - Do NOT use `ngClass`, use `class` bindings instead
 - Do NOT use `ngStyle`, use `style` bindings instead

@@ -8,6 +8,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
+import { FieldAriaInvalid } from '../../../shared/forms/field-aria-invalid';
+import { InvalidSubmit } from '../../../shared/forms/invalid-submit';
 import { environment } from '../../../../environments/environment';
 import type { ApiErrorResponse, SigninRequest } from '../auth.interface';
 
@@ -20,6 +22,7 @@ interface LoginFormModel {
   selector: 'app-login',
   imports: [
     FormField,
+    FieldAriaInvalid,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
@@ -37,6 +40,7 @@ export class Login {
   // functions below, which run later outside any injection context — calling the
   // standalone `translate()` function there would throw NG0203.
   private readonly translate = inject(TranslateService);
+  private readonly invalidSubmit = inject(InvalidSubmit);
 
   protected readonly model = signal<LoginFormModel>({ login: '', password: '' });
   protected readonly loginForm = form(this.model, (p) => {
@@ -59,10 +63,13 @@ export class Login {
       return;
     }
     this.serverError.set(null);
-    await submit(this.loginForm, async (field) => {
-      const { login, password } = field().value();
-      await this.signIn({ login, password });
-      return undefined;
+    await submit(this.loginForm, {
+      action: async (field) => {
+        const { login, password } = field().value();
+        await this.signIn({ login, password });
+        return undefined;
+      },
+      onInvalid: this.invalidSubmit.onInvalid,
     });
   }
 

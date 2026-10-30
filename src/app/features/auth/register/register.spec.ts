@@ -70,6 +70,35 @@ describe('Register', () => {
     expect(authService.signup).not.toHaveBeenCalled();
   });
 
+  it('opts the form out of native browser validation', () => {
+    expect(fixture.nativeElement.querySelector('form').noValidate).toBe(true);
+  });
+
+  it('shows every required error after an empty submit and focuses the full name field', async () => {
+    submitForm();
+    await fixture.whenStable();
+
+    // Name, email, date of birth, password, confirm password (gender has its own <p>).
+    expect(fixture.nativeElement.querySelectorAll('mat-error').length).toBe(5);
+    const name = fixture.nativeElement.querySelector('input[autocomplete="name"]');
+    expect(document.activeElement).toBe(name);
+  });
+
+  it('links the gender group to its error and focuses it when it is the only invalid field', async () => {
+    fillValidForm();
+    fixture.componentInstance['model'].update((m) => ({ ...m, gender: '' }));
+    submitForm();
+    await fixture.whenStable();
+
+    const group: HTMLElement = fixture.nativeElement.querySelector('mat-radio-group');
+    expect(document.activeElement).toBe(group);
+    expect(group.getAttribute('aria-invalid')).toBe('true');
+    expect(group.getAttribute('aria-labelledby')).toBe('register-gender-label');
+    const error = document.getElementById(group.getAttribute('aria-describedby')!);
+    expect(error?.textContent?.trim()).toBe('auth.register.errors.genderRequired');
+    expect(authService.signup).not.toHaveBeenCalled();
+  });
+
   it('flags a mismatched confirmation password without calling signup', async () => {
     setInput('input[autocomplete="name"]', 'Ahmed Anan');
     setInput('input[autocomplete="email"]', 'ahmed@example.com');

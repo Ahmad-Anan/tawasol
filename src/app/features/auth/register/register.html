@@ -1,4 +1,4 @@
-<form class="flex flex-col gap-1" (submit)="$event.preventDefault(); onSubmit()">
+<form class="flex flex-col gap-1" novalidate (submit)="$event.preventDefault(); onSubmit()">
   @if (serverError()) {
     <div class="mb-3 rounded-lg bg-(--color-bone-100) px-4 py-3 text-sm text-(--color-error-text)" role="alert">
       {{ serverError() }}
@@ -58,13 +58,26 @@
   </mat-form-field>
 
   <div class="mb-2">
-    <span class="mb-2 block text-sm text-(--color-text-secondary)">{{ 'auth.register.genderLabel' | translate }}</span>
-    <mat-radio-group [formField]="registerForm.gender" class="flex gap-6">
+    <span id="register-gender-label" class="mb-2 block text-sm text-(--color-text-secondary)">{{
+      'auth.register.genderLabel' | translate
+    }}</span>
+    <!--
+      tabindex="-1": an invalid submit focuses the first invalid field, and Signal Forms focuses a
+      control like this one through its host element, which isn't focusable by itself. Focus then
+      lands on the named group (label, "invalid", error), and Tab moves on to the radios as usual.
+    -->
+    <mat-radio-group
+      [formField]="registerForm.gender"
+      class="flex gap-6 rounded focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-(--color-harbor-indicator)"
+      tabindex="-1"
+      aria-labelledby="register-gender-label"
+      [attr.aria-describedby]="genderError() ? 'register-gender-error' : null"
+    >
       <mat-radio-button value="male">{{ 'auth.register.genderMale' | translate }}</mat-radio-button>
       <mat-radio-button value="female">{{ 'auth.register.genderFemale' | translate }}</mat-radio-button>
     </mat-radio-group>
-    @if (registerForm.gender().touched() && registerForm.gender().invalid()) {
-      <p class="mt-1 text-xs text-(--color-error-text)">{{ registerForm.gender().errors()[0]?.message }}</p>
+    @if (genderError(); as error) {
+      <p id="register-gender-error" class="mt-1 text-xs text-(--color-error-text)">{{ error }}</p>
     }
   </div>
 

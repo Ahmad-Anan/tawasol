@@ -64,6 +64,26 @@ describe('Login', () => {
     expect(errors.length).toBe(2);
   });
 
+  // Without it the browser's own validation (from the `required` the fields carry) cancels the
+  // submit event in a real browser, so none of the errors above would ever appear there.
+  it('opts the form out of native browser validation', () => {
+    expect(fixture.nativeElement.querySelector('form').noValidate).toBe(true);
+  });
+
+  it('marks both empty fields aria-invalid, described by their errors, after an empty submit', async () => {
+    submitForm();
+    await fixture.whenStable();
+
+    const inputs: HTMLInputElement[] = Array.from(fixture.nativeElement.querySelectorAll('input'));
+    for (const input of inputs) {
+      expect(input.getAttribute('aria-invalid')).toBe('true');
+      const describedBy = input.getAttribute('aria-describedby')!.split(' ');
+      const errorIds = describedBy.filter((id) => document.getElementById(id)?.tagName === 'MAT-ERROR');
+      expect(errorIds).toHaveLength(1);
+    }
+    expect(document.activeElement).toBe(inputs[0]);
+  });
+
   it('sends only "login" (not "email"/"username") and navigates to /feed on success', async () => {
     authService.signin.mockResolvedValue(undefined);
     setInput('input[autocomplete="username"]', 'ahmed@example.com');

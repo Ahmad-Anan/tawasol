@@ -9,6 +9,8 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
+import { FieldAriaInvalid } from '../../../shared/forms/field-aria-invalid';
+import { InvalidSubmit } from '../../../shared/forms/invalid-submit';
 import { PasswordChecklist } from '../../../shared/password-checklist/password-checklist';
 import { PASSWORD_PATTERN } from '../../../shared/password-checklist/password-rules';
 import type { ApiErrorResponse, SignupRequest } from '../auth.interface';
@@ -29,6 +31,7 @@ interface RegisterFormModel {
   selector: 'app-register',
   imports: [
     FormField,
+    FieldAriaInvalid,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
@@ -48,6 +51,7 @@ export class Register {
   // functions below, which run later outside any injection context — calling the
   // standalone `translate()` function there would throw NG0203.
   private readonly translate = inject(TranslateService);
+  private readonly invalidSubmit = inject(InvalidSubmit);
 
   protected readonly model = signal<RegisterFormModel>({
     name: '',
@@ -143,6 +147,12 @@ export class Register {
       .join('/'),
   );
 
+  /** The gender group's error text, once shown (no mat-form-field here to link it for us). */
+  protected readonly genderError = computed(() => {
+    const field = this.registerForm.gender();
+    return field.touched() && field.invalid() ? (field.errors()[0]?.message ?? null) : null;
+  });
+
   /** The password field shows only its "required" error as text; the checklist covers the rest. */
   protected readonly passwordRequiredError = computed(() => {
     const field = this.registerForm.password();
@@ -172,26 +182,29 @@ export class Register {
 
   protected async onSubmit(): Promise<void> {
     this.serverError.set(null);
-    await submit(this.registerForm, async (field) => {
-      const value = field().value();
-      const payload: SignupRequest = {
-        name: value.name,
-        email: value.email,
-        dateOfBirth: value.dateOfBirth,
-        gender: value.gender as 'male' | 'female',
-        password: value.password,
-        rePassword: value.rePassword,
-        ...(value.username ? { username: value.username } : {}),
-      };
-      try {
-        await this.authService.signup(payload);
-        // Not '/' — that route unconditionally redirects back to /auth/login (see
-        // app.routes.ts), which would bounce a just-registered user right back here.
-        this.router.navigateByUrl('/feed');
-      } catch (err) {
-        this.serverError.set(this.extractErrorMessage(err));
-      }
-      return undefined;
+    await submit(this.registerForm, {
+      action: async (field) => {
+        const value = field().value();
+        const payload: SignupRequest = {
+          name: value.name,
+          email: value.email,
+          dateOfBirth: value.dateOfBirth,
+          gender: value.gender as 'male' | 'female',
+          password: value.password,
+          rePassword: value.rePassword,
+          ...(value.username ? { username: value.username } : {}),
+        };
+        try {
+          await this.authService.signup(payload);
+          // Not '/' — that route unconditionally redirects back to /auth/login (see
+          // app.routes.ts), which would bounce a just-registered user right back here.
+          this.router.navigateByUrl('/feed');
+        } catch (err) {
+          this.serverError.set(this.extractErrorMessage(err));
+        }
+        return undefined;
+      },
+      onInvalid: this.invalidSubmit.onInvalid,
     });
   }
 
