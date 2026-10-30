@@ -11,7 +11,6 @@ import { provideTranslateCompiler, provideTranslateService } from '@ngx-translat
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { routes } from './app.routes';
-import { provideClientHydration } from '@angular/platform-browser';
 import { resolveInitialLanguage } from './core/services/language';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { PluralCompiler } from './core/i18n/plural-compiler';
@@ -33,7 +32,10 @@ export const appConfig: ApplicationConfig = {
       inject(RouteFocus);
       inject(RouteScroll);
     }),
-    provideClientHydration(),
+    // No provideClientHydration(): every route is RenderMode.Client (app.routes.server.ts), so the
+    // server only ever sends the CSR shell and there is nothing to hydrate. Leaving it out keeps
+    // ~30 kB raw / ~11 kB gzip of hydration code out of the initial bundle. Add it back if a route
+    // is ever server-rendered or prerendered.
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
     provideTranslateService({
       lang: resolveInitialLanguage(),
