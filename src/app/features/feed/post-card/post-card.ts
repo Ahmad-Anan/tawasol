@@ -1,3 +1,4 @@
+import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { NgOptimizedImage } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -55,6 +56,7 @@ export class PostCard {
   private readonly languageService = inject(LanguageService);
   private readonly translate = inject(TranslateService);
   private readonly dialog = inject(MatDialog);
+  private readonly announcer = inject(LiveAnnouncer);
 
   readonly post = input.required<Post>();
   /** Set by PostDetailPage so its permalink view opens with comments already visible. */
@@ -139,6 +141,13 @@ export class PostCard {
     await this.runAction(this.isSharing, () => this.postsService.sharePost(this.post().id));
   }
 
+  /**
+   * `pending` is the in-flight guard: a click while the same action is still on its way is
+   * ignored, so rapid clicks can't send conflicting requests. Like and bookmark update the post
+   * optimistically (PostsService) and roll back on failure; the failure is then shown under the
+   * buttons and announced politely, since the button quietly flipping back would otherwise go
+   * unnoticed by a screen reader.
+   */
   private async runAction(pending: WritableSignal<boolean>, action: () => Promise<void>): Promise<void> {
     if (pending()) {
       return;
@@ -148,7 +157,9 @@ export class PostCard {
     try {
       await action();
     } catch {
-      this.actionError.set(this.translate.translate('feed.postCard.errors.actionFailed')() as string);
+      const message = this.translate.translate('feed.postCard.errors.actionFailed')() as string;
+      this.actionError.set(message);
+      void this.announcer.announce(message, 'polite');
     } finally {
       pending.set(false);
     }

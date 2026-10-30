@@ -204,67 +204,6 @@ describe('PostsService', () => {
     });
   });
 
-  it('toggleLike() patches only likes/likesCount on the affected post', async () => {
-    service.start();
-    const req = expectFeedRequest();
-    await flushFeed(
-      req,
-      pageResponse([makePost({ id: 'p1', likes: [], likesCount: 0, body: 'original' })]),
-    );
-
-    const promise = service.toggleLike('p1');
-    const likeReq = httpMock.expectOne(`${API_BASE_URL}/posts/p1/like`);
-    expect(likeReq.request.method).toBe('PUT');
-    const response: LikeToggleApiResponse = {
-      success: true,
-      message: 'ok',
-      data: {
-        liked: true,
-        likesCount: 1,
-        post: {
-          ...makePost({ id: 'p1' }),
-          user: {
-            _id: 'u1',
-            name: 'A',
-            username: 'a',
-            photo: '',
-            followersCount: 0,
-            followingCount: 0,
-            bookmarksCount: 0,
-            id: 'u1',
-          },
-          likes: ['u1'],
-        },
-      },
-    };
-    likeReq.flush(response);
-    await promise;
-
-    const patched = service.posts()[0];
-    expect(patched.likes).toEqual(['u1']);
-    expect(patched.likesCount).toBe(1);
-    // Untouched fields survive the patch.
-    expect(patched.body).toBe('original');
-  });
-
-  it('toggleBookmark() patches only the bookmarked flag', async () => {
-    service.start();
-    const req = expectFeedRequest();
-    await flushFeed(req, pageResponse([makePost({ id: 'p1', bookmarked: false })]));
-
-    const promise = service.toggleBookmark('p1');
-    const bookmarkReq = httpMock.expectOne(`${API_BASE_URL}/posts/p1/bookmark`);
-    expect(bookmarkReq.request.method).toBe('PUT');
-    bookmarkReq.flush({
-      success: true,
-      message: 'ok',
-      data: { bookmarked: true, bookmarksCount: 5 },
-    });
-    await promise;
-
-    expect(service.posts()[0].bookmarked).toBe(true);
-  });
-
   it('mergePosts() adds only posts not already known, leaving existing entries untouched', () => {
     service.mergePosts([makePost({ id: 'p1', body: 'first' })]);
     service.mergePosts([
@@ -484,5 +423,164 @@ describe('PostsService default feed filter per account', () => {
     signOut();
     signIn(environment.demoUserId);
     expect(service().onlyFilter()).toBe('all');
+  });
+});
+
+describe('PostsService optimistic like and bookmark', () => {
+  const ME = 'me';
+  let service: PostsService;
+  let httpMock: HttpTestingController;
+
+  beforeEach(async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        {
+          provide: AuthService,
+          useValue: {
+            user: signal({ _id: ME }),
+            token: signal('token'),
+            isAuthenticated: computed(() => true),
+          },
+        },
+      ],
+    });
+    service = TestBed.inject(PostsService);
+    httpMock = TestBed.inject(HttpTestingController);
+
+    service.start();
+    TestBed.tick();
+    httpMock
+      .expectOne((req) => req.url === `${API_BASE_URL}/posts/feed`)
+      .flush(
+        pageResponse([
+          makePost({ id: 'p1', likes: ['someone'], likesCount: 1, body: 'original' }),
+          makePost({ id: 'p2', bookmarked: false }),
+        ]),
+      );
+    await Promise.resolve();
+    TestBed.tick();
+  });
+
+  afterEach(() => httpMock.verify());
+
+  const post = (id: string) => service.posts().find((p) => p.id === id)!;
+
+  function likeResponse(liked: boolean, likesCount: number): LikeToggleApiResponse {
+    return {
+      success: true,
+      message: 'ok',
+      data: {
+        liked,
+        likesCount,
+        // Deliberately different from what's held locally: the nested post isn't trusted.
+        post: {
+          ...makePost({ id: 'p1', body: 'nested body', likes: ['stale'] }),
+          user: {
+            _id: 'u1',
+            name: 'A',
+            username: 'a',
+            photo: '',
+            followersCount: 0,
+            followingCount: 0,
+            bookmarksCount: 0,
+            id: 'u1',
+          },
+        },
+      },
+    };
+  }
+
+  it('likes immediately, before the server answers, then keeps the server-confirmed state', async () => {
+    const done = service.toggleLike('p1');
+
+    expect(post('p1').likes).toEqual(['someone', ME]);
+    expect(post('p1').likesCount).toBe(2);
+
+    const req = httpMock.expectOne(`${API_BASE_URL}/posts/p1/like`);
+    expect(req.request.method).toBe('PUT');
+    req.flush(likeResponse(true, 2));
+    await done;
+
+    expect(post('p1').likes).toEqual(['someone', ME]);
+    expect(post('p1').likesCount).toBe(2);
+    // Only like fields are taken from the response; the nested post's body is ignored.
+    expect(post('p1').body).toBe('original');
+  });
+
+  it("takes the server's count when it differs from the optimistic one", async () => {
+    const done = service.toggleLike('p1');
+    expect(post('p1').likesCount).toBe(2);
+
+    // Two other people liked it in the meantime.
+    httpMock.expectOne(`${API_BASE_URL}/posts/p1/like`).flush(likeResponse(true, 4));
+    await done;
+
+    expect(post('p1').likesCount).toBe(4);
+    expect(post('p1').likes).toContain(ME);
+  });
+
+  it('follows the server when it says the like ended up the other way', async () => {
+    const done = service.toggleLike('p1');
+    httpMock.expectOne(`${API_BASE_URL}/posts/p1/like`).flush(likeResponse(false, 1));
+    await done;
+
+    expect(post('p1').likes).toEqual(['someone']);
+    expect(post('p1').likesCount).toBe(1);
+  });
+
+  it('rolls a failed like back to exactly the previous state and rethrows', async () => {
+    const before = post('p1');
+    const done = service.toggleLike('p1');
+    expect(post('p1').likesCount).toBe(2);
+
+    httpMock
+      .expectOne(`${API_BASE_URL}/posts/p1/like`)
+      .flush({ success: false, message: 'boom' }, { status: 500, statusText: 'Server Error' });
+
+    await expect(done).rejects.toBeTruthy();
+    expect(post('p1').likes).toEqual(before.likes);
+    expect(post('p1').likesCount).toBe(before.likesCount);
+    expect(post('p1')).toEqual(before);
+  });
+
+  it('unlikes optimistically too', async () => {
+    const done = service.toggleLike('p1');
+    httpMock.expectOne(`${API_BASE_URL}/posts/p1/like`).flush(likeResponse(true, 2));
+    await done;
+
+    const undo = service.toggleLike('p1');
+    expect(post('p1').likes).toEqual(['someone']);
+    expect(post('p1').likesCount).toBe(1);
+    httpMock.expectOne(`${API_BASE_URL}/posts/p1/like`).flush(likeResponse(false, 1));
+    await undo;
+    expect(post('p1').likesCount).toBe(1);
+  });
+
+  it('bookmarks immediately and keeps the server-confirmed flag', async () => {
+    const done = service.toggleBookmark('p2');
+    expect(post('p2').bookmarked).toBe(true);
+
+    const req = httpMock.expectOne(`${API_BASE_URL}/posts/p2/bookmark`);
+    expect(req.request.method).toBe('PUT');
+    // bookmarksCount is the user's total, not this post's, so it's ignored.
+    req.flush({ success: true, message: 'ok', data: { bookmarked: true, bookmarksCount: 9 } });
+    await done;
+
+    expect(post('p2').bookmarked).toBe(true);
+  });
+
+  it('rolls a failed bookmark back and rethrows', async () => {
+    const before = post('p2');
+    const done = service.toggleBookmark('p2');
+    expect(post('p2').bookmarked).toBe(true);
+
+    httpMock
+      .expectOne(`${API_BASE_URL}/posts/p2/bookmark`)
+      .flush({ success: false, message: 'boom' }, { status: 500, statusText: 'Server Error' });
+
+    await expect(done).rejects.toBeTruthy();
+    expect(post('p2')).toEqual(before);
   });
 });

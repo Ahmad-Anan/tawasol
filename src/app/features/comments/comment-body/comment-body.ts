@@ -1,3 +1,4 @@
+import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { NgOptimizedImage } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -59,6 +60,7 @@ export class CommentBody {
   private readonly commentsService = inject(CommentsService);
   private readonly languageService = inject(LanguageService);
   private readonly translate = inject(TranslateService);
+  private readonly announcer = inject(LiveAnnouncer);
   private readonly dialog = inject(MatDialog);
 
   readonly comment = input.required<Comment>();
@@ -110,9 +112,12 @@ export class CommentBody {
     this.isLiking.set(true);
     this.actionError.set(null);
     try {
+      // Optimistic, rolled back on failure (CommentsService.toggleLike); see PostCard.runAction.
       await this.commentsService.toggleLike(this.postId(), this.comment()._id, this.parentCommentId());
     } catch {
-      this.actionError.set(this.translate.translate('comments.errors.actionFailed')() as string);
+      const message = this.translate.translate('comments.errors.actionFailed')() as string;
+      this.actionError.set(message);
+      void this.announcer.announce(message, 'polite');
     } finally {
       this.isLiking.set(false);
     }

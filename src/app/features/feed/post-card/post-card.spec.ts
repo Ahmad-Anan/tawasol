@@ -1,3 +1,4 @@
+import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { signal } from '@angular/core';
@@ -226,5 +227,93 @@ describe('PostCard top comment preview', () => {
     expect(content?.textContent?.trim()).toBe('ahmed');
     expect(author?.contains(content ?? null)).toBe(false);
     expect(content?.contains(author)).toBe(false);
+  });
+});
+
+describe('PostCard like and bookmark', () => {
+  let fixture: ComponentFixture<PostCard>;
+  let toggleLike: ReturnType<typeof vi.spyOn>;
+  let toggleBookmark: ReturnType<typeof vi.spyOn>;
+  let announce: ReturnType<typeof vi.fn>;
+
+  beforeEach(async () => {
+    announce = vi.fn().mockResolvedValue(undefined);
+    await TestBed.configureTestingModule({
+      imports: [PostCard],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        provideTranslateService({ lang: 'en', fallbackLang: 'en' }),
+        {
+          provide: AuthService,
+          useValue: { user: signal(me), isAuthenticated: () => true, token: () => null },
+        },
+        { provide: DemoAccountService, useValue: { isDemo: () => false, canModifyPost: () => true } },
+        { provide: LiveAnnouncer, useValue: { announce } },
+      ],
+    }).compileComponents();
+    const postsService = TestBed.inject(PostsService);
+    toggleLike = vi.spyOn(postsService, 'toggleLike');
+    toggleBookmark = vi.spyOn(postsService, 'toggleBookmark');
+    fixture = TestBed.createComponent(PostCard);
+    fixture.componentRef.setInput('post', makePost({ user: { ...me, _id: 'author' } }));
+    fixture.detectChanges();
+  });
+
+  const button = (label: string): HTMLButtonElement =>
+    fixture.nativeElement.querySelector(`button[aria-label="${label}"]`);
+  /** The action error shown under the buttons, if any. */
+  const errorText = (): string | undefined =>
+    [...(fixture.nativeElement as HTMLElement).querySelectorAll('p')]
+      .map((p) => p.textContent?.trim())
+      .find((text) => text?.includes('errors.'));
+
+  it('sends one request for a rapid double click, and the buttons stay enabled meanwhile', async () => {
+    let resolve!: () => void;
+    toggleLike.mockReturnValue(new Promise<void>((r) => (resolve = r)));
+
+    button('feed.postCard.like').click();
+    button('feed.postCard.like').click();
+    fixture.detectChanges();
+
+    expect(toggleLike).toHaveBeenCalledTimes(1);
+    // Not [disabled]: disabling the focused button would drop keyboard focus mid-action.
+    expect(button('feed.postCard.like').disabled).toBe(false);
+
+    resolve();
+    await fixture.whenStable();
+    button('feed.postCard.like').click();
+    expect(toggleLike).toHaveBeenCalledTimes(2);
+  });
+
+  it('shows the error and announces it politely when a like fails (and is rolled back)', async () => {
+    toggleLike.mockRejectedValue(new Error('boom'));
+
+    button('feed.postCard.like').click();
+    await fixture.whenStable();
+
+    expect(errorText()).toBe('feed.postCard.errors.actionFailed');
+    expect(announce).toHaveBeenCalledExactlyOnceWith('feed.postCard.errors.actionFailed', 'polite');
+  });
+
+  it('does the same for a failed bookmark', async () => {
+    toggleBookmark.mockRejectedValue(new Error('boom'));
+
+    button('feed.postCard.bookmark').click();
+    await fixture.whenStable();
+
+    expect(errorText()).toBe('feed.postCard.errors.actionFailed');
+    expect(announce).toHaveBeenCalledExactlyOnceWith('feed.postCard.errors.actionFailed', 'polite');
+  });
+
+  it('announces nothing when the action succeeds', async () => {
+    toggleLike.mockResolvedValue(undefined);
+
+    button('feed.postCard.like').click();
+    await fixture.whenStable();
+
+    expect(errorText()).toBeUndefined();
+    expect(announce).not.toHaveBeenCalled();
   });
 });
