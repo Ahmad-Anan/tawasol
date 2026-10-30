@@ -2,7 +2,14 @@ import { Location, ViewportScroller } from '@angular/common';
 import { provideLocationMocks } from '@angular/common/testing';
 import { ApplicationRef, ChangeDetectionStrategy, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { Router, RouterOutlet, Routes, Scroll, provideRouter, withInMemoryScrolling } from '@angular/router';
+import {
+  Router,
+  RouterOutlet,
+  Routes,
+  Scroll,
+  provideRouter,
+  withInMemoryScrolling,
+} from '@angular/router';
 import { filter, firstValueFrom } from 'rxjs';
 import type { MockInstance } from 'vitest';
 import { RouteScroll } from './route-scroll';
