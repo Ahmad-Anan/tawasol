@@ -24,6 +24,9 @@ const angularApp = new AngularNodeAppEngine();
  * ```
  */
 
+/** The build's content-hashed output, e.g. main-5JZI24JY.js, chunk-Ds05UiY1.js, styles-UJ7R3HY6.css. */
+const HASHED_ASSET = /[\\/](?:main|chunk|styles)-[A-Za-z0-9_-]{8}\.(?:js|css)$/;
+
 /**
  * Serve static files from /browser
  */
@@ -32,6 +35,17 @@ app.use(
     maxAge: '1y',
     index: false,
     redirect: false,
+    setHeaders: (res, path) => {
+      // On Vercel every request goes through this function (vercel.json), and when a function sends
+      // only Cache-Control, Vercel's CDN consumes it and the browser gets "max-age=0,
+      // must-revalidate". Adding Vercel-CDN-Cache-Control makes Vercel forward Cache-Control
+      // unchanged (https://vercel.com/docs/caching/cache-control-headers#behavior). Only for the
+      // content-hashed build output: a new build gives those new names, so they never go stale.
+      if (HASHED_ASSET.test(path)) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+        res.setHeader('Vercel-CDN-Cache-Control', 'max-age=31536000');
+      }
+    },
   }),
 );
 

@@ -31,14 +31,21 @@ describe('PasswordChecklist', () => {
   });
 
   it('shows an empty circle for each unmet requirement and a check mark once it is met', () => {
+    // The icons are inline SVG paths (not icon-font ligature text); the check mark's stroke is the
+    // "l-5-5" segment, which the empty circle doesn't have.
+    const icon = (li: HTMLElement) => li.querySelector('svg path')?.getAttribute('d') ?? '';
+    const isCheck = (li: HTMLElement) => icon(li).includes('l-5-5');
+
     let element = render('');
     expect(items(element).every((li) => li.dataset['met'] === 'false')).toBe(true);
+    expect(items(element).some(isCheck)).toBe(false);
     expect(element.textContent).not.toContain('check_circle');
 
     element = render('Abc');
     const met = items(element).filter((li) => li.dataset['met'] === 'true');
     expect(met.length).toBe(2); // uppercase + lowercase
-    expect(met.every((li) => li.querySelector('mat-icon')?.textContent?.trim() === 'check_circle')).toBe(true);
+    expect(met.every(isCheck)).toBe(true);
+    expect(items(element).filter((li) => !isCheck(li)).length).toBe(3);
 
     element = render('Passw0rd!');
     expect(items(element).every((li) => li.dataset['met'] === 'true')).toBe(true);
